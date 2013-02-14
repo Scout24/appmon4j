@@ -1,11 +1,8 @@
 appmon4j
 ========
+This is a simple lightweigth Java Framework for logging performance metrics. 
 
-
-Initial Idea
-------------
-
-Build a lightweight, easy to use in application monitoring system allowing measurements of "real traffic" performance values in high throughput java applications.
+The goal was to Build a lightweight, easy to use in application monitoring system allowing measurements of "real traffic" performance values in high throughput java applications.
 
 The building blocks of the InApplicationMonitor are Reportables.
 
