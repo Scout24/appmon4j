@@ -22,7 +22,7 @@ The most important Reportables are used for monitoring events
 * Counters are used to count events. 
 * Counters can only be incremented by 1
 
-### Examples
+#### Examples
 
 *   number of XYZ errors / Exceptions
 *   number of handled events
