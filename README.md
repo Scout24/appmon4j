@@ -49,6 +49,7 @@ A timer will expose the following attributes:
 *   stdDeviance (since R27): the standard deviation of the measurements
 
 Additional Reportables are
+
 ### StateValueProvider
 
 *   allow access to a numeric value (long), that is already available in the application
@@ -105,6 +106,7 @@ The main class of appmon4j is de.is24.util.monitoring.InApplicationMonitor. This
 ### put data in
 
 To add data / information the following methods are provided
+
     InApplicationMonitor basic operations
     addTimerMeasurement(String, long)
     addHighRateTimerMeasurement(String name, long timing)
@@ -154,6 +156,7 @@ A Visitor pattern can be used to retriev data from Reportables. The reportInto M
 *   HistogramLikeValueAnalysisVisitor, a special reporting visitor for Reportables created by HistogramLikeValue instances.
 
 Report Visitor Example
+
     ReportVisitor visitor = new HierarchyReportVisitor();
     InApplicationMonitor.getInstance().reportInto(visitor);
     System.out.println( visitor.toString());
