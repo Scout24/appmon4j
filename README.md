@@ -203,8 +203,9 @@ If you want to get a hand on the event stream routed throug the InApplicationMon
 
 ### Graphing
 
-Please refer to the Graphite and statsd page.
-manage
+We use statds and graphite for graphing. 
+
+### Manage
 
 To manage the behavior of InApplicationMonitor from within the JVM you can use:
 
