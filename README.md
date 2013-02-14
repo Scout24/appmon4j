@@ -71,6 +71,7 @@ could / should actually be generalized into an non numeric state value
 *   In an application composed of several modules the version of each deployed module can be reported.
 
    de.is24.email.mailer.service Version Mailer : $Id: Mailer.java 29934 2012-08-08 07:20:29Z committer $ $Name: HEAD $
+
 ### Historizable
 
 For some events it makes no sense or is not enough to count them or measure the aggregated time. This is especially true for timed events that each time they happen have a more complex result. These cases can be solved by using Historizables.
