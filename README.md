@@ -161,11 +161,11 @@ Report Visitor Example
  
 
 A very simple jsp could look like this:
+
     <%@page import="java.util.*" %>
     <%@page import="java.lang.*" %>
     <%@page import="de.is24.util.monitoring.visitors.*" %>
     <%@page import="de.is24.util.monitoring.*" %>
-     
     <%!
     public String reportIntoHierarchy() {
       return reportInto(HierarchyReportVisitor.class.getName());
