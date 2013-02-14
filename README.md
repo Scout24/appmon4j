@@ -273,4 +273,8 @@ As an example lets assume we read a timer value every 5 minutes
 from the last measurement additionally to the total count of event timer1 we learn that in average over all 2346 events the event took 479 milliseconds, additionally we learn that the last 14 events (2346 - 2332) took 912 ms which in average leads to 65 ms per event. Thus in the last five minutes the systems was in average much faster than during the whole uptime.
 
  
+Contribution
+------------
 
+appmon4j uses a modified version of StatsdClient.java from the great people at etsy, 
+https://github.com/etsy/statsd
