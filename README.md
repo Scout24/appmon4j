@@ -22,7 +22,7 @@ The most important Reportables are used for monitoring events
 * Counters are used to count events. 
 * Counters can only be incremented by 1
 
-#### Examples
+##### Examples
 
 *   number of XYZ errors / Exceptions
 *   number of handled events
@@ -35,7 +35,7 @@ currently a subclass of counter although this makes no sense and should be refac
 *   Timers count and measure timed events.
 *   Timers allow adding timer measurements, implicitly incrementing the count
 
-#### Examples
+##### Examples
 
 *   DB Query duration
 *   rendering duration
@@ -53,7 +53,7 @@ Additional Reportables are
 
 *   allow access to a numeric value (long), that is already available in the application
 
-#### Examples
+##### Examples
 
 *   VM Memory
         Runtime.getRuntime().totalMemory() and Runtime.getRuntime().freeMemory() are automatically added as state values by InApplicationMonitors Constructor
@@ -66,7 +66,7 @@ could / should actually be generalized into an non numeric state value
 
 *   allow access to a String value, that is already available in the application.
 
-#### Examples
+##### Examples
 
 *   In an application composed of several modules the version of each deployed module can be reported.
 
@@ -79,7 +79,7 @@ For some events it makes no sense or is not enough to count them or measure the 
 *   The Historizble list allows to monitor if and at which time events have taken place and what was the outcome.
 *   The Historizable List for each name is limited to a configurable count to limit memory usage. The default is to keep 5.
 
-#### Example
+##### Example
 
 * History of scheduled jobs
 
