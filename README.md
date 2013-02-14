@@ -82,14 +82,14 @@ For some events it makes no sense or is not enough to count them or measure the 
 
 ##### Example
 
-* History of scheduled jobs
+History of scheduled jobs
 
-    de.is24.batch.bounces Historizable Processor execution :
-    09.05.2012 09:55:06 : processing 0 bounces took 6522 ms; ms per bounce : 0
-    09.05.2012 09:50:06 : processing 2 bounces took 6068 ms; ms per bounce : 3034
-    09.05.2012 09:45:06 : processing 0 bounces took 5885 ms; ms per bounce : 0
-    09.05.2012 09:40:06 : processing 2 bounces took 6138 ms; ms per bounce : 3069
-    09.05.2012 09:35:06 : processing 0 bounces took 6485 ms; ms per bounce : 0
+     de.is24.batch.bounces Historizable Processor execution :
+     09.05.2012 09:55:06 : processing 0 bounces took 6522 ms; ms per bounce : 0
+     09.05.2012 09:50:06 : processing 2 bounces took 6068 ms; ms per bounce : 3034
+     09.05.2012 09:45:06 : processing 0 bounces took 5885 ms; ms per bounce : 0
+     09.05.2012 09:40:06 : processing 2 bounces took 6138 ms; ms per bounce : 3069
+     09.05.2012 09:35:06 : processing 0 bounces took 6485 ms; ms per bounce : 0
 
  
 Requirements
