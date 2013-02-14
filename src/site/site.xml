@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<project name="Maven" xmlns="http://maven.apache.org/DECORATION/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.0.xsd">
+  <bannerLeft>
+    <name>IS24 appmon4j config</name>
+    <src>http://www.immobilienscout24.de/styles/next/css/img/logo/logo.png</src>
+    <href>http://devtcy.rz.is24.loc/viewType.html?buildTypeId=bt40</href>
+  </bannerLeft>
+
+  <body>
+    <links>
+      <item name="GitHhub" href="https://github.com/ImmobilienScout24/appmon4j" />
+    </links>
+
+
+    <menu name="Overview">
+      <item name="Introduction" href="index.html"/>
+    </menu>
+    
+    <menu ref="reports"/>
+
+  </body>
+</project>
