@@ -1,8 +1,27 @@
 appmon4j [![Build Status](https://travis-ci.org/ImmobilienScout24/appmon4j.png)](https://travis-ci.org/ImmobilienScout24/appmon4j)
 ========
+
 This is a simple lightweigth Java Framework for logging performance metrics. 
 
 The goal was to Build a lightweight, easy to use in application monitoring system allowing measurements of "real traffic" performance values in high throughput java applications.
+
+
+Installation
+------------
+
+You can build appmon4j from source. Clone this project and build it with maven.
+
+A packaged release with source and javadoc is available from maven central repository. Just add the following maven dependency.
+
+     <dependency>
+       <groupId>de.is24.common</groupId>
+       <artifactId>appmon4j</artifactId>
+       <version>1.15</version>
+     </dependency>`
+
+ 
+Basic Concepts
+-----------
 
 The building blocks of the InApplicationMonitor are Reportables.
 
@@ -12,9 +31,8 @@ Example de.is24.util.monitoring.InApplicationMonitor.InstanceAccessCount.
 
 Reportable names do not need to and can not be configured in advance. The first use of any given name creates the requested reportable. But sometimes it is useful to initialize a reportable (which is used for errors) so that IT-B can check their polling system even if no error occured so far.
 
- 
 Reportables
------------
+----------
 
 The most important Reportables are used for monitoring events
 ### Counter
