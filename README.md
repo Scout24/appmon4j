@@ -1,4 +1,4 @@
-appmon4j [![Build Status](https://travis-ci.org/ImmobilienScout24/appmon4j.png)](https://travis-ci.org/ImmobilienScout24/appmon4j)
+appmon4j 
 ========
 
 This is a simple lightweigth Java Framework for logging performance metrics. 
