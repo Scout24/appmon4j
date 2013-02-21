@@ -301,3 +301,6 @@ Contribution
 
 appmon4j uses a modified version of StatsdClient.java from the great people at etsy, 
 https://github.com/etsy/statsd
+
+appmon4j took some code from codahale metrics, namely the class VirtualMachineMetrics.java
+https://github.com/codahale/metrics

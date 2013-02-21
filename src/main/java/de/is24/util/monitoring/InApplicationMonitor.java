@@ -1,6 +1,7 @@
 
 package de.is24.util.monitoring;
 
+import com.yammer.metrics.core.VirtualMachineMetrics;
 import org.apache.log4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,6 +72,7 @@ public final class InApplicationMonitor {
       });
     registerVersion(this.getClass().getName(),
       "$Id: InApplicationMonitor.java 401410 2013-02-05 17:26:07Z oschmitz $ $HeadURL: https://subversion.iscout.local/int/is24/common/appmon4j/trunk/src/main/java/de/is24/util/monitoring/InApplicationMonitor.java $");
+    VirtualMachineMetrics.registerVMStates(this);
     LOGGER.info("InApplicationMonitor started successfully.");
   }
 
