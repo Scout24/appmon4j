@@ -1,5 +1,6 @@
-package com.yammer.metrics.core;
+package de.is24.util.monitoring.tools;
 
+import com.yammer.metrics.core.VirtualMachineMBeans;
 import de.is24.util.monitoring.InApplicationMonitor;
 import de.is24.util.monitoring.StateValueProvider;
 import javax.management.Attribute;
@@ -26,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * A collection of Java Virtual Machine metrics.
+ * This code was originally taken from de.is24.util.monitoring.tools.VirtualMachineMetrics
  */
 public class VirtualMachineMetrics {
   private static final int MAX_STACK_TRACE_DEPTH = 100;

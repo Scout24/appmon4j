@@ -1,7 +1,7 @@
 
 package de.is24.util.monitoring;
 
-import com.yammer.metrics.core.VirtualMachineMetrics;
+import de.is24.util.monitoring.tools.VirtualMachineMetrics;
 import org.apache.log4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
