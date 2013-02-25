@@ -162,6 +162,34 @@ To add data / information the following methods are provided
 
 get data out
 -----------
+
+### Graphing aka statsd / graphite connection
+
+We use statsd and graphite for graphing. 
+
+If you are allready using the appmon4j, putting your metrics into graphite / statsd is a matter of minutes.
+
+*  To send counters and timers to statsd, simply add the appmon4j StatsdPlugin to your configuration.
+*  If you have the JMX Mbean of appmon4j enabled you can add and remove Statsd Plugins during runtime.
+*  To send StateValues directly to graphite use appmon4js StateValuesToGraphite Class.
+
+You could put the following block into your applications spring config. Please ensure proper replacement of variables, and replace ### with your apps TYP name from config svn. Default value for statsd.port is 8125, but please keep it configurable, as we have plans to run several instances of statsd on graphite servers.
+
+     <bean class="de.is24.util.monitoring.statsd.StatsdPlugin" init-method="register">
+         <constructor-arg index="0" value="${statsd.host}"/>
+         <constructor-arg index="1" value="${statsd.port}"/>
+         <constructor-arg index="2" value="###"/>
+         <constructor-arg index="3" value="${statsd.samplerate}"/>
+     </bean>
+ 
+     <bean class="de.is24.util.monitoring.state2graphite.StateValuesToGraphite">
+         <constructor-arg index="0" value="${graphite.host}" />
+         <constructor-arg index="1" value="2003" />
+         <constructor-arg index="2" value="###" />
+     </bean>
+
+
+
 ### ReportVisitor
 
 A Visitor pattern can be used to retriev data from Reportables. The reportInto Method of InApplicationMonitor accepts an implementation of the de.is24.util.monitoring.ReportVisitor interface, and hands in all Reportables for analysys. The following Implementations of ReportVisitor are provided:
@@ -223,10 +251,7 @@ If you are interested in some specific Reportables, or want to be informed, if m
 
 If you want to get a hand on the event stream routed throug the InApplicationMonior, you can implement the MonitorPlugin interface and you will get a hand on all counter and timer events. The StatsdPlugin is currently the only provided implemenation of this interface.
 
-### Graphing
-
-We use statds and graphite for graphing. 
-
+ 
 ### Manage
 
 To manage the behavior of InApplicationMonitor from within the JVM you can use:
