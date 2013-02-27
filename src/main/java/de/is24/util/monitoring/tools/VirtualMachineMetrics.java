@@ -279,23 +279,33 @@ public class VirtualMachineMetrics {
           return "jvm.filedescriptors.max";
         }
       });
-
-  }
-
-
-  /**
-   * Returns a map of garbage collector names to garbage collector information.
-   *
-   * @return a map of garbage collector names to garbage collector information
-   */
-  public Map<String, GarbageCollectorStats> getGarbageCollectors() {
-    final Map<String, GarbageCollectorStats> stats = new HashMap<String, GarbageCollectorStats>();
     for (GarbageCollectorMXBean gc : VirtualMachineMBeans.getInstance().getGarbageCollectors()) {
-      stats.put(gc.getName(),
-        new GarbageCollectorStats(gc.getCollectionCount(),
-          gc.getCollectionTime()));
+      final GarbageCollectorMXBean finalGC = gc;
+
+      inApplicationMonitor.registerStateValue(new StateValueProvider() {
+          @Override
+          public long getValue() {
+            return finalGC.getCollectionCount();
+          }
+
+          @Override
+          public String getName() {
+            return "jvm.gc." + finalGC.getName() + ".count";
+          }
+        });
+      inApplicationMonitor.registerStateValue(new StateValueProvider() {
+          @Override
+          public long getValue() {
+            return finalGC.getCollectionTime();
+          }
+
+          @Override
+          public String getName() {
+            return "jvm.gc." + finalGC.getName() + ".time";
+          }
+        });
     }
-    return Collections.unmodifiableMap(stats);
+
   }
 
 

@@ -6,6 +6,7 @@ import de.is24.util.monitoring.visitors.HierarchyReportVisitor;
 import de.is24.util.monitoring.visitors.StringWriterReportVisitor;
 import de.is24.util.monitoring.visitors.ValueOrderedReportVisitor;
 import org.junit.BeforeClass;
+import org.junit.Test;
 
 
 /**
@@ -24,6 +25,7 @@ public class InApplicationMonitorValidation {
          */
         Random rand = new Random();
 
+        @Override
         public String getName() {
           return "test1";
         }
@@ -32,6 +34,7 @@ public class InApplicationMonitorValidation {
          *
          */
 
+        @Override
         public long getValue() {
           LOGGER.debug("+++ entering InApplicationMonitorValidation.getValue +++");
           return rand.nextInt(300);
@@ -57,7 +60,7 @@ public class InApplicationMonitorValidation {
   }
 
   @org.junit.Test
-  public void testStringHierarchy() {
+  public void testStringReportVisitor() {
     InApplicationMonitor instance = InApplicationMonitor.getInstance();
 
     StringWriterReportVisitor visitor = new StringWriterReportVisitor();
@@ -81,7 +84,7 @@ public class InApplicationMonitorValidation {
   }
 
   @org.junit.Test
-  public void testStringHiararchy() throws Exception {
+  public void testHierarchyReportVisitor() throws Exception {
     InApplicationMonitor instance = InApplicationMonitor.getInstance();
 
     HierarchyReportVisitor visitor = new HierarchyReportVisitor();
@@ -91,4 +94,5 @@ public class InApplicationMonitorValidation {
     LOGGER.info(result);
     System.out.println(result);
   }
+
 }
