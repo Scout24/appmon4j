@@ -41,7 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
- * This class publishes values registered at the Core Plugin as JMX MBeans and exposes 
+ * This class publishes values registered at the Core Plugin as JMX MBeans and exposes
  * some management operations of InApplicationMonitor.
  * Simple values (Counter, Version, StateValue) are published directly via this class
  * as dynamic MBean, complex types are published using an own MBean for each Reportable.
@@ -63,7 +63,7 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
   private static final String ADD_STATSD_PLUGIN = "addStatsdPlugin";
   private static final String ADD_STATE_VALUES_TO_GRAPHITE = "addStateValuesToGraphite";
 
-    private static final Logger LOG = Logger.getLogger(InApplicationMonitorJMXConnector.class);
+  private static final Logger LOG = Logger.getLogger(InApplicationMonitorJMXConnector.class);
 
   private static InApplicationMonitorJMXConnector instance;
 
@@ -75,17 +75,39 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
   private final CorePlugin corePlugin;
 
 
-    public InApplicationMonitorJMXConnector(String jmxPrefix) {
+  public InApplicationMonitorJMXConnector(JmxAppMon4JNamingStrategy namingStrategy) {
+    this(InApplicationMonitor.getInstance().getCorePlugin(), namingStrategy.getJmxPrefix());
+  }
+
+
+  public InApplicationMonitorJMXConnector(String jmxPrefix) {
     this(InApplicationMonitor.getInstance().getCorePlugin(), jmxPrefix);
   }
 
+
   public InApplicationMonitorJMXConnector(CorePlugin corePlugin, String jmxPrefix) {
+    if (instance != null) {
+      throw new IllegalStateException("JMXConnector allready initialized");
+    }
+    instance = this;
     this.corePlugin = corePlugin;
     this.jmxPrefix = jmxPrefix + ":";
     registerJMXStuff();
 
     // register yourself as ReportableObserver so that we're notified about every new reportable
     InApplicationMonitor.getInstance().getCorePlugin().addReportableObserver(this);
+  }
+
+  public void shutdown() {
+    LOG.info("shutting down InApplicationMonitorJMXConnector ");
+    corePlugin.removeReportableObserver(this);
+    removeAllReportables();
+    try {
+      beanServer.unregisterMBean(new ObjectName(jmxPrefix + "name=InApplicationMonitor"));
+    } catch (Exception e) {
+      LOG.warn("problem when unregistering InApplicationMonitorJMXConnector during shutdown");
+    }
+    instance = null;
   }
 
   /**
@@ -97,10 +119,7 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
     // use intern string representation - so we can synchronize on it
     final String reportableKey = reportable.getName().intern();
 
-    registerReportable(reportableKey, reportable);
-  }
 
-  private void registerReportable(String reportableKey, Reportable reportable) {
     //noinspection SynchronizationOnLocalVariableOrMethodParameter
     synchronized (reportableKey) {
       boolean beanAlreadyRegistred = reportables.containsKey(reportableKey);
@@ -125,10 +144,32 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
     }
   }
 
+  public void removeAllReportables() {
+    for (Reportable reportable : reportables.values()) {
+      // use intern string representation - so we can synchronize on it
+      final String reportableKey = reportable.getName().intern();
+
+      //noinspection SynchronizationOnLocalVariableOrMethodParameter
+      synchronized (reportableKey) {
+        // MBean for each reportable
+        if ((reportable instanceof Timer) || (reportable instanceof HistorizableList)) {
+          try {
+            unregisterMBeanOnJMX(reportable, reportableKey, "InApplicationMonitor");
+          } catch (Exception e) {
+            LOG.error("could not unregister MBean for " + reportableKey, e);
+          }
+        }
+      }
+
+    }
+    reportables.clear();
+  }
+
+
   /**
-   * registers the InApplicationMonitor as JMX MBean on the running JMX
-   * server - if no JMX server is running, one is started automagically.
-   */
+  * registers the InApplicationMonitor as JMX MBean on the running JMX
+  * server - if no JMX server is running, one is started automagically.
+  */
   private void registerJMXStuff() {
     LOG.info("registering InApplicationMonitorDynamicMBean on JMX server");
 
@@ -220,14 +261,14 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
           new MBeanParameterInfo("app name", "java.lang.String", ""),
           new MBeanParameterInfo("sample rate", "java.lang.Double", "")
         }, "void",
-      MBeanOperationInfo.ACTION),
+        MBeanOperationInfo.ACTION),
       new MBeanOperationInfo(ADD_STATE_VALUES_TO_GRAPHITE, "",
         new MBeanParameterInfo[] {
           new MBeanParameterInfo("graphite hostname", "java.lang.String", ""),
           new MBeanParameterInfo("graphite port", "java.lang.Integer", ""),
           new MBeanParameterInfo("app name", "java.lang.String", "")
         }, "void",
-      MBeanOperationInfo.ACTION),
+        MBeanOperationInfo.ACTION),
     };
 
     // assemble the MBean description
