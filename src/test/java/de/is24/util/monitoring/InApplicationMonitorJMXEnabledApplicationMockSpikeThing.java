@@ -20,8 +20,7 @@ public class InApplicationMonitorJMXEnabledApplicationMockSpikeThing extends Sta
   }
 
   private void setupInApplicationMonitor() {
-    InApplicationMonitorJMXConnector.getInstance(true);
-    //InApplicationMonitorDynamicMBean.getInstance().markCounterForJMX("counter1");
+    new InApplicationMonitorJMXConnector(InApplicationMonitor.getInstance().getCorePlugin(), "is24");
 
     InApplicationMonitor.getInstance().registerVersion("zaphod", "beeblebrox");
     InApplicationMonitor.getInstance().registerStateValue(this);

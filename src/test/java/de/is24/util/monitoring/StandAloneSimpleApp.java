@@ -11,12 +11,8 @@ public class StandAloneSimpleApp {
 
   public static void main(String[] args) {
     InApplicationMonitor instance = InApplicationMonitor.getInstance();
-    InApplicationMonitorJMXConnector.getInstance(true, new JmxAppMon4JNamingStrategy() {
-        @Override
-        public String getJmxPrefix() {
-          return "is24";
-        }
-      });
+    new InApplicationMonitorJMXConnector(InApplicationMonitor.getInstance().getCorePlugin(), "is24");
+
     new StateValuesToGraphite("devgrp01.be.test.is24.loc", 2003, "appmon4jTest");
     instance.incrementCounter("bla.bli.blu.lala");
     while (true) {

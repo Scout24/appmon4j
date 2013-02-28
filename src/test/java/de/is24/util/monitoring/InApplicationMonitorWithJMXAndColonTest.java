@@ -16,7 +16,7 @@ public class InApplicationMonitorWithJMXAndColonTest {
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    InApplicationMonitorJMXConnector.getInstance(true);
+    new InApplicationMonitorJMXConnector(InApplicationMonitor.getInstance().getCorePlugin(), "is24");
   }
 
   @Test

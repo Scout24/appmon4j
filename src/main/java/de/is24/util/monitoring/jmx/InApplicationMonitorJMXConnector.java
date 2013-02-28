@@ -1,5 +1,6 @@
 package de.is24.util.monitoring.jmx;
 
+import de.is24.util.monitoring.CorePlugin;
 import de.is24.util.monitoring.Counter;
 import de.is24.util.monitoring.HistorizableList;
 import de.is24.util.monitoring.InApplicationMonitor;
@@ -8,6 +9,7 @@ import de.is24.util.monitoring.ReportableObserver;
 import de.is24.util.monitoring.StateValueProvider;
 import de.is24.util.monitoring.Timer;
 import de.is24.util.monitoring.Version;
+import de.is24.util.monitoring.state2graphite.StateValuesToGraphite;
 import de.is24.util.monitoring.statsd.StatsdPlugin;
 import de.is24.util.monitoring.visitors.HistogramLikeValueAnalysisVisitor;
 import de.is24.util.monitoring.visitors.StringWriterReportVisitor;
@@ -17,8 +19,8 @@ import javax.management.AttributeList;
 import javax.management.AttributeNotFoundException;
 import javax.management.DynamicMBean;
 import javax.management.InstanceAlreadyExistsException;
-import javax.management.InstanceNotFoundException;
 import javax.management.InvalidAttributeValueException;
+import javax.management.InstanceNotFoundException;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanException;
 import javax.management.MBeanInfo;
@@ -39,11 +41,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
- * This class publishes values registered at the InApplicationMonitor as JMX MBeans.
+ * This class publishes values registered at the Core Plugin as JMX MBeans and exposes 
+ * some management operations of InApplicationMonitor.
  * Simple values (Counter, Version, StateValue) are published directly via this class
  * as dynamic MBean, complex types are published using an own MBean for each Reportable.
  *
- * @author ptraeder
  */
 public final class InApplicationMonitorJMXConnector implements DynamicMBean, ReportableObserver {
   private static final String DUMP_STRING_WRITER = "dumpStringWriter";
@@ -59,111 +61,43 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
   private static final String GET_REGISTERED_PLUGIN_KEYS = "getRegisteredPluginKeys";
   private static final String REMOVE_ALL_PLUGINS = "removeAllPlugins";
   private static final String ADD_STATSD_PLUGIN = "addStatsdPlugin";
+  private static final String ADD_STATE_VALUES_TO_GRAPHITE = "addStateValuesToGraphite";
 
-  private static final Logger LOG = Logger.getLogger(InApplicationMonitorJMXConnector.class);
+    private static final Logger LOG = Logger.getLogger(InApplicationMonitorJMXConnector.class);
 
   private static InApplicationMonitorJMXConnector instance;
 
   private final Map<String, Reportable> reportables = new ConcurrentHashMap<String, Reportable>();
 
-  private final Map<String, String> reportablesThatShouldBeRegistered = new ConcurrentHashMap<String, String>();
-
-  private boolean registerAllReportables = false;
-
   private MBeanServer beanServer;
   private String jmxPrefix = "";
 
-  /**
-   * singleton access method
-   *
-   * WARNING : when called, this method registers the InApplicationMonitor as dynamic
-   * MBean on the JMX MBean server thing - use after thinking only.
-   *
-   * @param interestedInAllReportables set this to true if you want all reportables registered at
-   * the InApplicationMonitor to be available as JMX attributes
-   * @param namingStrategy the JmxAppMon4JNamingStrategy alters the standard prefix from "is24" to what is provided by the strategy.
-   * @return the singleton instance
-   */
-  public static InApplicationMonitorJMXConnector getInstance(boolean interestedInAllReportables,
-                                                             JmxAppMon4JNamingStrategy namingStrategy) {
-    if (instance == null) {
-      synchronized (InApplicationMonitorJMXConnector.class) {
-        if (instance == null) {
-          instance = new InApplicationMonitorJMXConnector(interestedInAllReportables, namingStrategy.getJmxPrefix());
-        }
-      }
-    }
-    return instance;
+  private final CorePlugin corePlugin;
+
+
+    public InApplicationMonitorJMXConnector(String jmxPrefix) {
+    this(InApplicationMonitor.getInstance().getCorePlugin(), jmxPrefix);
   }
 
-  /**
-   * singleton access method
-   *
-   * WARNING : when called, this method registers the InApplicationMonitor as dynamic
-   * MBean on the JMX MBean server thing - use after thinking only.
-   *
-   * @param interestedInAllReportables set this to true if you want all reportables registered at
-   * the InApplicationMonitor to be available as JMX attributes
-   * @return the singleton instance
-   */
-  public static InApplicationMonitorJMXConnector getInstance(boolean interestedInAllReportables) {
-    return getInstance(interestedInAllReportables, new JmxAppMon4JNamingStrategy() {
-        public String getJmxPrefix() {
-          return "is24";
-        }
-      });
-  }
-
-  public static InApplicationMonitorJMXConnector getInstance() {
-    if (instance == null) {
-      throw new IllegalArgumentException(
-        "Please use the other constructor if you want to construct the MBean. Thank you.");
-    }
-
-    return instance;
-  }
-
-  private InApplicationMonitorJMXConnector(boolean interestedInAllReportables, String jmxPrefix) {
+  public InApplicationMonitorJMXConnector(CorePlugin corePlugin, String jmxPrefix) {
+    this.corePlugin = corePlugin;
     this.jmxPrefix = jmxPrefix + ":";
     registerJMXStuff();
 
-    registerAllReportables = interestedInAllReportables;
-
     // register yourself as ReportableObserver so that we're notified about every new reportable
-    InApplicationMonitor.getInstance().addReportableObserver(this);
-  }
-
-
-  /**
-   * Indicates that a reportable should be registered as JMX attribute
-   * This method must be called before the reportable is registered at the InApplicationMonitor,
-   * otherwise the reportable will not be registered here.
-   * TODO [ptraeder] it should be possible to mark reportables that have already been registered
-   * at the InApplicationMonitor
-   *
-   * @param string name of the reportable
-   */
-  public void markCounterForJMX(String string) {
-    reportablesThatShouldBeRegistered.put(string, string);
+    InApplicationMonitor.getInstance().getCorePlugin().addReportableObserver(this);
   }
 
   /**
-   * This method is called for each reportable that is registered on the InApplicationMonitor.
-   * Basically, it checks if the JMX implementation is interested in the reportable and adds
-   * it to the "reportables" map which is the base for both getAttribute(s) and getMBeanInfo().
-   */
+  * This method is called for each reportable that is registered on the InApplicationMonitor.
+  * Basically, it checks if the JMX implementation is interested in the reportable and adds
+  * it to the "reportables" map which is the base for both getAttribute(s) and getMBeanInfo().
+  */
   public void addNewReportable(Reportable reportable) {
     // use intern string representation - so we can synchronize on it
     final String reportableKey = reportable.getName().intern();
 
-    // check if we're interested in this reportable
-    if (reportablesThatShouldBeRegistered.containsKey(reportableKey) || shouldRegisterAllReportables()) {
-      registerReportable(reportableKey, reportable);
-    } else {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("InApplicationMonitorDynamicMBean is not interested in reportable '" + reportableKey + "'");
-      }
-    }
+    registerReportable(reportableKey, reportable);
   }
 
   private void registerReportable(String reportableKey, Reportable reportable) {
@@ -191,10 +125,6 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
     }
   }
 
-  public boolean shouldRegisterAllReportables() {
-    return registerAllReportables;
-  }
-
   /**
    * registers the InApplicationMonitor as JMX MBean on the running JMX
    * server - if no JMX server is running, one is started automagically.
@@ -211,23 +141,17 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
     }
   }
 
-  public void registerMBeanOnJMX(Object object, String name) throws InstanceAlreadyExistsException,
-                                                                    MBeanRegistrationException,
-                                                                    NotCompliantMBeanException,
-                                                                    MalformedObjectNameException {
-    beanServer.registerMBean(object, new ObjectName(jmxPrefix + "name=" + name));
-  }
 
-  public void registerMBeanOnJMX(Object object, String name, String type) throws InstanceAlreadyExistsException,
-                                                                                 MBeanRegistrationException,
-                                                                                 NotCompliantMBeanException,
-                                                                                 MalformedObjectNameException {
+  protected void registerMBeanOnJMX(Object object, String name, String type) throws InstanceAlreadyExistsException,
+                                                                                    MBeanRegistrationException,
+                                                                                    NotCompliantMBeanException,
+                                                                                    MalformedObjectNameException {
     beanServer.registerMBean(object, createBeanName(name, type));
   }
 
-  public void unregisterMBeanOnJMX(Object object, String name, String type) throws InstanceNotFoundException,
-                                                                                   MBeanRegistrationException,
-                                                                                   MalformedObjectNameException {
+  protected void unregisterMBeanOnJMX(Object object, String name, String type) throws InstanceNotFoundException,
+                                                                                      MBeanRegistrationException,
+                                                                                      MalformedObjectNameException {
     ObjectName beanName = createBeanName(name, type);
     if (beanServer.isRegistered(beanName)) {
       beanServer.unregisterMBean(beanName);
@@ -296,7 +220,14 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
           new MBeanParameterInfo("app name", "java.lang.String", ""),
           new MBeanParameterInfo("sample rate", "java.lang.Double", "")
         }, "void",
-        MBeanOperationInfo.ACTION),
+      MBeanOperationInfo.ACTION),
+      new MBeanOperationInfo(ADD_STATE_VALUES_TO_GRAPHITE, "",
+        new MBeanParameterInfo[] {
+          new MBeanParameterInfo("graphite hostname", "java.lang.String", ""),
+          new MBeanParameterInfo("graphite port", "java.lang.Integer", ""),
+          new MBeanParameterInfo("app name", "java.lang.String", "")
+        }, "void",
+      MBeanOperationInfo.ACTION),
     };
 
     // assemble the MBean description
@@ -376,6 +307,11 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
       String appName = (String) params[2];
       Double sampleRate = (Double) params[3];
       addStatsdPlugin(host, port, appName, sampleRate);
+    } else if (actionName.equals(ADD_STATSD_PLUGIN)) {
+      String host = (String) params[0];
+      Integer port = (Integer) params[1];
+      String appName = (String) params[2];
+      addStateValuesToGraphite(host, port, appName);
     }
     return null;
   }
@@ -392,16 +328,25 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
     }
   }
 
+  private void addStateValuesToGraphite(String host, Integer port, String appName) {
+    try {
+      new StateValuesToGraphite(host, port, appName);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+
   public String dumpStringWriter() {
     StringWriterReportVisitor visitor = new StringWriterReportVisitor();
-    InApplicationMonitor.getInstance().reportInto(visitor);
+    corePlugin.reportInto(visitor);
     LOG.info(visitor.toString());
     return visitor.toString();
   }
 
   public String dumpHistogramLikeValueAnalysis(String base) {
     HistogramLikeValueAnalysisVisitor visitor = new HistogramLikeValueAnalysisVisitor(base);
-    InApplicationMonitor.getInstance().reportInto(visitor);
+    corePlugin.reportInto(visitor);
     LOG.info(visitor.toString());
     return visitor.toString();
   }
