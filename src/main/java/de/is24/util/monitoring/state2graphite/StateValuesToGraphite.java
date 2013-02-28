@@ -27,7 +27,7 @@ public class StateValuesToGraphite implements ReportableObserver {
                         GraphiteConnection graphiteClient) {
     String keyPrefix = appName + "." + localHostNameResolver.getLocalHostName() + ".states";
     stateValues = new ConcurrentHashMap<String, StateValueProvider>();
-    InApplicationMonitor.getInstance().addReportableObserver(this);
+    InApplicationMonitor.getInstance().getCorePlugin().addReportableObserver(this);
     ex = Executors.newSingleThreadScheduledExecutor();
     ex.scheduleAtFixedRate(new ReportStateValuesJob(graphiteClient, keyPrefix), 1, 10, TimeUnit.SECONDS);
   }
