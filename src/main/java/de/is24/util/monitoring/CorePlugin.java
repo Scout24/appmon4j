@@ -62,7 +62,7 @@ public class CorePlugin extends AbstractMonitorPlugin {
         }
       });
     registerVersion(new Version(this.getClass().getName(),
-        "$Id: InApplicationMonitor.java 401410 2013-02-05 17:26:07Z oschmitz $ $HeadURL: https://subversion.iscout.local/int/is24/common/appmon4j/trunk/src/main/java/de/is24/util/monitoring/InApplicationMonitor.java $"));
+        "$Id$"));
     VirtualMachineMetrics.registerVMStates(this);
 
   }
