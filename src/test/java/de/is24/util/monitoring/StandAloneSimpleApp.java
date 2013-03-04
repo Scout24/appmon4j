@@ -1,6 +1,6 @@
 package de.is24.util.monitoring;
 
-import de.is24.util.monitoring.jmx.InApplicationMonitorJMXConnector;
+import de.is24.util.monitoring.jmx.JmxAppMon4JNamingStrategy;
 import org.apache.log4j.Logger;
 
 
@@ -8,9 +8,13 @@ public class StandAloneSimpleApp {
   private static final Logger LOGGER = Logger.getLogger(StandAloneSimpleApp.class);
 
   public static void main(String[] args) {
-    InApplicationMonitor instance = InApplicationMonitor.getInstance();
-    InApplicationMonitorJMXConnector jmxConnector = new InApplicationMonitorJMXConnector(InApplicationMonitor
-      .getInstance().getCorePlugin(), "is24");
+    CorePlugin corePlugin = new CorePlugin(new JmxAppMon4JNamingStrategy() {
+        @Override
+        public String getJmxPrefix() {
+          return "is24";
+        }
+      }, new DefaultKeyEscaper());
+    InApplicationMonitor instance = InApplicationMonitor.initInstance(corePlugin, new DefaultKeyEscaper());
 
     instance.incrementCounter("bla.bli.blu.lala");
     instance.addTimerMeasurement("lala", 10);
@@ -28,7 +32,7 @@ public class StandAloneSimpleApp {
       }
     }
 
-    jmxConnector.shutdown();
+    corePlugin.destroy();
 
     while (true) {
       try {

@@ -1,5 +1,6 @@
 package de.is24.util.monitoring.helper;
 
+import de.is24.util.monitoring.CorePlugin;
 import de.is24.util.monitoring.InApplicationMonitor;
 import de.is24.util.monitoring.StateValueProvider;
 
@@ -65,9 +66,12 @@ public class HistogramLikeValue {
     this.factorName = baseName + NAME_FACTOR;
 
     this.factor = factor;
+    register(InApplicationMonitor.getInstance().getCorePlugin());
+  }
 
+  private void register(CorePlugin corePlugin) {
     // publish the currentMaxValue and the maxLimit as state values
-    InApplicationMonitor.getInstance().registerStateValue(new StateValueProvider() {
+    corePlugin.registerStateValue(new StateValueProvider() {
         @Override
         public String getName() {
           return maxValueName;
@@ -79,7 +83,7 @@ public class HistogramLikeValue {
         }
       });
 
-    InApplicationMonitor.getInstance().registerStateValue(new StateValueProvider() {
+    corePlugin.registerStateValue(new StateValueProvider() {
         @Override
         public String getName() {
           return maxLimitName;
@@ -90,7 +94,7 @@ public class HistogramLikeValue {
           return maxLimit;
         }
       });
-    InApplicationMonitor.getInstance().registerStateValue(new StateValueProvider() {
+    corePlugin.registerStateValue(new StateValueProvider() {
         @Override
         public String getName() {
           return factorName;
@@ -104,10 +108,10 @@ public class HistogramLikeValue {
   }
 
   /**
-   * @param baseName the base name to use for InApplicationMonitor value name
-   * @param factor the factor to divide new values by in order to group them into bins
-   * @param maxLimit the upper limit up to which bins are created - all values bigger than maxLimit are grouped into one single bin
-   */
+  * @param baseName the base name to use for InApplicationMonitor value name
+  * @param factor the factor to divide new values by in order to group them into bins
+  * @param maxLimit the upper limit up to which bins are created - all values bigger than maxLimit are grouped into one single bin
+  */
   public HistogramLikeValue(String baseName, long factor, long maxLimit) {
     this(baseName, factor);
 
@@ -143,7 +147,7 @@ public class HistogramLikeValue {
     // select the bin to put this value in
     long binIndex;
     if (newValue > maxLimit) {
-      binIndex =  maxLimit / factor;
+      binIndex = maxLimit / factor;
     } else {
       binIndex = newValue / factor;
     }

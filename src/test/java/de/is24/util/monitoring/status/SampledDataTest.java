@@ -1,6 +1,9 @@
 package de.is24.util.monitoring.status;
 
+import de.is24.util.monitoring.TestHelper;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -8,6 +11,16 @@ import static org.junit.Assert.assertThat;
 
 public class SampledDataTest {
   SampledData sampledData;
+
+  @BeforeClass
+  public static void setupClass() {
+    TestHelper.setInstanceForTesting();
+  }
+
+  @AfterClass
+  public static void tearDownClass() {
+    TestHelper.resetInstanceForTesting();
+  }
 
   @Before
   public void setup() {

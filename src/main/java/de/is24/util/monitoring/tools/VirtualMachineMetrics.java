@@ -1,7 +1,7 @@
 package de.is24.util.monitoring.tools;
 
 import com.yammer.metrics.core.VirtualMachineMBeans;
-import de.is24.util.monitoring.InApplicationMonitor;
+import de.is24.util.monitoring.CorePlugin;
 import de.is24.util.monitoring.StateValueProvider;
 import javax.management.Attribute;
 import javax.management.AttributeList;
@@ -113,9 +113,9 @@ public class VirtualMachineMetrics {
     }
   }
 
-  public static void registerVMStates(InApplicationMonitor inApplicationMonitor) {
+  public static void registerVMStates(CorePlugin corePlugin) {
     final MemoryMXBean memory = VirtualMachineMBeans.getInstance().getMemory();
-    inApplicationMonitor.registerStateValue(new StateValueProvider() {
+    corePlugin.registerStateValue(new StateValueProvider() {
         @Override
         public long getValue() {
           return memory.getHeapMemoryUsage().getInit();
@@ -126,7 +126,7 @@ public class VirtualMachineMetrics {
           return "jvm.memory.heap.init";
         }
       });
-    inApplicationMonitor.registerStateValue(new StateValueProvider() {
+    corePlugin.registerStateValue(new StateValueProvider() {
         @Override
         public long getValue() {
           return memory.getNonHeapMemoryUsage().getInit();
@@ -137,7 +137,7 @@ public class VirtualMachineMetrics {
           return "jvm.memory.nonHeap.init";
         }
       });
-    inApplicationMonitor.registerStateValue(new StateValueProvider() {
+    corePlugin.registerStateValue(new StateValueProvider() {
         @Override
         public long getValue() {
           return memory.getHeapMemoryUsage().getUsed();
@@ -148,7 +148,7 @@ public class VirtualMachineMetrics {
           return "jvm.memory.heap.used";
         }
       });
-    inApplicationMonitor.registerStateValue(new StateValueProvider() {
+    corePlugin.registerStateValue(new StateValueProvider() {
         @Override
         public long getValue() {
           return memory.getNonHeapMemoryUsage().getUsed();
@@ -159,7 +159,7 @@ public class VirtualMachineMetrics {
           return "jvm.memory.nonHeap.used";
         }
       });
-    inApplicationMonitor.registerStateValue(new StateValueProvider() {
+    corePlugin.registerStateValue(new StateValueProvider() {
         @Override
         public long getValue() {
           return memory.getHeapMemoryUsage().getCommitted();
@@ -170,7 +170,7 @@ public class VirtualMachineMetrics {
           return "jvm.memory.heap.committed";
         }
       });
-    inApplicationMonitor.registerStateValue(new StateValueProvider() {
+    corePlugin.registerStateValue(new StateValueProvider() {
         @Override
         public long getValue() {
           return memory.getNonHeapMemoryUsage().getCommitted();
@@ -183,7 +183,7 @@ public class VirtualMachineMetrics {
       });
 
     for (final MemoryPoolMXBean pool : VirtualMachineMBeans.getInstance().getMemoryPools()) {
-      inApplicationMonitor.registerStateValue(new StateValueProvider() {
+      corePlugin.registerStateValue(new StateValueProvider() {
           @Override
           public long getValue() {
             return pool.getUsage().getUsed();
@@ -194,7 +194,7 @@ public class VirtualMachineMetrics {
             return "jvm.memory." + pool.getName().replace(" ", "_") + ".used";
           }
         });
-      inApplicationMonitor.registerStateValue(new StateValueProvider() {
+      corePlugin.registerStateValue(new StateValueProvider() {
           @Override
           public long getValue() {
             return pool.getUsage().getCommitted();
@@ -208,7 +208,7 @@ public class VirtualMachineMetrics {
     }
 
     final ThreadMXBean threadMXBean = VirtualMachineMBeans.getInstance().getThreads();
-    inApplicationMonitor.registerStateValue(new StateValueProvider() {
+    corePlugin.registerStateValue(new StateValueProvider() {
         @Override
         public long getValue() {
           return threadMXBean.getThreadCount();
@@ -219,7 +219,7 @@ public class VirtualMachineMetrics {
           return "jvm.threads.count";
         }
       });
-    inApplicationMonitor.registerStateValue(new StateValueProvider() {
+    corePlugin.registerStateValue(new StateValueProvider() {
         @Override
         public long getValue() {
           return threadMXBean.getDaemonThreadCount();
@@ -232,7 +232,7 @@ public class VirtualMachineMetrics {
       });
 
     final OperatingSystemMXBean operatingSystemMXBean = VirtualMachineMBeans.getInstance().getOs();
-    inApplicationMonitor.registerStateValue(new StateValueProvider() {
+    corePlugin.registerStateValue(new StateValueProvider() {
         @Override
         public long getValue() {
           try {
@@ -255,7 +255,7 @@ public class VirtualMachineMetrics {
           return "jvm.filedescriptors.open";
         }
       });
-    inApplicationMonitor.registerStateValue(new StateValueProvider() {
+    corePlugin.registerStateValue(new StateValueProvider() {
         @Override
         public long getValue() {
           try {
@@ -282,7 +282,7 @@ public class VirtualMachineMetrics {
     for (GarbageCollectorMXBean gc : VirtualMachineMBeans.getInstance().getGarbageCollectors()) {
       final GarbageCollectorMXBean finalGC = gc;
 
-      inApplicationMonitor.registerStateValue(new StateValueProvider() {
+      corePlugin.registerStateValue(new StateValueProvider() {
           @Override
           public long getValue() {
             return finalGC.getCollectionCount();
@@ -293,7 +293,7 @@ public class VirtualMachineMetrics {
             return "jvm.gc." + finalGC.getName() + ".count";
           }
         });
-      inApplicationMonitor.registerStateValue(new StateValueProvider() {
+      corePlugin.registerStateValue(new StateValueProvider() {
           @Override
           public long getValue() {
             return finalGC.getCollectionTime();

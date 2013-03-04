@@ -1,7 +1,9 @@
 package de.is24.util.monitoring;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -13,6 +15,16 @@ import static org.mockito.Mockito.verify;
 public class InApplicationMonitorPluginTest {
   private MonitorPlugin plugin;
   private InApplicationMonitor monitor;
+
+  @BeforeClass
+  public static void setupClass() {
+    TestHelper.setInstanceForTesting();
+  }
+
+  @AfterClass
+  public static void tearDownClass() {
+    TestHelper.resetInstanceForTesting();
+  }
 
   @Before
   public void setUp() throws Exception {

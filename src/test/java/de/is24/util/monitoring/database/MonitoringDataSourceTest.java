@@ -1,6 +1,7 @@
 package de.is24.util.monitoring.database;
 
 import com.google.common.base.Predicate;
+import de.is24.util.monitoring.TestHelper;
 import de.is24.util.monitoring.database.MonitoringDataSource.SqlExceptionPredicate;
 import de.is24.util.monitoring.Counter;
 import de.is24.util.monitoring.InApplicationMonitor;
@@ -15,8 +16,10 @@ import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.easymock.IArgumentMatcher;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import javax.sql.DataSource;
 import java.io.PrintWriter;
@@ -54,6 +57,17 @@ import static org.junit.Assert.fail;
  * @author  <a href="mailto:SKirsch@is24.de">Sebastian Kirsch</a>
  */
 public final class MonitoringDataSourceTest extends EasyMockSupport {
+  @BeforeClass
+  public static void setupClass() {
+    TestHelper.setInstanceForTesting();
+  }
+
+  @AfterClass
+  public static void tearDownClass() {
+    TestHelper.resetInstanceForTesting();
+  }
+
+
   private static LoggingEvent logEventMatches(Level level, String messagePattern) {
     EasyMock.reportMatcher(new LogEventMatches(level, messagePattern));
     return null;

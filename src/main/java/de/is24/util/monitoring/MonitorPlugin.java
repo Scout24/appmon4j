@@ -18,4 +18,6 @@ public interface MonitorPlugin {
   void initializeTimerMeasurement(String name);
 
   void register();
+
+  void afterRemovalNotification();
 }

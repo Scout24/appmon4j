@@ -1,5 +1,8 @@
 package de.is24.util.monitoring;
 
+import de.is24.util.monitoring.jmx.InApplicationMonitorJMXConnector;
+import de.is24.util.monitoring.jmx.JmxAppMon4JNamingStrategy;
+import de.is24.util.monitoring.tools.VirtualMachineMetrics;
 import org.apache.log4j.Logger;
 import java.util.Vector;
 
@@ -22,6 +25,56 @@ public class CorePlugin extends AbstractMonitorPlugin {
   private final Monitors<StateValueProvider> stateValues = new Monitors<StateValueProvider>(reportableObservers);
   private final Monitors<Version> versions = new Monitors<Version>(reportableObservers);
   private final Monitors<HistorizableList> historizableLists = new Monitors<HistorizableList>(reportableObservers);
+  private InApplicationMonitorJMXConnector inApplicationMonitorJMXConnector;
+  private KeyHandler keyHandler;
+
+
+  public CorePlugin(JmxAppMon4JNamingStrategy jmxAppMon4JNamingStrategy, KeyHandler keyHandler) {
+    this.keyHandler = keyHandler;
+    if (jmxAppMon4JNamingStrategy != null) {
+      inApplicationMonitorJMXConnector = new InApplicationMonitorJMXConnector(this,
+        jmxAppMon4JNamingStrategy);
+    }
+    initDefaultStateValues();
+  }
+
+  private void initDefaultStateValues() {
+    registerStateValue(new StateValueProvider() {
+        @Override
+        public String getName() {
+          return Runtime.class.getName() + ".totalMem";
+        }
+
+        @Override
+        public long getValue() {
+          return Runtime.getRuntime().totalMemory();
+        }
+      });
+    registerStateValue(new StateValueProvider() {
+        @Override
+        public String getName() {
+          return Runtime.class.getName() + ".freeMem";
+        }
+
+        @Override
+        public long getValue() {
+          return Runtime.getRuntime().freeMemory();
+        }
+      });
+    registerVersion(new Version(this.getClass().getName(),
+        "$Id: InApplicationMonitor.java 401410 2013-02-05 17:26:07Z oschmitz $ $HeadURL: https://subversion.iscout.local/int/is24/common/appmon4j/trunk/src/main/java/de/is24/util/monitoring/InApplicationMonitor.java $"));
+    VirtualMachineMetrics.registerVMStates(this);
+
+  }
+
+  @Override
+  public void afterRemovalNotification() {
+    destroy();
+  }
+
+  public void destroy() {
+    inApplicationMonitorJMXConnector.shutdown();
+  }
 
   @Override
   public String getUniqueName() {
@@ -216,7 +269,8 @@ public class CorePlugin extends AbstractMonitorPlugin {
    *
    * @param stateValueProvider the StateValueProvider instance to add
    */
-  public void registerStateValue(String name, StateValueProvider stateValueProvider) {
+  public void registerStateValue(StateValueProvider stateValueProvider) {
+    String name = keyHandler.handle(stateValueProvider.getName());
     StateValueProvider oldProvider = stateValues.put(name, stateValueProvider);
     if (oldProvider != null) {
       LOGGER.warn("StateValueProvider [" + oldProvider + "] @" + stateValueProvider.getName() +
@@ -234,7 +288,8 @@ public class CorePlugin extends AbstractMonitorPlugin {
    * @param versionToAdd The Version Object to add
    */
   public void registerVersion(Version versionToAdd) {
-    versions.put(versionToAdd.getName(), versionToAdd);
+    String versionName = keyHandler.handle(versionToAdd.getName());
+    versions.put(versionName, versionToAdd);
     notifyReportableObservers(versionToAdd);
   }
 

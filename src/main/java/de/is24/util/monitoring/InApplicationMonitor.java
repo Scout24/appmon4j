@@ -1,12 +1,10 @@
 
 package de.is24.util.monitoring;
 
-import de.is24.util.monitoring.tools.VirtualMachineMetrics;
 import org.apache.log4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.regex.Pattern;
 
 
 /**
@@ -24,69 +22,62 @@ import java.util.regex.Pattern;
 public final class InApplicationMonitor {
   private static final Logger LOGGER = Logger.getLogger(InApplicationMonitor.class);
 
-  private static final Pattern KEY_ESCAPE_PATTERN = Pattern.compile("[:=]");
-  private static final InApplicationMonitor INSTANCE = new InApplicationMonitor();
+  private static InApplicationMonitor INSTANCE;
 
   private volatile boolean monitorActive = true;
-  private CorePlugin corePlugin;
-
   private final CopyOnWriteArrayList<MonitorPlugin> plugins = new CopyOnWriteArrayList<MonitorPlugin>();
 
+  private CorePlugin corePlugin;
+  private KeyHandler keyHandler;
+
+  protected InApplicationMonitor(CorePlugin corePlugin, KeyHandler keyHandler) {
+    this.corePlugin = corePlugin;
+    registerPlugin(corePlugin);
+    this.keyHandler = keyHandler;
+  }
 
   /**
-   * Delivers the Singleton instance of InApplicationMonitor.
-   *
-   * @return InApplicationMonitor Singleton
+   * This will fail if tests are run multi threaded use with utmost care.
    */
-  public static InApplicationMonitor getInstance() {
+  protected static InApplicationMonitor initInstanceForTesting(CorePlugin corePlugin, KeyHandler keyHandler) {
+    LOGGER.info("+++ Changing InApplicationMonitor() for Testing only +++");
+    INSTANCE = new InApplicationMonitor(corePlugin, keyHandler);
+    LOGGER.info("InApplicationMonitor changed successfully.");
     return INSTANCE;
   }
 
-  private InApplicationMonitor() {
-    LOGGER.info("+++ InApplicationMonitor() +++");
-
-    corePlugin = new CorePlugin();
-    registerPlugin(corePlugin);
-
-    registerStateValue(new StateValueProvider() {
-        @Override
-        public String getName() {
-          return Runtime.class.getName() + ".totalMem";
-        }
-
-        @Override
-        public long getValue() {
-          return Runtime.getRuntime().totalMemory();
-        }
-      });
-    registerStateValue(new StateValueProvider() {
-        @Override
-        public String getName() {
-          return Runtime.class.getName() + ".freeMem";
-        }
-
-        @Override
-        public long getValue() {
-          return Runtime.getRuntime().freeMemory();
-        }
-      });
-    registerVersion(this.getClass().getName(),
-      "$Id: InApplicationMonitor.java 401410 2013-02-05 17:26:07Z oschmitz $ $HeadURL: https://subversion.iscout.local/int/is24/common/appmon4j/trunk/src/main/java/de/is24/util/monitoring/InApplicationMonitor.java $");
-    VirtualMachineMetrics.registerVMStates(this);
-    LOGGER.info("InApplicationMonitor started successfully.");
+  /**
+   * This will fail if tests are run multi threaded use with utmost care.
+   */
+  protected static void resetInstance() {
+    INSTANCE.getCorePlugin().destroy();
+    INSTANCE = null;
+    LOGGER.info("Reset InApplicationMonitor for Testing.");
   }
+
 
   /**
-   * helper function that escapes a reportable's name so that it is JMX-compatible
-   * @param name the original name of the reportable
-   * @return the espaced name
-   * TODO OSchmi I think escaping should happen on the read side (where the problem is), not everytime on writing.
-   * Or we should have a defined contract on allowed chars in keys and enfocr it on the entry side.
-   *      Due to performance and responsibility reasons.
-   */
-  private String escape(String name) {
-    return KEY_ESCAPE_PATTERN.matcher(name).replaceAll("_");
+  * Delivers the Singleton instance of InApplicationMonitor.
+  *
+  * @return InApplicationMonitor Singleton
+  */
+  public static InApplicationMonitor getInstance() {
+    if (INSTANCE == null) {
+      throw new IllegalStateException("InApplicationMonitor not initialized");
+    }
+    return INSTANCE;
   }
+
+  public static InApplicationMonitor initInstance(CorePlugin corePlugin, KeyHandler keyHandler) {
+    LOGGER.info("+++ initializinh InApplicationMonitor() +++");
+    if (INSTANCE != null) {
+      throw new IllegalStateException("InApplicationMonitor already initialized");
+    }
+    INSTANCE = new InApplicationMonitor(corePlugin, keyHandler);
+    LOGGER.info("InApplicationMonitor initialized successfully.");
+    return INSTANCE;
+  }
+
 
   /**
    * @see #isMonitorActive
@@ -184,7 +175,7 @@ public final class InApplicationMonitor {
    */
   public void incrementHighRateCounter(String name) {
     if (monitorActive) {
-      String escapedName = escape(name);
+      String escapedName = keyHandler.handle(name);
       for (MonitorPlugin p : plugins) {
         p.incrementHighRateCounter(escapedName, 1);
       }
@@ -201,7 +192,7 @@ public final class InApplicationMonitor {
   */
   public void incrementCounter(String name, int increment) {
     if (monitorActive) {
-      String escapedName = escape(name);
+      String escapedName = keyHandler.handle(name);
       for (MonitorPlugin p : plugins) {
         p.incrementCounter(escapedName, increment);
       }
@@ -215,7 +206,7 @@ public final class InApplicationMonitor {
    * @param name the name of the counter to be initialized
    */
   public void initializeCounter(String name) {
-    String escapedName = escape(name);
+    String escapedName = keyHandler.handle(name);
     for (MonitorPlugin p : plugins) {
       p.initializeCounter(escapedName);
     }
@@ -234,7 +225,7 @@ public final class InApplicationMonitor {
    */
   public void addTimerMeasurement(String name, long timing) {
     if (monitorActive) {
-      String escapedName = escape(name);
+      String escapedName = keyHandler.handle(name);
       for (MonitorPlugin p : plugins) {
         p.addTimerMeasurement(escapedName, timing);
       }
@@ -257,7 +248,7 @@ public final class InApplicationMonitor {
    */
   public void addSingleEventTimerMeasurement(String name, long timing) {
     if (monitorActive) {
-      String escapedName = escape(name);
+      String escapedName = keyHandler.handle(name);
       for (MonitorPlugin p : plugins) {
         p.addSingleEventTimerMeasurement(escapedName, timing);
       }
@@ -279,7 +270,7 @@ public final class InApplicationMonitor {
    */
   public void addHighRateTimerMeasurement(String name, long timing) {
     if (monitorActive) {
-      String escapedName = escape(name);
+      String escapedName = keyHandler.handle(name);
 
       for (MonitorPlugin p : plugins) {
         p.addHighRateTimerMeasurement(escapedName, timing);
@@ -311,7 +302,7 @@ public final class InApplicationMonitor {
    * @param name the name of the timer to be initialized
    */
   public void initializeTimerMeasurement(String name) {
-    String escapedName = escape(name);
+    String escapedName = keyHandler.handle(name);
     for (MonitorPlugin p : plugins) {
       p.initializeTimerMeasurement(escapedName);
     }
@@ -325,7 +316,7 @@ public final class InApplicationMonitor {
    * @param stateValueProvider the StateValueProvider instance to add
    */
   public void registerStateValue(StateValueProvider stateValueProvider) {
-    corePlugin.registerStateValue(escape(stateValueProvider.getName()), stateValueProvider);
+    corePlugin.registerStateValue(stateValueProvider);
   }
 
   /**
@@ -338,7 +329,7 @@ public final class InApplicationMonitor {
    * @param version identifier of the version
    */
   public void registerVersion(String name, String version) {
-    Version versionToAdd = new Version(escape(name), version);
+    Version versionToAdd = new Version(keyHandler.handle(name), version);
     corePlugin.registerVersion(versionToAdd);
   }
 
@@ -348,7 +339,7 @@ public final class InApplicationMonitor {
    * @param historizable the historizable to add
    */
   public void addHistorizable(Historizable historizable) {
-    corePlugin.addHistorizable(escape(historizable.getName()), historizable);
+    corePlugin.addHistorizable(keyHandler.handle(historizable.getName()), historizable);
   }
 
 
@@ -377,4 +368,5 @@ public final class InApplicationMonitor {
   public CorePlugin getCorePlugin() {
     return corePlugin;
   }
+
 }

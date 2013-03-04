@@ -1,8 +1,11 @@
 package de.is24.util.monitoring.statsd;
 
 import de.is24.util.monitoring.InApplicationMonitor;
+import de.is24.util.monitoring.TestHelper;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.times;
@@ -15,6 +18,17 @@ import static org.mockito.Matchers.anyString;
 public class InApplicationMonitorWithStatsdTest {
   private InApplicationMonitor monitor;
   private StatsdClient statsdClient;
+
+  @BeforeClass
+  public static void setupClass() {
+    TestHelper.setInstanceForTesting();
+  }
+
+  @AfterClass
+  public static void tearDownClass() {
+    TestHelper.resetInstanceForTesting();
+  }
+
 
   @Before
   public void setup() {

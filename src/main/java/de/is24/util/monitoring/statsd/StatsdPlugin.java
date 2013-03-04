@@ -48,6 +48,11 @@ public class StatsdPlugin extends AbstractMonitorPlugin {
     initHighVolumeSampleRate();
   }
 
+  @Override
+  public void afterRemovalNotification() {
+    delegate.close();
+  }
+
   private void initHighVolumeSampleRate() {
     this.highVolumeSampleRate = sampleRate * 0.1;
   }

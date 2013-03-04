@@ -6,6 +6,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 
+
 class StatsdDatagrammSocket {
   private final InetAddress host;
   private final int port;
@@ -25,5 +26,9 @@ class StatsdDatagrammSocket {
   @Override
   public String toString() {
     return host.toString() + ':' + port;
+  }
+
+  public void close() {
+    socket.close();
   }
 }

@@ -32,6 +32,10 @@ class StatsdClient {
     this.appName = appName;
   }
 
+  public void close() {
+    socket.close();
+  }
+
   public boolean timing(String key, int value) {
     return timing(key, value, 1.0);
   }

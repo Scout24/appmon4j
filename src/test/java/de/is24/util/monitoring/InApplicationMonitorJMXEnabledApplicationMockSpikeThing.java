@@ -1,7 +1,7 @@
 package de.is24.util.monitoring;
 
+import de.is24.util.monitoring.jmx.JmxAppMon4JNamingStrategy;
 import org.apache.log4j.Logger;
-import de.is24.util.monitoring.jmx.InApplicationMonitorJMXConnector;
 
 
 public class InApplicationMonitorJMXEnabledApplicationMockSpikeThing extends StateValueProvider {
@@ -20,7 +20,12 @@ public class InApplicationMonitorJMXEnabledApplicationMockSpikeThing extends Sta
   }
 
   private void setupInApplicationMonitor() {
-    new InApplicationMonitorJMXConnector(InApplicationMonitor.getInstance().getCorePlugin(), "is24");
+    CorePlugin corePlugin = new CorePlugin(new JmxAppMon4JNamingStrategy() {
+        @Override
+        public String getJmxPrefix() {
+          return "is24";
+        }
+      }, new DefaultKeyEscaper());
 
     InApplicationMonitor.getInstance().registerVersion("zaphod", "beeblebrox");
     InApplicationMonitor.getInstance().registerStateValue(this);
