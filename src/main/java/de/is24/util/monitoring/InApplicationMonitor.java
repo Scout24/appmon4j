@@ -1,6 +1,8 @@
 
 package de.is24.util.monitoring;
 
+import de.is24.util.monitoring.jmx.SimpleJmxAppmon4jNamingStrategy;
+import de.is24.util.monitoring.keyhandler.DefaultKeyEscaper;
 import de.is24.util.monitoring.keyhandler.KeyHandler;
 import org.apache.log4j.Logger;
 import java.util.ArrayList;
@@ -50,7 +52,7 @@ public final class InApplicationMonitor {
   /**
    * This will fail if tests are run multi threaded use with utmost care.
    */
-  protected static void resetInstance() {
+  protected static void resetInstanceForTesting() {
     INSTANCE.getCorePlugin().destroy();
     INSTANCE = null;
     LOGGER.info("Reset InApplicationMonitor for Testing.");
@@ -64,7 +66,10 @@ public final class InApplicationMonitor {
   */
   public static InApplicationMonitor getInstance() {
     if (INSTANCE == null) {
-      throw new IllegalStateException("InApplicationMonitor not initialized");
+      LOGGER.info("Initializing default InApplicationMonitor behavior. Use initInstance to customize");
+
+      KeyHandler keyHandler = new DefaultKeyEscaper();
+      initInstance(new CorePlugin(new SimpleJmxAppmon4jNamingStrategy("is24"), keyHandler), keyHandler);
     }
     return INSTANCE;
   }

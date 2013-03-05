@@ -17,6 +17,6 @@ public class TestHelper {
   }
 
   public static void resetInstanceForTesting() {
-    InApplicationMonitor.resetInstance();
+    InApplicationMonitor.resetInstanceForTesting();
   }
 }
