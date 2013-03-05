@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+
+  <bean id="appmon4j.keyEscaper" class="de.is24.util.monitoring.keyhandler.DefaultKeyEscaper"></bean>
+  <bean id="appmon4j.corePlugin" class="de.is24.util.monitoring.CorePlugin" lazy-init="false">
+    <constructor-arg index="0">
+      <bean class="de.is24.util.monitoring.jmx.SimpleJmxAppmon4jNamingStrategy">
+        <constructor-arg value="${appmon4j.jmxPrefix:is24}"/>
+      </bean>
+    </constructor-arg>
+    <constructor-arg index="1"><ref bean="appmon4j.keyEscaper"/></constructor-arg>
+  </bean>
+  <bean id="appmon4j" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean" lazy-init="false" >
+    <property name="targetClass" value="de.is24.util.monitoring.InApplicationMonitor"/>
+    <property name="staticMethod" value="initInstance"/>
+    <property name="arguments">
+      <list>
+        <ref bean="appmon4j.corePlugin"/>
+        <ref bean="appmon4j.keyEscaper"/>
+      </list>
+    </property>
+  </bean>
+
+</beans>
