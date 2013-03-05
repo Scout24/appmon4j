@@ -1,6 +1,7 @@
 package de.is24.util.monitoring;
 
 import de.is24.util.monitoring.jmx.JmxAppMon4JNamingStrategy;
+import de.is24.util.monitoring.keyhandler.DefaultKeyEscaper;
 import org.apache.log4j.Logger;
 
 

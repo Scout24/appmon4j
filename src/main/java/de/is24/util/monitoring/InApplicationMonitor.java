@@ -1,6 +1,7 @@
 
 package de.is24.util.monitoring;
 
+import de.is24.util.monitoring.keyhandler.KeyHandler;
 import org.apache.log4j.Logger;
 import java.util.ArrayList;
 import java.util.List;

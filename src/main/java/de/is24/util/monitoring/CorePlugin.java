@@ -2,6 +2,8 @@ package de.is24.util.monitoring;
 
 import de.is24.util.monitoring.jmx.InApplicationMonitorJMXConnector;
 import de.is24.util.monitoring.jmx.JmxAppMon4JNamingStrategy;
+import de.is24.util.monitoring.keyhandler.KeyHandler;
+import de.is24.util.monitoring.keyhandler.TransparentKeyHandler;
 import de.is24.util.monitoring.tools.VirtualMachineMetrics;
 import org.apache.log4j.Logger;
 import java.util.Vector;
@@ -30,15 +32,18 @@ public class CorePlugin extends AbstractMonitorPlugin {
 
 
   public CorePlugin(JmxAppMon4JNamingStrategy jmxAppMon4JNamingStrategy, KeyHandler keyHandler) {
-    this.keyHandler = keyHandler;
+    if (keyHandler != null) {
+      this.keyHandler = keyHandler;
+    } else {
+      this.keyHandler = new TransparentKeyHandler();
+    }
     if (jmxAppMon4JNamingStrategy != null) {
       inApplicationMonitorJMXConnector = new InApplicationMonitorJMXConnector(this,
         jmxAppMon4JNamingStrategy);
     }
-    initDefaultStateValues();
   }
 
-  private void initDefaultStateValues() {
+  public void initDefaultStateValues() {
     registerStateValue(new StateValueProvider() {
         @Override
         public String getName() {
@@ -72,8 +77,11 @@ public class CorePlugin extends AbstractMonitorPlugin {
     destroy();
   }
 
-  public void destroy() {
-    inApplicationMonitorJMXConnector.shutdown();
+  public synchronized void destroy() {
+    if (isJMXInitialized()) {
+      inApplicationMonitorJMXConnector.shutdown();
+      inApplicationMonitorJMXConnector = null;
+    }
   }
 
   @Override
@@ -81,6 +89,9 @@ public class CorePlugin extends AbstractMonitorPlugin {
     return "CorePlugin";
   }
 
+  public boolean isJMXInitialized() {
+    return inApplicationMonitorJMXConnector != null;
+  }
 
   /**
   * @return Number of entries to keep for each Historizable list.

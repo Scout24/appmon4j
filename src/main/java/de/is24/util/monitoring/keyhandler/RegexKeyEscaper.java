@@ -1,4 +1,4 @@
-package de.is24.util.monitoring;
+package de.is24.util.monitoring.keyhandler;
 
 import java.util.regex.Pattern;
 
