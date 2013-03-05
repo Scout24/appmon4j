@@ -61,15 +61,24 @@ public class StateValuesToGraphite implements ReportableObserver {
 
       Long curTimeInSec = System.currentTimeMillis() / 1000;
       StringBuilder lines = new StringBuilder();
+
       for (StateValueProvider stateValueProvider : stateValues.values()) {
-        lines.append(keyPrefix)
-        .append(".")
-        .append(stateValueProvider.getName())
-        .append(" ")
-        .append(stateValueProvider.getValue())
-        .append(" ")
-        .append(curTimeInSec)
-        .append("\n");
+        try {
+          StringBuilder line = new StringBuilder();
+          line.append(keyPrefix)
+          .append(".")
+          .append(stateValueProvider.getName())
+          .append(" ")
+          .append(stateValueProvider.getValue())
+          .append(" ")
+          .append(curTimeInSec)
+          .append("\n");
+
+          // only add complete lines if getValue throws Exception
+          lines.append(line.toString());
+        } catch (Exception e) {
+          LOGGER.warn("getting StateValue failed for " + stateValueProvider.getName());
+        }
       }
       graphiteClient.send(lines.toString());
     }

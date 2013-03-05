@@ -2,12 +2,11 @@ package de.is24.util.monitoring.state2graphite;
 
 import de.is24.util.monitoring.InApplicationMonitor;
 import de.is24.util.monitoring.SimpleStateValueProvider;
+import de.is24.util.monitoring.StateValueProvider;
 import de.is24.util.monitoring.TestHelper;
 import de.is24.util.monitoring.tools.LocalHostNameResolver;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.mockito.Matchers.contains;
 import static org.mockito.Matchers.startsWith;
@@ -21,18 +20,11 @@ public class StateValuesToGraphiteIT {
   private GraphiteConnection graphiteConnection;
   private StateValuesToGraphite target;
 
-  @BeforeClass
-  public static void setupClass() {
-    TestHelper.setInstanceForTesting();
-  }
-
-  @AfterClass
-  public static void tearDownClass() {
-    TestHelper.resetInstanceForTesting();
-  }
 
   @Before
   public void setUp() throws Exception {
+    TestHelper.setInstanceForTesting();
+
     LocalHostNameResolver localHostNameResolver = mock(LocalHostNameResolver.class);
     when(localHostNameResolver.getLocalHostName()).thenReturn("testHost");
 
@@ -44,6 +36,7 @@ public class StateValuesToGraphiteIT {
   @After
   public void tearDown() {
     target.shutdown();
+    TestHelper.resetInstanceForTesting();
   }
 
   @Test
@@ -60,4 +53,23 @@ public class StateValuesToGraphiteIT {
     verify(graphiteConnection, times(1)).send(contains("testAppName.testHost.states.StateTest 4711 "));
   }
 
+  @Test
+  public void exceptionFromStateValueProviderShouldNotKillJob() throws Exception {
+    InApplicationMonitor.getInstance().registerStateValue(new StateValueProvider() {
+        @Override
+        public long getValue() {
+          throw new RuntimeException("fail");
+        }
+
+        @Override
+        public String getName() {
+          return "will.fail";
+        }
+      });
+
+    // wait for 12 seconds to ensure failing state value has been called at least once
+    // and Scheduler is still running
+    Thread.sleep(12000);
+    verify(graphiteConnection, times(2)).send(contains("testAppName.testHost.states.StateTest 4711 "));
+  }
 }
