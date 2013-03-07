@@ -76,16 +76,19 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
 
 
   public InApplicationMonitorJMXConnector(CorePlugin corePlugin, JmxAppMon4JNamingStrategy jmxAppMon4JNamingStrategy) {
+    LOG.info("initializing InApplicationMonitorJMXConnector");
     if (instance != null) {
-      throw new IllegalStateException("JMXConnector allready initialized");
+      LOG.warn("JMXConnector allready initialized, will shut previous instance down and create a new one");
+      instance.shutdown();
+      //throw new IllegalStateException("JMXConnector allready initialized");
     }
-    instance = this;
     this.corePlugin = corePlugin;
     this.jmxPrefix = jmxAppMon4JNamingStrategy.getJmxPrefix() + ":";
     registerJMXStuff();
 
     // register yourself as ReportableObserver so that we're notified about every new reportable
     corePlugin.addReportableObserver(this);
+    instance = this;
   }
 
   public void shutdown() {
