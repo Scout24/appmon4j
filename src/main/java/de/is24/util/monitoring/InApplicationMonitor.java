@@ -75,9 +75,15 @@ public final class InApplicationMonitor {
   }
 
   public static InApplicationMonitor initInstance(CorePlugin corePlugin, KeyHandler keyHandler) {
-    LOGGER.info("+++ initializinh InApplicationMonitor() +++");
+    LOGGER.info("+++ initializing InApplicationMonitor() +++");
     if (INSTANCE != null) {
-      throw new IllegalStateException("InApplicationMonitor already initialized");
+      LOGGER.warn(
+        "InApplicationMonitor already initialized on a call to initInstance, will create a new Instance. Observers registered up to this point will be discarded!");
+      if (INSTANCE.getCorePlugin() != corePlugin) {
+        INSTANCE.getCorePlugin().destroy();
+      }
+
+      //      throw new IllegalStateException("InApplicationMonitor already initialized");
     }
     INSTANCE = new InApplicationMonitor(corePlugin, keyHandler);
     LOGGER.info("InApplicationMonitor initialized successfully.");
