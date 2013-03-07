@@ -1,0 +1,172 @@
+package de.is24.util.monitoring.spring;
+
+import de.is24.util.monitoring.Counter;
+import de.is24.util.monitoring.HistorizableList;
+import de.is24.util.monitoring.InApplicationMonitor;
+import de.is24.util.monitoring.ReportVisitor;
+import de.is24.util.monitoring.StateValueProvider;
+import de.is24.util.monitoring.Timer;
+import de.is24.util.monitoring.Version;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
+import static de.is24.util.monitoring.spring.MonitoringHandlerInterceptor.POST_HANDLE_TIME;
+import static de.is24.util.monitoring.spring.MonitoringHandlerInterceptor.START_TIME;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.number.IsCloseTo.closeTo;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+
+public class MonitoringHandlerInterceptorTest {
+  private static final String PREFIX = "MonitoringHandlerInterceptor.";
+  private static final String HANDLING = ".handling";
+  private static final String RENDERING = ".rendering";
+  private static final String COMPLETE = ".complete";
+  private static final String ERROR = ".error";
+  private static final int SLEEP_TIME = 100;
+
+  private final Map<String, Long> counterCalled = new HashMap<String, Long>();
+  private InApplicationMonitor monitor = InApplicationMonitor.getInstance();
+  private MonitoringHandlerInterceptor interceptor = new MonitoringHandlerInterceptor();
+
+  @Test
+  public void shouldMeasureDurations() throws Exception {
+    HttpServletRequest request = new MockHttpServletRequest();
+    Object handlerInstance = new Object();
+
+    interceptor.preHandle(request, null, handlerInstance);
+    Thread.sleep(SLEEP_TIME);
+    interceptor.postHandle(request, null, handlerInstance, null);
+    Thread.sleep(SLEEP_TIME);
+    interceptor.afterCompletion(request, null, handlerInstance, null);
+
+    final Map<String, Timer> timerMap = createTimerMap();
+
+    // measuring times on windows machines is a little tricky since the internal clock
+    // does not roll with every ms tick but only every 15th or 16th tick
+    assertTimer(timerMap, handlerInstance, HANDLING, SLEEP_TIME);
+    assertTimer(timerMap, handlerInstance, RENDERING, SLEEP_TIME);
+    assertTimer(timerMap, handlerInstance, COMPLETE, 2 * SLEEP_TIME);
+  }
+
+  @Test
+  public void shouldStripOfCGLIBEnhancerIdFromKey() {
+    Object handlerClass = new FeedbackController$$EnhancerByCGLIB$$700793d4();
+
+    String prefix = interceptor.getPrefix(handlerClass);
+
+    assertEquals(
+      "MonitoringHandlerInterceptor.de.is24.common.web.spring.MonitoringHandlerInterceptorTest$FeedbackControllerEnhancerByCGLIB_IdStripped",
+      prefix);
+  }
+
+  @Test
+  public void shouldNotMeasureInCaseOfErrorInActionPhase() throws Exception {
+    HttpServletRequest request = new MockHttpServletRequest();
+    Object handlerInstance = new Long(1L);
+
+    interceptor.preHandle(request, null, handlerInstance);
+    Thread.sleep(SLEEP_TIME);
+    interceptor.afterCompletion(request, null, handlerInstance, null);
+
+    final Map<String, Timer> timerMap = createTimerMap();
+
+    assertNoMeasurement(timerMap, handlerInstance, HANDLING);
+    assertNoMeasurement(timerMap, handlerInstance, RENDERING);
+    assertNoMeasurement(timerMap, handlerInstance, COMPLETE);
+  }
+
+  @Test
+  public void shouldNotMeasureInCasePreHandleWasNotCalledButIncrementErrorCounter() throws Exception {
+    HttpServletRequest request = new MockHttpServletRequest();
+    Object handlerInstance = new Integer(1);
+
+    Thread.sleep(SLEEP_TIME);
+    interceptor.afterCompletion(request, null, handlerInstance, null);
+
+    final Map<String, Timer> timerMap = createTimerMap();
+
+    assertThat(counterCalled.get(PREFIX + handlerInstance.getClass().getName() + ERROR), is(1L));
+    assertNoMeasurement(timerMap, handlerInstance, HANDLING);
+    assertNoMeasurement(timerMap, handlerInstance, RENDERING);
+    assertNoMeasurement(timerMap, handlerInstance, COMPLETE);
+  }
+
+  @Test
+  public void shouldRemoveStartAndPostHandleTime() throws Exception {
+    HttpServletRequest request = new MockHttpServletRequest();
+    request.setAttribute(START_TIME, 123L);
+    request.setAttribute(POST_HANDLE_TIME, 123L);
+
+    interceptor.afterCompletion(request, null, new String(), null);
+
+    assertThat(request.getAttribute(START_TIME), is(nullValue()));
+    assertThat(request.getAttribute(POST_HANDLE_TIME), is(nullValue()));
+  }
+
+  @Test
+  public void shouldRemovePostHandleTimeWhenStartTimeIsNotSet() throws Exception {
+    HttpServletRequest request = new MockHttpServletRequest();
+    request.setAttribute(POST_HANDLE_TIME, 123L);
+
+    interceptor.afterCompletion(request, null, new Float(0.1), null);
+
+    assertThat(request.getAttribute(POST_HANDLE_TIME), is(nullValue()));
+  }
+
+  @Before
+  public void resetTimers() {
+    // monitor.clear();
+  }
+
+  private void assertNoMeasurement(Map<String, Timer> timerMap, Object handlerInstance, String name) {
+    String timerFullName = PREFIX + handlerInstance.getClass().getName() + name;
+    assertTrue(!timerMap.containsKey(timerFullName));
+  }
+
+  private Map<String, Timer> createTimerMap() {
+    final Map<String, Timer> timerMap = new HashMap<String, Timer>();
+    monitor.reportInto(new ReportVisitor() {
+        @Override
+        public void reportCounter(Counter counter) {
+          counterCalled.put(counter.getName(), counter.getCount());
+        }
+
+        @Override
+        public void reportTimer(Timer timer) {
+          timerMap.put(timer.getName(), timer);
+        }
+
+        @Override
+        public void reportStateValue(StateValueProvider stateValueProvider) {
+        }
+
+        @Override
+        public void reportHistorizableList(HistorizableList historizableList) {
+        }
+
+        @Override
+        public void reportVersion(Version version) {
+        }
+      });
+    return timerMap;
+  }
+
+  private void assertTimer(Map<String, Timer> timerMap, Object handlerInstance, String timerName, int time) {
+    String timerFullName = PREFIX + handlerInstance.getClass().getName() + timerName;
+    Timer timer = timerMap.get(timerFullName);
+    assertNotNull(timer);
+    assertEquals(1, timer.getCount());
+    assertThat(new Double(time), closeTo(time, 16 /* tick diff on windows machines*/));
+  }
+
+  public static class FeedbackController$$EnhancerByCGLIB$$700793d4 {
+  }
+}
