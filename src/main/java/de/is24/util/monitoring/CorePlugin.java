@@ -41,6 +41,7 @@ public class CorePlugin extends AbstractMonitorPlugin {
       inApplicationMonitorJMXConnector = new InApplicationMonitorJMXConnector(this,
         jmxAppMon4JNamingStrategy);
     }
+    initDefaultStateValues();
   }
 
   public void initDefaultStateValues() {
