@@ -63,7 +63,7 @@ public class MonitoringHandlerInterceptorTest {
     String prefix = interceptor.getPrefix(handlerClass);
 
     assertEquals(
-      "MonitoringHandlerInterceptor.de.is24.common.web.spring.MonitoringHandlerInterceptorTest$FeedbackControllerEnhancerByCGLIB_IdStripped",
+      "MonitoringHandlerInterceptor.de.is24.util.monitoring.spring.MonitoringHandlerInterceptorTest$FeedbackControllerEnhancerByCGLIB_IdStripped",
       prefix);
   }
 
