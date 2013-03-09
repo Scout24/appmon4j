@@ -18,6 +18,7 @@ public class StatsdPlugin extends AbstractMonitorPlugin {
 
   /**
   * Create a Statsd plugin with a specified host and port.
+  * caller needs to call register on the plugin to register it into the InApplicationMonitor
   *
   * @param host the host of the Statsd server.
   * @param port the port of the Statsd server.
@@ -29,6 +30,17 @@ public class StatsdPlugin extends AbstractMonitorPlugin {
     this(host, port, appName, 1.0);
   }
 
+  /**
+   * Create a Statsd plugin with a specified host and port.
+   * caller needs to call register on the plugin to register it into the InApplicationMonitor
+   *
+   * @param host statsd host name
+   * @param port udp port statsd is listening on
+   * @param appName a short application identifier to fulfill IS24 / Graphite naming scheme requirements through statsd
+   * @param sampleRate a default sample rate to use for all metrics handled
+   * @throws UnknownHostException
+   * @throws SocketException
+   */
   public StatsdPlugin(String host, int port, String appName, double sampleRate) throws UnknownHostException,
                                                                                        SocketException {
     this(new StatsdClient(host, port, appName), "StatsdPlugin_" + host + "_" + port + "_" + sampleRate);
