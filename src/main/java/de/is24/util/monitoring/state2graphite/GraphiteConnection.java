@@ -1,5 +1,6 @@
 package de.is24.util.monitoring.state2graphite;
 
+import de.is24.util.monitoring.tools.ConnectionState;
 import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -11,8 +12,12 @@ public class GraphiteConnection {
   private final Logger LOGGER = Logger.getLogger(GraphiteConnection.class);
   private final String graphiteHost;
   private final int graphitePort;
+  private ConnectionState connectionState = ConnectionState.UNKNOWN;
+  private long lastReportTimestamp = 0;
+  private static long connectionFailureLogDelay = 10 * 60 * 1000; // 10 minutes in milliseconds
 
-  GraphiteConnection(String graphiteHost, int graphitePort) {
+
+  public GraphiteConnection(String graphiteHost, int graphitePort) {
     this.graphiteHost = graphiteHost;
     this.graphitePort = graphitePort;
   }
@@ -37,13 +42,34 @@ public class GraphiteConnection {
             LOGGER.info("could not close writer");
           }
         }
+        if (connectionState != ConnectionState.SUCCESS) {
+          LOGGER.info("Connection to graphite Host " +
+            ((connectionState == ConnectionState.UNKNOWN) ? "established" : "recovered"));
+          connectionState = ConnectionState.SUCCESS;
+        }
+
       } catch (IOException e) {
-        LOGGER.warn("could not write to graphite host " + graphiteHost + " on port " + graphitePort, e);
+        String action = "write";
+        handleException(e, action);
       } finally {
         socket.close();
       }
     } catch (IOException e) {
-      LOGGER.warn("could not connect to graphite host " + graphiteHost + " on port " + graphitePort, e);
+      String action = "connect";
+      handleException(e, action);
+    }
+  }
+
+  private void handleException(IOException e, String action) {
+    // we log on state transition and every 10 minutes
+    if (connectionState != ConnectionState.FAILED) {
+      connectionState = ConnectionState.FAILED;
+      LOGGER.warn("could not " + action + " to graphite host " + graphiteHost + " on port " + graphitePort, e);
+      lastReportTimestamp = System.currentTimeMillis();
+    }
+    if ((System.currentTimeMillis() - lastReportTimestamp) > connectionFailureLogDelay) {
+      LOGGER.warn("could not " + action + " to graphite host " + graphiteHost + " on port " + graphitePort, e);
+      lastReportTimestamp = System.currentTimeMillis();
     }
   }
 
