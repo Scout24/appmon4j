@@ -6,7 +6,7 @@ import de.is24.util.monitoring.keyhandler.KeyHandler;
 import de.is24.util.monitoring.keyhandler.TransparentKeyHandler;
 import de.is24.util.monitoring.tools.VirtualMachineMetrics;
 import org.apache.log4j.Logger;
-import java.util.Vector;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 /**
@@ -22,7 +22,8 @@ public class CorePlugin extends AbstractMonitorPlugin {
   private static Logger LOGGER = Logger.getLogger(CorePlugin.class);
   protected volatile boolean monitorActive = true;
   private volatile int maxHistoryEntriesToKeep = 5;
-  private final Vector<ReportableObserver> reportableObservers = new Vector<ReportableObserver>();
+  private final CopyOnWriteArrayList<ReportableObserver> reportableObservers =
+    new CopyOnWriteArrayList<ReportableObserver>();
   private final Monitors<Counter> countersTimers = new Monitors<Counter>(reportableObservers);
   private final Monitors<StateValueProvider> stateValues = new Monitors<StateValueProvider>(reportableObservers);
   private final Monitors<Version> versions = new Monitors<Version>(reportableObservers);
