@@ -24,6 +24,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public final class InApplicationMonitor {
   private static final Logger LOGGER = Logger.getLogger(InApplicationMonitor.class);
+  private static String semaphore = "semaphore";
 
   private static InApplicationMonitor INSTANCE;
 
@@ -69,25 +70,29 @@ public final class InApplicationMonitor {
       LOGGER.info("Initializing default InApplicationMonitor behavior. Use initInstance to customize");
 
       KeyHandler keyHandler = new DefaultKeyEscaper();
-      initInstance(new CorePlugin(new SimpleJmxAppmon4jNamingStrategy("is24"), keyHandler), keyHandler);
+      synchronized (semaphore) {
+        initInstance(new CorePlugin(new SimpleJmxAppmon4jNamingStrategy("is24"), keyHandler), keyHandler);
+      }
     }
     return INSTANCE;
   }
 
   public static InApplicationMonitor initInstance(CorePlugin corePlugin, KeyHandler keyHandler) {
-    LOGGER.info("+++ initializing InApplicationMonitor() +++");
-    if (INSTANCE != null) {
-      LOGGER.warn(
-        "InApplicationMonitor already initialized on a call to initInstance, will create a new Instance. Observers registered up to this point will be discarded!");
-      if (INSTANCE.getCorePlugin() != corePlugin) {
-        INSTANCE.getCorePlugin().destroy();
-      }
+    synchronized (semaphore) {
+      LOGGER.info("+++ initializing InApplicationMonitor() +++");
+      if (INSTANCE != null) {
+        LOGGER.warn(
+          "InApplicationMonitor already initialized on a call to initInstance, will create a new Instance. Observers registered up to this point will be discarded!");
+        if (INSTANCE.getCorePlugin() != corePlugin) {
+          INSTANCE.getCorePlugin().destroy();
+        }
 
-      //      throw new IllegalStateException("InApplicationMonitor already initialized");
+        //      throw new IllegalStateException("InApplicationMonitor already initialized");
+      }
+      INSTANCE = new InApplicationMonitor(corePlugin, keyHandler);
+      LOGGER.info("InApplicationMonitor initialized successfully.");
+      return INSTANCE;
     }
-    INSTANCE = new InApplicationMonitor(corePlugin, keyHandler);
-    LOGGER.info("InApplicationMonitor initialized successfully.");
-    return INSTANCE;
   }
 
 
