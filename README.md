@@ -6,11 +6,6 @@ This is a simple lightweight Java Framework for logging performance metrics.
 The goal was to Build a lightweight, easy to use in application monitoring system allowing measurements of "real traffic" performance values in high throughput java applications.
 
 
-Warning
--------
-
-Currently ongoing refactorings to improve testability may break some of the Interface Contracts.
-
 
 Installation
 ------------
@@ -22,7 +17,7 @@ A packaged release with source and javadoc is available from maven central repos
      <dependency>
        <groupId>de.is24.common</groupId>
        <artifactId>appmon4j</artifactId>
-       <version>1.20</version>
+       <version>1.30</version>
      </dependency>`
 
  
