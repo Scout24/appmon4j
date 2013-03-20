@@ -1,7 +1,6 @@
 package de.is24.util.monitoring;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import java.text.NumberFormat;
 import java.util.Random;
@@ -9,6 +8,8 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 
 
 public class ConcurrentcyTest {
@@ -20,32 +21,31 @@ public class ConcurrentcyTest {
     NUMBER_FORMAT.setMaximumFractionDigits(3);
   }
 
-  private static final int THREADS = 10, RUNS = 50;
+  private static final int THREADS = 10, RUNS = 10, LOOPS = 10;
 
   private ThreadPoolExecutor executor;
   private Job observerJob, timerJob;
   private Random rnd;
 
-  private AtomicLong timerSum;
-
-  @BeforeClass
-  public static void beforeClass() {
-    InApplicationMonitor.resetInstanceForTesting();
-  }
+  private AtomicLong exceptions;
 
   @Before
   public void setUp() throws Exception {
     this.observerJob = new ObserverJob();
     this.timerJob = new TimerJob();
     this.rnd = new Random();
-    this.timerSum = new AtomicLong();
+    this.exceptions = new AtomicLong();
   }
 
   @Test
-  public void testConcurency() throws InterruptedException {
-    createExecutor(10);
+  public void testConcurrency() throws InterruptedException {
+    for (int i = 0; i < LOOPS; i++) {
+      InApplicationMonitor.resetInstanceForTesting();
+      createExecutor(THREADS);
 
-    executeJobs(timerJob, observerJob);
+      executeJobs(timerJob, observerJob);
+    }
+    assertThat(exceptions.get(), is(0L));
 
   }
 
@@ -68,7 +68,11 @@ public class ConcurrentcyTest {
 
   private abstract class Job implements Runnable {
     public void run() {
-      doJob();
+      try {
+        doJob();
+      } catch (Exception e) {
+        exceptions.incrementAndGet();
+      }
     }
 
     protected abstract void doJob();
@@ -78,20 +82,16 @@ public class ConcurrentcyTest {
   private class ObserverJob extends Job {
     @Override
     protected void doJob() {
-      try {
-        InApplicationMonitor.getInstance().addReportableObserver(new ReportableObserver() {
-            @Override
-            public void addNewReportable(Reportable reportable) {
-              try {
-                Thread.sleep(1);
-              } catch (InterruptedException e) {
-                Thread.interrupted();
-              }
+      InApplicationMonitor.getInstance().addReportableObserver(new ReportableObserver() {
+          @Override
+          public void addNewReportable(Reportable reportable) {
+            try {
+              Thread.sleep(1);
+            } catch (InterruptedException e) {
+              Thread.interrupted();
             }
-          });
-      } catch (RuntimeException e) {
-        e.printStackTrace();
-      }
+          }
+        });
     }
 
   }
@@ -99,12 +99,8 @@ public class ConcurrentcyTest {
   private class TimerJob extends Job {
     @Override
     protected void doJob() {
-      try {
-        String key = "t" + rnd.nextInt(100000);
-        InApplicationMonitor.getInstance().addTimerMeasurement(key, 1);
-      } catch (RuntimeException e) {
-        e.printStackTrace();
-      }
+      String key = "t" + rnd.nextInt(100000);
+      InApplicationMonitor.getInstance().addTimerMeasurement(key, 1);
     }
 
   }
