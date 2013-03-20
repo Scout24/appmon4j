@@ -31,8 +31,8 @@ public final class InApplicationMonitor {
   private volatile boolean monitorActive = true;
   private final CopyOnWriteArrayList<MonitorPlugin> plugins = new CopyOnWriteArrayList<MonitorPlugin>();
 
-  private CorePlugin corePlugin;
-  private KeyHandler keyHandler;
+  private final CorePlugin corePlugin;
+  private final KeyHandler keyHandler;
 
   protected InApplicationMonitor(CorePlugin corePlugin, KeyHandler keyHandler) {
     this.corePlugin = corePlugin;
@@ -44,19 +44,25 @@ public final class InApplicationMonitor {
    * This will fail if tests are run multi threaded use with utmost care.
    */
   protected static InApplicationMonitor initInstanceForTesting(CorePlugin corePlugin, KeyHandler keyHandler) {
-    LOGGER.info("+++ Changing InApplicationMonitor() for Testing only +++");
-    INSTANCE = new InApplicationMonitor(corePlugin, keyHandler);
-    LOGGER.info("InApplicationMonitor changed successfully.");
-    return INSTANCE;
+    synchronized (semaphore) {
+      LOGGER.info("+++ Changing InApplicationMonitor() for Testing only +++");
+      INSTANCE = new InApplicationMonitor(corePlugin, keyHandler);
+      LOGGER.info("InApplicationMonitor changed successfully.");
+      return INSTANCE;
+    }
   }
 
   /**
    * This will fail if tests are run multi threaded use with utmost care.
    */
   protected static void resetInstanceForTesting() {
-    INSTANCE.getCorePlugin().destroy();
-    INSTANCE = null;
-    LOGGER.info("Reset InApplicationMonitor for Testing.");
+    synchronized (semaphore) {
+      if (INSTANCE != null) {
+        INSTANCE.getCorePlugin().destroy();
+        INSTANCE = null;
+        LOGGER.info("Reset InApplicationMonitor for Testing.");
+      }
+    }
   }
 
 
