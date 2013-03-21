@@ -2,7 +2,6 @@ package de.is24.util.monitoring;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -12,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @param <T> the type of monitor beans
  */
 class Monitors<T extends Reportable> {
-  private final Map<String, T> monitors = new ConcurrentHashMap<String, T>();
+  private final ConcurrentHashMap<String, T> monitors = new ConcurrentHashMap<String, T>();
 
   private final List<ReportableObserver> reportableObservers;
 
@@ -41,6 +40,10 @@ class Monitors<T extends Reportable> {
 
   public T put(String key, T reportable) {
     return monitors.put(key, reportable);
+  }
+
+  public void putIfAbsent(String key, T reportable) {
+    monitors.putIfAbsent(key, reportable);
   }
 
   private void notifyReportableObservers(Reportable reportable) {
