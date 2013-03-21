@@ -1,11 +1,24 @@
 package de.is24.util.monitoring;
 
 import de.is24.util.monitoring.jmx.JmxAppMon4JNamingStrategy;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import static org.fest.assertions.Assertions.assertThat;
 
 
 public class CorePluginTest {
+  @Before
+  public void setup() {
+    InApplicationMonitor.resetInstanceForTesting();
+  }
+
+  @After
+  public void tearDown() {
+    InApplicationMonitor.resetInstanceForTesting();
+  }
+
+
   @Test
   public void doNotInitializeJMXStuffIfNoNamingProvided() throws Exception {
     CorePlugin corePlugin = new CorePlugin(null, null);

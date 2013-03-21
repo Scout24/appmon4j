@@ -4,6 +4,7 @@ import de.is24.util.monitoring.jmx.SimpleJmxAppmon4jNamingStrategy;
 import de.is24.util.monitoring.keyhandler.DefaultKeyEscaper;
 import de.is24.util.monitoring.keyhandler.KeyHandler;
 import org.apache.log4j.Logger;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import java.text.NumberFormat;
@@ -47,6 +48,11 @@ public class ConcurrentcyTest {
     this.exceptions = new AtomicLong();
     this.successfullInits = new AtomicLong();
     this.failedInits = new AtomicLong();
+  }
+
+  @After
+  public void tearDown() {
+    InApplicationMonitor.resetInstanceForTesting();
   }
 
   @Test
