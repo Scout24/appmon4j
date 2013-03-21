@@ -26,14 +26,25 @@ public class StandAloneSimpleApp {
       try {
         instance.incrementCounter("bla.bli.blu.lala");
         instance.addTimerMeasurement("lala", 10);
-        Thread.sleep(2000);
+        Thread.sleep(20);
         i++;
       } catch (InterruptedException e) {
         LOGGER.warn("oops , e");
       }
     }
 
+    if (!JMXTestHelper.checkInApplicationMonitorJMXBeanRegistered()) {
+      LOGGER.error("JMX Bean not registered");
+      System.exit(1);
+    }
+
     corePlugin.destroy();
+
+    if (JMXTestHelper.checkInApplicationMonitorJMXBeanRegistered()) {
+      LOGGER.error("JMX Bean still registered");
+      System.exit(1);
+    }
+
 
     while (true) {
       try {
@@ -45,4 +56,5 @@ public class StandAloneSimpleApp {
       }
     }
   }
+
 }
