@@ -9,7 +9,7 @@ public class CorePluginTest {
   @Test
   public void doNotInitializeJMXStuffIfNoNamingProvided() throws Exception {
     CorePlugin corePlugin = new CorePlugin(null, null);
-    assertThat(corePlugin.isJMXInitialized()).isEqualTo(false);
+    assertThat(JMXTestHelper.checkInApplicationMonitorJMXBeanRegistered()).isEqualTo(false);
   }
 
   @Test
@@ -20,7 +20,7 @@ public class CorePluginTest {
           return "lala";
         }
       }, null);
-    assertThat(corePlugin.isJMXInitialized()).isEqualTo(true);
+    assertThat(JMXTestHelper.checkInApplicationMonitorJMXBeanRegistered("lala")).isEqualTo(true);
     corePlugin.destroy();
   }
 
