@@ -40,6 +40,8 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <spring.version>3.1.0.RELEASE</spring.version>
+    <spring.webflow.version>2.3.0.RELEASE</spring.webflow.version>
+
   </properties>
 
   <build>
@@ -239,6 +241,12 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
       <version>${spring.version}</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.webflow</groupId>
+      <artifactId>spring-webflow</artifactId>
+      <version>${spring.webflow.version}</version>
       <optional>true</optional>
     </dependency>
 
