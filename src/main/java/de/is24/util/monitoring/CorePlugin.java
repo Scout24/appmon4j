@@ -6,6 +6,7 @@ import de.is24.util.monitoring.keyhandler.KeyHandler;
 import de.is24.util.monitoring.keyhandler.TransparentKeyHandler;
 import de.is24.util.monitoring.tools.VirtualMachineMetrics;
 import org.apache.log4j.Logger;
+import java.lang.ref.WeakReference;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 
@@ -30,6 +31,8 @@ public class CorePlugin extends AbstractMonitorPlugin {
   private final Monitors<HistorizableList> historizableLists = new Monitors<HistorizableList>(reportableObservers);
   private volatile InApplicationMonitorJMXConnector inApplicationMonitorJMXConnector;
   private KeyHandler keyHandler;
+
+  WeakReference<ReportableObserver> syncObserverReference;
 
   private static final String semaphore = "CorePluginSemaphore";
 
@@ -372,7 +375,11 @@ public class CorePlugin extends AbstractMonitorPlugin {
   }
 
   public void syncFrom(CorePlugin corePluginToSyncWith) {
-    corePluginToSyncWith.addReportableObserver(new SyncObserver());
+    SyncObserver syncObserver = new SyncObserver();
+
+    // this is for testing
+    syncObserverReference = new WeakReference<ReportableObserver>(syncObserver);
+    corePluginToSyncWith.addReportableObserver(syncObserver);
   }
 
   private class SyncObserver implements ReportableObserver {

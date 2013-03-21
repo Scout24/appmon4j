@@ -1,6 +1,7 @@
 package de.is24.util.monitoring;
 
 import de.is24.util.monitoring.jmx.JmxAppMon4JNamingStrategy;
+import de.is24.util.monitoring.keyhandler.DefaultKeyEscaper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -110,6 +111,34 @@ public class CorePluginTest {
     Timer timer = corePlugin.getTimer(timerKey);
     assertThat(timer.getCount()).isEqualTo(0L);
     assertThat(timer.getTimerSum()).isEqualTo(0L);
+  }
+
+
+  @Test
+  public void syncReportableObserverShouldBeDiscardedAfterGC() throws InterruptedException {
+    CorePlugin defaultCorePlugin = InApplicationMonitor.getInstance().getCorePlugin();
+    InApplicationMonitor.getInstance().incrementCounter("lalala");
+
+
+    DefaultKeyEscaper keyEscaper = new DefaultKeyEscaper();
+    CorePlugin corePlugin = new CorePlugin(new JmxAppMon4JNamingStrategy() {
+        @Override
+        public String getJmxPrefix() {
+          return "lala";
+        }
+      }, keyEscaper);
+    InApplicationMonitor.initInstance(corePlugin, keyEscaper);
+    Thread.sleep(100);
+    System.gc();
+    assertThat(corePlugin.syncObserverReference.get() != null);
+
+
+    Thread.sleep(100);
+    System.gc();
+    Thread.sleep(100);
+    System.gc();
+    assertThat(corePlugin.syncObserverReference.get() == null);
+
   }
 
 
