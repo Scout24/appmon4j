@@ -2,6 +2,7 @@ package de.is24.util.monitoring.spring;
 
 import de.is24.util.monitoring.InApplicationMonitor;
 import org.apache.log4j.Logger;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
@@ -77,8 +78,16 @@ public class MonitoringHandlerInterceptor implements HandlerInterceptor {
   }
 
   protected String getPrefix(Object handler) {
-    String key = PREFIX + handler.getClass().getName();
+    String key;
+    if (handler instanceof HandlerMethod) {
+      HandlerMethod handlerMethod = (HandlerMethod) handler;
+      key = PREFIX + handlerMethod.getBeanType().getName().replaceAll("\\.", "_") + "." +
+        handlerMethod.getMethod().getName();
+    } else {
+      key = PREFIX + handler.getClass().getName();
+    }
     key = CGLIB_PATTERN.matcher(key).replaceAll("EnhancerByCGLIB_IdStripped");
     return key;
   }
+
 }
