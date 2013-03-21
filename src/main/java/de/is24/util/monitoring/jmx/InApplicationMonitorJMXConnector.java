@@ -65,7 +65,8 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
 
   private static final Logger LOG = Logger.getLogger(InApplicationMonitorJMXConnector.class);
 
-  private static InApplicationMonitorJMXConnector instance;
+  private static volatile InApplicationMonitorJMXConnector instance;
+  private static final String semaphore = "InApplicationMonitorJMXConnectorSemaphore";
 
   private final Map<String, Reportable> reportables = new ConcurrentHashMap<String, Reportable>();
 
@@ -76,31 +77,34 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
 
 
   public InApplicationMonitorJMXConnector(CorePlugin corePlugin, JmxAppMon4JNamingStrategy jmxAppMon4JNamingStrategy) {
-    LOG.info("initializing InApplicationMonitorJMXConnector");
-    if (instance != null) {
-      LOG.warn("JMXConnector allready initialized, will shut previous instance down and create a new one");
-      instance.shutdown();
-      //throw new IllegalStateException("JMXConnector allready initialized");
-    }
-    this.corePlugin = corePlugin;
-    this.jmxPrefix = jmxAppMon4JNamingStrategy.getJmxPrefix() + ":";
-    registerJMXStuff();
+    synchronized (semaphore) {
+      LOG.info("initializing InApplicationMonitorJMXConnector");
+      if (instance != null) {
+        LOG.error("JMXConnector allready initialized, this is not allowed");
+        throw new IllegalStateException("JMXConnector already initialized");
+      }
+      this.corePlugin = corePlugin;
+      this.jmxPrefix = jmxAppMon4JNamingStrategy.getJmxPrefix() + ":";
+      registerJMXStuff();
 
-    // register yourself as ReportableObserver so that we're notified about every new reportable
-    corePlugin.addReportableObserver(this);
-    instance = this;
+      // register yourself as ReportableObserver so that we're notified about every new reportable
+      corePlugin.addReportableObserver(this);
+      instance = this;
+    }
   }
 
   public void shutdown() {
-    LOG.info("shutting down InApplicationMonitorJMXConnector ");
-    corePlugin.removeReportableObserver(this);
-    removeAllReportables();
-    try {
-      beanServer.unregisterMBean(new ObjectName(jmxPrefix + "name=InApplicationMonitor"));
-    } catch (Exception e) {
-      LOG.warn("problem when unregistering InApplicationMonitorJMXConnector during shutdown");
+    synchronized (semaphore) {
+      LOG.info("shutting down InApplicationMonitorJMXConnector ");
+      corePlugin.removeReportableObserver(this);
+      removeAllReportables();
+      try {
+        beanServer.unregisterMBean(new ObjectName(jmxPrefix + "name=InApplicationMonitor"));
+      } catch (Exception e) {
+        LOG.warn("problem when unregistering InApplicationMonitorJMXConnector during shutdown", e);
+      }
+      instance = null;
     }
-    instance = null;
   }
 
   /**
