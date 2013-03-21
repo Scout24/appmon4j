@@ -1,7 +1,6 @@
 
 package de.is24.util.monitoring;
 
-import de.is24.util.monitoring.jmx.SimpleJmxAppmon4jNamingStrategy;
 import de.is24.util.monitoring.keyhandler.DefaultKeyEscaper;
 import de.is24.util.monitoring.keyhandler.KeyHandler;
 import org.apache.log4j.Logger;
@@ -77,7 +76,9 @@ public final class InApplicationMonitor {
 
       KeyHandler keyHandler = new DefaultKeyEscaper();
       synchronized (semaphore) {
-        initInstance(new CorePlugin(new SimpleJmxAppmon4jNamingStrategy("is24"), keyHandler), keyHandler);
+        if (INSTANCE == null) {
+          initInstance(new CorePlugin(null, keyHandler), keyHandler);
+        }
       }
     }
     return INSTANCE;
