@@ -370,4 +370,25 @@ public class CorePlugin extends AbstractMonitorPlugin {
         }
       });
   }
+
+  public void syncFrom(CorePlugin corePluginToSyncWith) {
+    corePluginToSyncWith.addReportableObserver(new SyncObserver());
+  }
+
+  private class SyncObserver implements ReportableObserver {
+    @Override
+    public void addNewReportable(Reportable reportable) {
+      String name = keyHandler.handle(reportable.getName());
+      LOGGER.info("#### syncing reportable " + reportable.getName());
+      if ((reportable instanceof Counter) || (reportable instanceof Timer)) {
+        countersTimers.putIfAbsent(name, (Counter) reportable);
+      } else if (reportable instanceof Version) {
+        versions.putIfAbsent(name, (Version) reportable);
+      } else if (reportable instanceof HistorizableList) {
+        historizableLists.putIfAbsent(name, (HistorizableList) reportable);
+      } else if (reportable instanceof StateValueProvider) {
+        stateValues.putIfAbsent(name, (StateValueProvider) reportable);
+      }
+    }
+  }
 }

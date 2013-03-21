@@ -25,18 +25,24 @@ public final class InApplicationMonitor {
   private static final Logger LOGGER = Logger.getLogger(InApplicationMonitor.class);
   private static String semaphore = "semaphore";
 
-  private static InApplicationMonitor INSTANCE;
 
   private volatile boolean monitorActive = true;
   private final CopyOnWriteArrayList<MonitorPlugin> plugins = new CopyOnWriteArrayList<MonitorPlugin>();
 
-  private final CorePlugin corePlugin;
-  private final KeyHandler keyHandler;
+  private volatile KeyHandler keyHandler;
+  private volatile CorePlugin corePlugin;
+  private static InApplicationMonitor INSTANCE;
+
+  static {
+    KeyHandler keyHandler = new DefaultKeyEscaper();
+    CorePlugin corePlugin = new CorePlugin(null, keyHandler);
+    INSTANCE = new InApplicationMonitor(corePlugin, keyHandler);
+  }
 
   protected InApplicationMonitor(CorePlugin corePlugin, KeyHandler keyHandler) {
+    this.keyHandler = keyHandler;
     this.corePlugin = corePlugin;
     registerPlugin(corePlugin);
-    this.keyHandler = keyHandler;
   }
 
   /**
@@ -58,7 +64,10 @@ public final class InApplicationMonitor {
     synchronized (semaphore) {
       if (INSTANCE != null) {
         INSTANCE.getCorePlugin().destroy();
-        INSTANCE = null;
+
+        KeyHandler keyHandler = new DefaultKeyEscaper();
+        CorePlugin corePlugin = new CorePlugin(null, keyHandler);
+        INSTANCE = new InApplicationMonitor(corePlugin, keyHandler);
         LOGGER.info("Reset InApplicationMonitor for Testing.");
       }
     }
@@ -71,35 +80,27 @@ public final class InApplicationMonitor {
   * @return InApplicationMonitor Singleton
   */
   public static InApplicationMonitor getInstance() {
-    if (INSTANCE == null) {
-      LOGGER.info("Initializing default InApplicationMonitor behavior. Use initInstance to customize");
-
-      KeyHandler keyHandler = new DefaultKeyEscaper();
-      synchronized (semaphore) {
-        if (INSTANCE == null) {
-          initInstance(new CorePlugin(null, keyHandler), keyHandler);
-        }
-      }
-    }
     return INSTANCE;
   }
 
   public static InApplicationMonitor initInstance(CorePlugin corePlugin, KeyHandler keyHandler) {
+    CorePlugin previousCorePlugin;
     synchronized (semaphore) {
       LOGGER.info("+++ initializing InApplicationMonitor() +++");
-      if (INSTANCE != null) {
-        LOGGER.warn(
-          "InApplicationMonitor already initialized on a call to initInstance, will create a new Instance. Observers registered up to this point will be discarded!");
-        if (INSTANCE.getCorePlugin() != corePlugin) {
-          INSTANCE.getCorePlugin().destroy();
-        }
 
-        //      throw new IllegalStateException("InApplicationMonitor already initialized");
-      }
-      INSTANCE = new InApplicationMonitor(corePlugin, keyHandler);
-      LOGGER.info("InApplicationMonitor initialized successfully.");
-      return INSTANCE;
+      INSTANCE.keyHandler = keyHandler;
+
+      previousCorePlugin = INSTANCE.corePlugin;
+      corePlugin.syncFrom(previousCorePlugin);
+      INSTANCE.corePlugin = corePlugin;
+      LOGGER.info("InApplicationMonitor updated successfully.");
     }
+    if ((previousCorePlugin != null) && (previousCorePlugin != corePlugin)) {
+      LOGGER.info("syncing from previous core plugin");
+      previousCorePlugin.destroy();
+    }
+
+    return INSTANCE;
   }
 
 
