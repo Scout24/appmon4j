@@ -375,6 +375,12 @@ public class CorePlugin extends AbstractMonitorPlugin {
   }
 
   public void syncFrom(CorePlugin corePluginToSyncWith) {
+    for (ReportableObserver reportableObserver : corePluginToSyncWith.reportableObservers) {
+      LOGGER.warn("while syncing: adding reportable observer " + reportableObserver
+        .getClass().getName());
+      addReportableObserver(reportableObserver);
+    }
+
     SyncObserver syncObserver = new SyncObserver();
 
     // this is for testing
