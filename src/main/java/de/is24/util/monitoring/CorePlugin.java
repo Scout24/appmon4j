@@ -28,21 +28,24 @@ public class CorePlugin extends AbstractMonitorPlugin {
   private final Monitors<StateValueProvider> stateValues = new Monitors<StateValueProvider>(reportableObservers);
   private final Monitors<Version> versions = new Monitors<Version>(reportableObservers);
   private final Monitors<HistorizableList> historizableLists = new Monitors<HistorizableList>(reportableObservers);
-  private InApplicationMonitorJMXConnector inApplicationMonitorJMXConnector;
+  private volatile InApplicationMonitorJMXConnector inApplicationMonitorJMXConnector;
   private KeyHandler keyHandler;
 
+  private static final String semaphore = "CorePluginSemaphore";
 
   public CorePlugin(JmxAppMon4JNamingStrategy jmxAppMon4JNamingStrategy, KeyHandler keyHandler) {
-    if (keyHandler != null) {
-      this.keyHandler = keyHandler;
-    } else {
-      this.keyHandler = new TransparentKeyHandler();
+    synchronized (semaphore) {
+      if (keyHandler != null) {
+        this.keyHandler = keyHandler;
+      } else {
+        this.keyHandler = new TransparentKeyHandler();
+      }
+      if (jmxAppMon4JNamingStrategy != null) {
+        inApplicationMonitorJMXConnector = new InApplicationMonitorJMXConnector(this,
+          jmxAppMon4JNamingStrategy);
+      }
+      initDefaultStateValues();
     }
-    if (jmxAppMon4JNamingStrategy != null) {
-      inApplicationMonitorJMXConnector = new InApplicationMonitorJMXConnector(this,
-        jmxAppMon4JNamingStrategy);
-    }
-    initDefaultStateValues();
   }
 
   public void initDefaultStateValues() {
@@ -80,9 +83,11 @@ public class CorePlugin extends AbstractMonitorPlugin {
   }
 
   public synchronized void destroy() {
-    if (isJMXInitialized()) {
-      inApplicationMonitorJMXConnector.shutdown();
-      inApplicationMonitorJMXConnector = null;
+    synchronized (semaphore) {
+      if (isJMXInitialized()) {
+        inApplicationMonitorJMXConnector.shutdown();
+        inApplicationMonitorJMXConnector = null;
+      }
     }
   }
 
@@ -91,7 +96,7 @@ public class CorePlugin extends AbstractMonitorPlugin {
     return "CorePlugin";
   }
 
-  public boolean isJMXInitialized() {
+  private boolean isJMXInitialized() {
     return inApplicationMonitorJMXConnector != null;
   }
 
