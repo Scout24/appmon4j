@@ -17,7 +17,7 @@ A packaged release with source and javadoc is available from maven central repos
      <dependency>
        <groupId>de.is24.common</groupId>
        <artifactId>appmon4j</artifactId>
-       <version>1.30</version>
+       <version>1.31</version>
      </dependency>`
 
  
