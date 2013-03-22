@@ -5,12 +5,13 @@ import javax.management.MBeanInfo;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
-import java.util.Iterator;
 import java.util.Set;
 
 
 public class JMXTestHelper {
   private static final Logger LOGGER = Logger.getLogger(JMXTestHelper.class);
+  private static final MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
+
 
   public static boolean checkInApplicationMonitorJMXBeanRegistered() {
     return checkInApplicationMonitorJMXBeanRegistered("is24");
@@ -19,7 +20,6 @@ public class JMXTestHelper {
 
   public static boolean checkInApplicationMonitorJMXBeanRegistered(String domain) {
     try {
-      MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
       ObjectName inAppJMXName = new ObjectName(domain + ":name=InApplicationMonitor");
 
       Set<ObjectName> objectNames = platformMBeanServer.queryNames(inAppJMXName, null);
@@ -34,22 +34,45 @@ public class JMXTestHelper {
 
   public static MBeanInfo getInApplicationMonitorMBeanInfo() {
     try {
-      MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
       ObjectName inAppJMXName = new ObjectName("is24:name=InApplicationMonitor");
 
-      Set<ObjectName> objectNames = platformMBeanServer.queryNames(inAppJMXName, null);
-      Iterator<ObjectName> iterator = objectNames.iterator();
+      MBeanInfo info = platformMBeanServer.getMBeanInfo(inAppJMXName);
+      return info;
 
-      if (iterator.hasNext()) {
-        MBeanInfo info = platformMBeanServer.getMBeanInfo(iterator.next());
-        return info;
-      }
-      throw new RuntimeException("wrong number of objects found " + objectNames.size());
     } catch (Exception e) {
       LOGGER.warn("oops", e);
       throw new RuntimeException(e);
     }
 
   }
+
+  public static Long getTimerValue(String timerName, String attribute) {
+    try {
+      ObjectName objectName = new ObjectName("is24:type=InApplicationMonitor,name=" + timerName);
+
+      Long result = (Long) platformMBeanServer.getAttribute(objectName, attribute);
+      return result;
+
+    } catch (Exception e) {
+      LOGGER.warn("oops", e);
+      throw new RuntimeException(e);
+    }
+
+  }
+
+
+  public static MBeanInfo getTimerMBeanInfo(String timerKey) {
+    try {
+      ObjectName inAppJMXName = new ObjectName("is24:type=InApplicationMonitor,name=" + timerKey);
+
+      MBeanInfo info = platformMBeanServer.getMBeanInfo(inAppJMXName);
+      return info;
+    } catch (Exception e) {
+      LOGGER.warn("oops", e);
+      throw new RuntimeException(e);
+    }
+
+  }
+
 
 }

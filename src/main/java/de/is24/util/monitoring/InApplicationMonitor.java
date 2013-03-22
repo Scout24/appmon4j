@@ -92,6 +92,10 @@ public final class InApplicationMonitor {
 
       previousCorePlugin = INSTANCE.corePlugin;
       corePlugin.syncFrom(previousCorePlugin);
+
+      //both core plugins currently have the same name, and name is used for equals, thus first remove than add.
+      INSTANCE.plugins.remove(previousCorePlugin);
+      INSTANCE.plugins.add(corePlugin);
       INSTANCE.corePlugin = corePlugin;
       LOGGER.info("InApplicationMonitor updated successfully.");
     }
