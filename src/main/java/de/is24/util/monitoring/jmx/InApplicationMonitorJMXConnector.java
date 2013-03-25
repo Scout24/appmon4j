@@ -66,7 +66,7 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
   private static final Logger LOG = Logger.getLogger(InApplicationMonitorJMXConnector.class);
 
   private static volatile InApplicationMonitorJMXConnector instance;
-  private static final String semaphore = "InApplicationMonitorJMXConnectorSemaphore";
+  private static final Object semaphore = new Object();
 
   private final Map<String, Reportable> reportables = new ConcurrentHashMap<String, Reportable>();
 
