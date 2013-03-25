@@ -44,6 +44,7 @@ class Monitors<T extends Reportable> {
 
   public void putIfAbsent(String key, T reportable) {
     monitors.putIfAbsent(key, reportable);
+    notifyReportableObservers(reportable);
   }
 
   private void notifyReportableObservers(Reportable reportable) {
