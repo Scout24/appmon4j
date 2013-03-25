@@ -20,7 +20,6 @@ public class InApplicationMonitorTest {
   public void explicitInitializationShouldTakeOverInitializedCountersAndTimers() {
     InApplicationMonitor.getInstance().initializeCounter(INITIALIZED_COUNTER_1);
 
-
     DefaultKeyEscaper keyEscaper = new DefaultKeyEscaper();
     CorePlugin corePlugin = new CorePlugin(new JmxAppMon4JNamingStrategy() {
         @Override
@@ -33,8 +32,12 @@ public class InApplicationMonitorTest {
 
     CheckForCounterExistenceReportVisitor reportVisitor = new CheckForCounterExistenceReportVisitor(
       INITIALIZED_COUNTER_1);
+    assertThat(explicitInitializedInApplicationMonitor.getCorePlugin()).isSameAs(corePlugin);
     explicitInitializedInApplicationMonitor.getCorePlugin().reportInto(reportVisitor);
     assertThat(reportVisitor.found).isTrue();
+    assertThat(JMXTestHelper.checkInApplicationMonitorJMXBeanRegistered("lala")).isEqualTo(true);
+
+    assertThat(JMXTestHelper.getCounterValue("lala", INITIALIZED_COUNTER_1)).isEqualTo(0);
   }
 
   private static class CheckForCounterExistenceReportVisitor extends DoNothingReportVisitor {
