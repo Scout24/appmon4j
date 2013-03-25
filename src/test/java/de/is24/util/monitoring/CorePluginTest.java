@@ -115,6 +115,23 @@ public class CorePluginTest {
 
 
   @Test
+  public void defaultInitializedCorePluginNotEqualToExplicitInitialized() {
+    CorePlugin defaultCorePlugin = InApplicationMonitor.getInstance().getCorePlugin();
+
+
+    DefaultKeyEscaper keyEscaper = new DefaultKeyEscaper();
+    CorePlugin corePlugin = new CorePlugin(new JmxAppMon4JNamingStrategy() {
+        @Override
+        public String getJmxPrefix() {
+          return "lala";
+        }
+      }, keyEscaper);
+
+    assertThat(corePlugin).isNotEqualTo(defaultCorePlugin);
+    corePlugin.destroy();
+  }
+
+  @Test
   public void syncReportableObserverShouldBeDiscardedAfterGC() throws InterruptedException {
     CorePlugin defaultCorePlugin = InApplicationMonitor.getInstance().getCorePlugin();
     InApplicationMonitor.getInstance().incrementCounter("lalala");
