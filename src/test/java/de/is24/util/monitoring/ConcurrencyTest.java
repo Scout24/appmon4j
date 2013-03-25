@@ -19,9 +19,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertTrue;
 
 
-public class ConcurrentcyTest {
+public class ConcurrencyTest {
   private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance();
-  private static final Logger LOGGER = Logger.getLogger(ConcurrentcyTest.class);
+  private static final Logger LOGGER = Logger.getLogger(ConcurrencyTest.class);
 
   static {
     NUMBER_FORMAT.setGroupingUsed(true);
