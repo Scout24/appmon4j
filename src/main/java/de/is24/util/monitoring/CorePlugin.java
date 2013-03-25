@@ -7,6 +7,7 @@ import de.is24.util.monitoring.keyhandler.TransparentKeyHandler;
 import de.is24.util.monitoring.tools.VirtualMachineMetrics;
 import org.apache.log4j.Logger;
 import java.lang.ref.WeakReference;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 
@@ -34,7 +35,8 @@ public class CorePlugin extends AbstractMonitorPlugin {
 
   WeakReference<ReportableObserver> syncObserverReference;
 
-  private static final String semaphore = "CorePluginSemaphore";
+  private static final Object semaphore = new Object();
+  private final String uniqueName;
 
   public CorePlugin(JmxAppMon4JNamingStrategy jmxAppMon4JNamingStrategy, KeyHandler keyHandler) {
     synchronized (semaphore) {
@@ -47,6 +49,9 @@ public class CorePlugin extends AbstractMonitorPlugin {
         inApplicationMonitorJMXConnector = new InApplicationMonitorJMXConnector(this,
           jmxAppMon4JNamingStrategy);
       }
+      uniqueName = "CorePlugin" +
+        ((jmxAppMon4JNamingStrategy != null) ? jmxAppMon4JNamingStrategy.getJmxPrefix()
+                                             : ("NoJmx" + UUID.randomUUID().toString()));
       initDefaultStateValues();
     }
   }
@@ -96,7 +101,7 @@ public class CorePlugin extends AbstractMonitorPlugin {
 
   @Override
   public String getUniqueName() {
-    return "CorePlugin";
+    return uniqueName;
   }
 
   private boolean isJMXInitialized() {
