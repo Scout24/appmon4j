@@ -60,6 +60,20 @@ public class JMXTestHelper {
 
   }
 
+  public static Long getCounterValue(String domain, String counterName) {
+    try {
+      ObjectName objectName = new ObjectName(domain + ":name=InApplicationMonitor");
+
+      Long result = (Long) platformMBeanServer.getAttribute(objectName, counterName);
+      return result;
+
+    } catch (Exception e) {
+      LOGGER.warn("oops", e);
+      throw new RuntimeException(e);
+    }
+
+  }
+
 
   public static MBeanInfo getTimerMBeanInfo(String timerKey) {
     try {
@@ -73,6 +87,5 @@ public class JMXTestHelper {
     }
 
   }
-
 
 }
