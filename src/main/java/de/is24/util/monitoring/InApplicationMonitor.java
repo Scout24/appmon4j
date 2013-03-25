@@ -23,7 +23,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public final class InApplicationMonitor {
   private static final Logger LOGGER = Logger.getLogger(InApplicationMonitor.class);
-  private static String semaphore = "semaphore";
+  private static Object semaphore = new Object();
 
 
   private volatile boolean monitorActive = true;
@@ -50,6 +50,9 @@ public final class InApplicationMonitor {
    */
   protected static InApplicationMonitor initInstanceForTesting(CorePlugin corePlugin, KeyHandler keyHandler) {
     synchronized (semaphore) {
+      if (INSTANCE != null) {
+        INSTANCE.getCorePlugin().destroy();
+      }
       LOGGER.info("+++ Changing InApplicationMonitor() for Testing only +++");
       INSTANCE = new InApplicationMonitor(corePlugin, keyHandler);
       LOGGER.info("InApplicationMonitor changed successfully.");
@@ -64,12 +67,12 @@ public final class InApplicationMonitor {
     synchronized (semaphore) {
       if (INSTANCE != null) {
         INSTANCE.getCorePlugin().destroy();
-
-        KeyHandler keyHandler = new DefaultKeyEscaper();
-        CorePlugin corePlugin = new CorePlugin(null, keyHandler);
-        INSTANCE = new InApplicationMonitor(corePlugin, keyHandler);
-        LOGGER.info("Reset InApplicationMonitor for Testing.");
       }
+
+      KeyHandler keyHandler = new DefaultKeyEscaper();
+      CorePlugin corePlugin = new CorePlugin(null, keyHandler);
+      INSTANCE = new InApplicationMonitor(corePlugin, keyHandler);
+      LOGGER.info("Reset InApplicationMonitor for Testing.");
     }
   }
 
@@ -93,9 +96,8 @@ public final class InApplicationMonitor {
       previousCorePlugin = INSTANCE.corePlugin;
       corePlugin.syncFrom(previousCorePlugin);
 
-      //both core plugins currently have the same name, and name is used for equals, thus first remove than add.
-      INSTANCE.plugins.remove(previousCorePlugin);
       INSTANCE.plugins.add(corePlugin);
+      INSTANCE.plugins.remove(previousCorePlugin);
       INSTANCE.corePlugin = corePlugin;
       LOGGER.info("InApplicationMonitor updated successfully.");
     }
