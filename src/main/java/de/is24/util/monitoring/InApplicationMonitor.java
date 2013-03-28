@@ -93,6 +93,7 @@ public final class InApplicationMonitor {
 
       INSTANCE.keyHandler = keyHandler;
 
+      LOGGER.info("syncing from previous core plugin");
       previousCorePlugin = INSTANCE.corePlugin;
       corePlugin.syncFrom(previousCorePlugin);
 
@@ -102,7 +103,6 @@ public final class InApplicationMonitor {
       LOGGER.info("InApplicationMonitor updated successfully.");
     }
     if ((previousCorePlugin != null) && (previousCorePlugin != corePlugin)) {
-      LOGGER.info("syncing from previous core plugin");
       previousCorePlugin.destroy();
     }
 
