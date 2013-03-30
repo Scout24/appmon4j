@@ -1,6 +1,5 @@
-package de.is24.util.monitoring;
+package de.is24.util.monitoring.keyhandler;
 
-import de.is24.util.monitoring.keyhandler.ValidatingKeyHandler;
 import org.junit.Test;
 
 
