@@ -80,6 +80,14 @@ Additional Reportables are
 *   uptime
 *   number of connections in a connection pool
 
+### MultiStateProvider
+
+*   Expose several State Values by one Reportable instance. Usefull if one single Reportable wants to delivery multiple State values, especially if the count of States may vary over time.
+
+##### Examples
+
+* JMXExporter exports all numeric values of all JMXBeans in a given domain, which may change over time.
+
 ### Version
 
 could / should actually be generalized into an non numeric state value
