@@ -182,7 +182,7 @@ If you are allready using the appmon4j, putting your metrics into graphite / sta
 *  If you have the JMX Mbean of appmon4j enabled you can add and remove Statsd Plugins during runtime.
 *  To send StateValues directly to graphite use appmon4js StateValuesToGraphite Class.
 
-You could put the following block into your applications spring config. Please ensure proper replacement of variables, and replace ### with your apps TYP name from config svn. Default value for statsd.port is 8125, but please keep it configurable, as we have plans to run several instances of statsd on graphite servers.
+You could put the following block into your applications spring config. Please ensure proper replacement of variables, and replace ### with your apps TYP name. Default value for statsd.port is 8125.
 
      <bean class="de.is24.util.monitoring.statsd.StatsdPlugin" init-method="register">
          <constructor-arg index="0" value="${statsd.host}"/>
@@ -195,6 +195,15 @@ You could put the following block into your applications spring config. Please e
          <constructor-arg index="0" value="${graphite.host}" />
          <constructor-arg index="1" value="2003" />
          <constructor-arg index="2" value="###" />
+     </bean>
+
+
+### Expose JMX Bean values
+
+If you want to expose numeric values of other JMX Beans, you can use JMXExporter to do so.
+
+     <bean class="de.is24.util.monitoring.jmx.JMXExporter">
+         <constructor-arg index="0" value="java.lang" />
      </bean>
 
 
