@@ -2,12 +2,15 @@ package de.is24.util.monitoring.visitors;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import de.is24.util.monitoring.Counter;
 import de.is24.util.monitoring.Historizable;
 import de.is24.util.monitoring.HistorizableList;
+import de.is24.util.monitoring.MultiValueProvider;
 import de.is24.util.monitoring.ReportVisitor;
+import de.is24.util.monitoring.State;
 import de.is24.util.monitoring.StateValueProvider;
 import de.is24.util.monitoring.Timer;
 import de.is24.util.monitoring.Version;
@@ -42,9 +45,17 @@ public abstract class AbstractSortedReportVisitor implements ReportVisitor {
     addEntry(new StateValueEntry(stateValueProvider));
   }
 
+  @Override
+  public void reportMultiValue(MultiValueProvider multiValueProvider) {
+    Collection<State> values = multiValueProvider.getValues();
+    for (State state : values) {
+      addEntry(new StateEntry(state));
+    }
+  }
+
   /* (non-Javadoc)
-   * @see de.is24.util.monitoring.ReportVisitor#reportVersion(de.is24.util.monitoring.Version)
-   */
+  * @see de.is24.util.monitoring.ReportVisitor#reportVersion(de.is24.util.monitoring.Version)
+  */
   public void reportVersion(Version aVersion) {
     addEntry(new VersionEntry(aVersion));
   }
@@ -56,6 +67,7 @@ public abstract class AbstractSortedReportVisitor implements ReportVisitor {
     addEntry(new HistorizableEntry(aHistorizableList));
   }
 
+  @Override
   public abstract String toString();
 
 
@@ -118,6 +130,7 @@ public abstract class AbstractSortedReportVisitor implements ReportVisitor {
       stdDev = timer.getTimerStdDev();
     }
 
+    @Override
     public String getValue() {
       return getPath() + " Timer " + getName() + " : " + getCount() + " took " + getSum() + " avg. " +
         average + " stdDev. " + getStdDev();
@@ -148,6 +161,7 @@ public abstract class AbstractSortedReportVisitor implements ReportVisitor {
       count = counter.getCount();
     }
 
+    @Override
     public String getValue() {
       return getPath() + " Counter " + getName() + " : " + getCount();
     }
@@ -166,6 +180,7 @@ public abstract class AbstractSortedReportVisitor implements ReportVisitor {
       stateValue = stateValueProvider.getValue();
     }
 
+    @Override
     public String getValue() {
       return getPath() + " StateValue " + getName() + " : " + getStateValue();
     }
@@ -176,6 +191,26 @@ public abstract class AbstractSortedReportVisitor implements ReportVisitor {
 
   }
 
+  public final class StateEntry extends Entry {
+    private long stateValue;
+
+    private StateEntry(State state) {
+      super(state.name, "State");
+      stateValue = state.value;
+    }
+
+    @Override
+    public String getValue() {
+      return getPath() + " State " + getName() + " : " + getStateValue();
+    }
+
+    public long getStateValue() {
+      return stateValue;
+    }
+
+  }
+
+
   public final class VersionEntry extends Entry {
     private Version fVersion;
 
@@ -184,6 +219,7 @@ public abstract class AbstractSortedReportVisitor implements ReportVisitor {
       fVersion = aVersion;
     }
 
+    @Override
     public String getValue() {
       return getPath() + " Version " + getName() + " : " + fVersion.getValue();
     }
@@ -201,6 +237,7 @@ public abstract class AbstractSortedReportVisitor implements ReportVisitor {
       }
     }
 
+    @Override
     public String getValue() {
       StringBuilder buffy = new StringBuilder();
       buffy.append(getPath()).append(" Historizable ").append(getName()).append(" :\n");

@@ -1,12 +1,9 @@
 package de.is24.util.monitoring.spring;
 
 import de.is24.util.monitoring.Counter;
-import de.is24.util.monitoring.HistorizableList;
 import de.is24.util.monitoring.InApplicationMonitor;
-import de.is24.util.monitoring.ReportVisitor;
-import de.is24.util.monitoring.StateValueProvider;
 import de.is24.util.monitoring.Timer;
-import de.is24.util.monitoring.Version;
+import de.is24.util.monitoring.tools.DoNothingReportVisitor;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -133,7 +130,7 @@ public class MonitoringHandlerInterceptorTest {
 
   private Map<String, Timer> createTimerMap() {
     final Map<String, Timer> timerMap = new HashMap<String, Timer>();
-    monitor.reportInto(new ReportVisitor() {
+    monitor.reportInto(new DoNothingReportVisitor() {
         @Override
         public void reportCounter(Counter counter) {
           counterCalled.put(counter.getName(), counter.getCount());
@@ -144,17 +141,6 @@ public class MonitoringHandlerInterceptorTest {
           timerMap.put(timer.getName(), timer);
         }
 
-        @Override
-        public void reportStateValue(StateValueProvider stateValueProvider) {
-        }
-
-        @Override
-        public void reportHistorizableList(HistorizableList historizableList) {
-        }
-
-        @Override
-        public void reportVersion(Version version) {
-        }
       });
     return timerMap;
   }

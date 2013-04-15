@@ -3,6 +3,7 @@ package de.is24.util.monitoring.visitors;
 import java.util.TreeMap;
 import de.is24.util.monitoring.Counter;
 import de.is24.util.monitoring.HistorizableList;
+import de.is24.util.monitoring.MultiValueProvider;
 import de.is24.util.monitoring.ReportVisitor;
 import de.is24.util.monitoring.StateValueProvider;
 import de.is24.util.monitoring.Timer;
@@ -22,6 +23,7 @@ public class HistogramLikeValueAnalysisVisitor implements ReportVisitor {
     this.base = base;
   }
 
+  @Override
   public void reportCounter(Counter counter) {
     String name = counter.getName();
     String baseName = base + HistogramLikeValue.NAME_BIGGER_THAN;
@@ -34,9 +36,11 @@ public class HistogramLikeValueAnalysisVisitor implements ReportVisitor {
     }
   }
 
+  @Override
   public void reportHistorizableList(HistorizableList historizableList) {
   }
 
+  @Override
   public void reportStateValue(StateValueProvider stateValueProvider) {
     String baseNameFactor = base + HistogramLikeValue.NAME_FACTOR;
     String baseNameCurrentMax = base + HistogramLikeValue.NAME_CURRENT_MAX;
@@ -47,10 +51,16 @@ public class HistogramLikeValueAnalysisVisitor implements ReportVisitor {
     }
   }
 
+  @Override
   public void reportTimer(Timer timer) {
   }
 
+  @Override
   public void reportVersion(Version version) {
+  }
+
+  @Override
+  public void reportMultiValue(MultiValueProvider multiValueProvider) {
   }
 
   @Override
@@ -66,9 +76,16 @@ public class HistogramLikeValueAnalysisVisitor implements ReportVisitor {
       float border = percentages[currentPercentageIdx] * totalCount;
       if (currentCount >= border) {
         double currentPercentage = ((double) currentCount / totalCount) * 100;
-        sb.append(currentCount).append(" values, which are ").append(currentPercentage).append(
-          "%, are smaller than ").append(((currentPercentage >= 100) ? "or equal to " : "")).append(
-          (currentPercentage >= 100) ? currentMax : (time + factor)).append(" flurbs").append("\n");
+        sb.append(currentCount)
+        .append(" values, which are ")
+        .append(currentPercentage)
+        .append(
+          "%, are smaller than ")
+        .append(((currentPercentage >= 100) ? "or equal to " : ""))
+        .append(
+          (currentPercentage >= 100) ? currentMax : (time + factor))
+        .append(" flurbs")
+        .append("\n");
         currentPercentageIdx++;
       }
     }

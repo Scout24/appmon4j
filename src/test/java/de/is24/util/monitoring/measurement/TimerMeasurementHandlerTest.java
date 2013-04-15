@@ -1,13 +1,9 @@
 package de.is24.util.monitoring.measurement;
 
-import de.is24.util.monitoring.Counter;
-import de.is24.util.monitoring.HistorizableList;
 import de.is24.util.monitoring.InApplicationMonitor;
-import de.is24.util.monitoring.ReportVisitor;
-import de.is24.util.monitoring.StateValueProvider;
 import de.is24.util.monitoring.TestHelper;
 import de.is24.util.monitoring.Timer;
-import de.is24.util.monitoring.Version;
+import de.is24.util.monitoring.tools.DoNothingReportVisitor;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -58,7 +54,7 @@ public class TimerMeasurementHandlerTest {
   }
 
 
-  class TimerExtractor implements ReportVisitor {
+  class TimerExtractor extends DoNothingReportVisitor {
     final String timerName;
     Timer extractedTimer;
 
@@ -77,20 +73,5 @@ public class TimerMeasurementHandlerTest {
       return extractedTimer;
     }
 
-    @Override
-    public void reportCounter(Counter counter) {
-    }
-
-    @Override
-    public void reportStateValue(StateValueProvider stateValueProvider) {
-    }
-
-    @Override
-    public void reportHistorizableList(HistorizableList historizableList) {
-    }
-
-    @Override
-    public void reportVersion(Version version) {
-    }
   }
 }

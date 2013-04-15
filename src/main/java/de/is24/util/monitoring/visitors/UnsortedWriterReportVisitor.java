@@ -3,6 +3,9 @@ package de.is24.util.monitoring.visitors;
 import java.io.IOException;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
+import de.is24.util.monitoring.MultiValueProvider;
+import de.is24.util.monitoring.State;
 import org.apache.log4j.Logger;
 import de.is24.util.monitoring.Counter;
 import de.is24.util.monitoring.Historizable;
@@ -65,9 +68,20 @@ public abstract class UnsortedWriterReportVisitor implements ReportVisitor {
     writeStringToWriter(result);
   }
 
+  @Override
+  public void reportMultiValue(MultiValueProvider multiValueProvider) {
+    LOGGER.debug("+++ entering UnsortedWriterReportVisitor.reportMultiValue +++");
+
+    Collection<State> values = multiValueProvider.getValues();
+    for (State state : values) {
+      String result = state.name + " multi_state : " + state.value;
+      writeStringToWriter(result);
+    }
+  }
+
   /* (non-Javadoc)
-   * @see de.is24.util.monitoring.ReportVisitor#reportVersion(de.is24.util.monitoring.Version)
-   */
+  * @see de.is24.util.monitoring.ReportVisitor#reportVersion(de.is24.util.monitoring.Version)
+  */
   public void reportVersion(Version aVersion) {
     LOGGER.debug("+++ enter UnsortedWriterReportVisitor.reportVersion+++");
 

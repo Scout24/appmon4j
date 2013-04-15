@@ -2,6 +2,7 @@ package de.is24.util.monitoring.tools;
 
 import de.is24.util.monitoring.Counter;
 import de.is24.util.monitoring.HistorizableList;
+import de.is24.util.monitoring.MultiValueProvider;
 import de.is24.util.monitoring.ReportVisitor;
 import de.is24.util.monitoring.StateValueProvider;
 import de.is24.util.monitoring.Timer;
@@ -22,6 +23,10 @@ public class DoNothingReportVisitor implements ReportVisitor {
 
   @Override
   public void reportStateValue(StateValueProvider stateValueProvider) {
+  }
+
+  @Override
+  public void reportMultiValue(MultiValueProvider multiValueProvider) {
   }
 
   @Override

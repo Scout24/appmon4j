@@ -30,9 +30,16 @@ public interface ReportVisitor {
   void reportStateValue(StateValueProvider stateValueProvider);
 
   /**
-   * method called for each {@link HistorizableList}
-   * @param historizableList
+   * method called for each {@link MultiValueProvider}
+   * @param multiValueProvider
    */
+  void reportMultiValue(MultiValueProvider multiValueProvider);
+
+
+  /**
+  * method called for each {@link HistorizableList}
+  * @param historizableList
+  */
   void reportHistorizableList(HistorizableList historizableList);
 
   /**

@@ -1,13 +1,9 @@
 package de.is24.util.monitoring.status;
 
-import de.is24.util.monitoring.Counter;
-import de.is24.util.monitoring.HistorizableList;
 import de.is24.util.monitoring.InApplicationMonitor;
-import de.is24.util.monitoring.ReportVisitor;
 import de.is24.util.monitoring.StateValueProvider;
 import de.is24.util.monitoring.TestHelper;
-import de.is24.util.monitoring.Timer;
-import de.is24.util.monitoring.Version;
+import de.is24.util.monitoring.tools.DoNothingReportVisitor;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -67,7 +63,7 @@ public class ServiceStateManagerIT {
 
   }
 
-  private class StateValueExtractorReportVisitor implements ReportVisitor {
+  private class StateValueExtractorReportVisitor extends DoNothingReportVisitor {
     private String stateValueName;
     private long value;
 
@@ -76,26 +72,10 @@ public class ServiceStateManagerIT {
     }
 
     @Override
-    public void reportCounter(Counter counter) {
-    }
-
-    @Override
-    public void reportTimer(Timer timer) {
-    }
-
-    @Override
     public void reportStateValue(StateValueProvider stateValueProvider) {
       if (stateValueProvider.getName().equals(stateValueName)) {
         this.value = stateValueProvider.getValue();
       }
-    }
-
-    @Override
-    public void reportHistorizableList(HistorizableList historizableList) {
-    }
-
-    @Override
-    public void reportVersion(Version version) {
     }
 
     public long getValue() {

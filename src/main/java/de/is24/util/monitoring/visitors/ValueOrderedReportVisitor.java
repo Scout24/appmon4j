@@ -4,6 +4,7 @@ import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
 import de.is24.util.monitoring.HistorizableList;
+import de.is24.util.monitoring.MultiValueProvider;
 import de.is24.util.monitoring.StateValueProvider;
 import de.is24.util.monitoring.Version;
 
@@ -30,6 +31,11 @@ public class ValueOrderedReportVisitor extends AbstractSortedReportVisitor {
   @Override
   public void reportStateValue(StateValueProvider stateValueProvider) {
     // we do not report stateValues
+  }
+
+  @Override
+  public void reportMultiValue(MultiValueProvider multiValueProvider) {
+    // we do not report multiValues
   }
 
   @Override

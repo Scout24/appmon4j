@@ -158,6 +158,11 @@ public class CorePlugin extends AbstractMonitorPlugin {
         }
 
         @Override
+        public void reportMultiValue(MultiValueProvider multiValueProvider) {
+          notifyReportableObserver(multiValueProvider);
+        }
+
+        @Override
         public void reportHistorizableList(HistorizableList historizableList) {
           notifyReportableObserver(historizableList);
         }
