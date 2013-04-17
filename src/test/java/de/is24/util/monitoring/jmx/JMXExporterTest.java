@@ -1,6 +1,7 @@
 package de.is24.util.monitoring.jmx;
 
 import de.is24.util.monitoring.State;
+import de.is24.util.monitoring.keyhandler.ValidatingKeyHandler;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
@@ -21,9 +22,13 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+import javax.management.openmbean.CompositeDataSupport;
+import javax.management.openmbean.CompositeType;
+import javax.management.openmbean.OpenDataException;
+import javax.management.openmbean.OpenType;
+import javax.management.openmbean.SimpleType;
 import java.lang.management.ManagementFactory;
 import java.util.Collection;
-import java.util.Map;
 import static org.fest.assertions.Assertions.assertThat;
 
 
@@ -32,10 +37,11 @@ public class JMXExporterTest {
   private ObjectName objectName;
   private static final String TEST_BEAN_DOMAIN = "JXMExporterTest";
   private TestMBean testMBean;
+  private static final String JAVA_LANG = "java.lang";
 
   @Before
   public void setup() throws MalformedObjectNameException, MBeanRegistrationException, InstanceAlreadyExistsException,
-                             NotCompliantMBeanException {
+                             NotCompliantMBeanException, OpenDataException {
     objectName = new ObjectName(TEST_BEAN_DOMAIN, "name", "testBean");
 
     testMBean = new TestMBean();
@@ -52,10 +58,9 @@ public class JMXExporterTest {
   }
 
   @Test
-  public void shouldFindMbeansByDomain() {
+  public void doNotFailIfSomeOperationIsNotSupported() {
     JMXExporter jmxExporter = new JMXExporter(TEST_BEAN_DOMAIN);
-    Map<ObjectName, MBeanInfo> beanInfos = jmxExporter.getMBeanInfos();
-    assertThat(beanInfos.size()).isEqualTo(1);
+    Collection<State> values = jmxExporter.getValues();
   }
 
   @Test
@@ -63,7 +68,7 @@ public class JMXExporterTest {
     JMXExporter jmxExporter = new JMXExporter(TEST_BEAN_DOMAIN);
 
     Collection<State> values = jmxExporter.getValues();
-    assertThat(values.size()).isEqualTo(6);
+    assertThat(values.size()).isEqualTo(7);
   }
 
   @Test
@@ -79,19 +84,40 @@ public class JMXExporterTest {
     assertValue(values, "float", 2);
     assertValue(values, "short", 17);
     assertValue(values, "boolean", 1);
+    assertValue(values, "long_composite", 3232323232L);
 
   }
 
   @Test
-  public void lala() {
-    JMXExporter jmxExporter = new JMXExporter("java.lang");
+  public void beAbleToHandleJavaLangWithoutException() {
+    JMXExporter jmxExporter = new JMXExporter(JAVA_LANG);
     Collection<State> values = jmxExporter.getValues();
+  }
+
+  @Test
+  public void generateStrictlyValidValueKeysForTestBean() {
+    JMXExporter jmxExporter = new JMXExporter(TEST_BEAN_DOMAIN);
+    Collection<State> values = jmxExporter.getValues();
+    ValidatingKeyHandler validatingKeyHandler = new ValidatingKeyHandler();
+    for (State value : values) {
+      validatingKeyHandler.handle(value.name);
+    }
+  }
+
+  @Test
+  public void generateStrictlyValidValueKeysForJavaLang() {
+    JMXExporter jmxExporter = new JMXExporter(JAVA_LANG);
+    Collection<State> values = jmxExporter.getValues();
+    ValidatingKeyHandler validatingKeyHandler = new ValidatingKeyHandler();
+    for (State value : values) {
+      validatingKeyHandler.handle(value.name);
+    }
   }
 
   private void assertValue(Collection<State> values, String name, long targetValue) {
     int checked = 0;
     for (State state : values) {
-      if (state.name.contains(name)) {
+      if (state.name.endsWith(name)) {
         assertThat(state.value).isEqualTo(targetValue);
         checked++;
       }
@@ -101,6 +127,17 @@ public class JMXExporterTest {
 
 
   private class TestMBean implements DynamicMBean {
+    private String[] itemNames = new String[] { "long_composite", "string_composite" };
+    private String[] itemDescriptions = new String[] { "a long", "a string" };
+    private OpenType[] itemTypes = new OpenType[] { SimpleType.LONG, SimpleType.STRING };
+    private Object[] itemValues = new Object[] { new Long(3232323232L), "lalala" };
+    private CompositeType compositeType;
+
+    public TestMBean() throws OpenDataException {
+      compositeType = new CompositeType("testCompositeType", "a text composite", itemNames, itemDescriptions,
+        itemTypes);
+    }
+
     @Override
     public void setAttribute(Attribute attribute) throws AttributeNotFoundException, InvalidAttributeValueException,
                                                          MBeanException, ReflectionException {
@@ -131,12 +168,15 @@ public class JMXExporterTest {
     public MBeanAttributeInfo[] getAttributeInfos() {
       return new MBeanAttributeInfo[] {
           new MBeanAttributeInfo("long", "long", "long", true, false, false),
+          new MBeanAttributeInfo("long_not_supported", "long", "long", true, false, false),
           new MBeanAttributeInfo("int", "int", "int", true, false, false),
           new MBeanAttributeInfo("double", "double", "double", true, false, false),
           new MBeanAttributeInfo("float", "float", "float", true, false, false),
           new MBeanAttributeInfo("short", "short", "short", true, false, false),
           new MBeanAttributeInfo("boolean", "boolean", "boolean", true, false, false),
-          new MBeanAttributeInfo("string", "java.lang.String", "string", true, false, false)
+          new MBeanAttributeInfo("string", "java.lang.String", "string", true, false, false),
+          new MBeanAttributeInfo("composite", "javax.management.openmbean.CompositeType", "a composite", true, false,
+            false),
         };
     }
 
@@ -146,6 +186,8 @@ public class JMXExporterTest {
     public Object getAttribute(String attributeName) {
       if (attributeName.equals("long")) {
         return 1234567890L;
+      } else if (attributeName.equals("long_not_supported")) {
+        throw new UnsupportedOperationException("long_not_supported is not supported");
       } else if (attributeName.equals("int")) {
         return 65536;
       } else if (attributeName.equals("double")) {
@@ -158,7 +200,14 @@ public class JMXExporterTest {
         return true;
       } else if (attributeName.equals("string")) {
         return "string";
+      } else if (attributeName.endsWith("composite")) {
+        try {
+          return new CompositeDataSupport(compositeType, itemNames, itemValues);
+        } catch (OpenDataException e) {
+          throw new RuntimeException(e);
+        }
       }
+
       return null;
     }
   }
