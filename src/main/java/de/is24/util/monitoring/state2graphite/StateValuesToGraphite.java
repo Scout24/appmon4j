@@ -102,6 +102,8 @@ public class StateValuesToGraphite implements ReportableObserver {
           StringBuilder line = new StringBuilder();
           line.append(keyPrefix)
           .append(".")
+          .append(multiValueProvider.getName())
+          .append(".")
           .append(state.name)
           .append(" ")
           .append(state.value)
