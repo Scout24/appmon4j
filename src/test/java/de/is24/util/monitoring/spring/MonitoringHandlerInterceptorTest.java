@@ -2,8 +2,10 @@ package de.is24.util.monitoring.spring;
 
 import de.is24.util.monitoring.Counter;
 import de.is24.util.monitoring.InApplicationMonitor;
+import de.is24.util.monitoring.TestHelper;
 import de.is24.util.monitoring.Timer;
 import de.is24.util.monitoring.tools.DoNothingReportVisitor;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -27,11 +29,25 @@ public class MonitoringHandlerInterceptorTest {
   private static final String RENDERING = ".rendering";
   private static final String COMPLETE = ".complete";
   private static final String TIME_ERROR = ".timeError";
+  private static final String DUPLICATE_HANDLER = ".duplicateHandler";
+
   private static final int SLEEP_TIME = 100;
 
-  private final Map<String, Long> counterCalled = new HashMap<String, Long>();
-  private InApplicationMonitor monitor = InApplicationMonitor.getInstance();
-  private MonitoringHandlerInterceptor interceptor = new MonitoringHandlerInterceptor();
+  private Map<String, Long> counterCalled;
+  private Map<String, Timer> timerMap;
+  private InApplicationMonitor monitor;
+  private MonitoringHandlerInterceptor interceptor;
+
+  @Before
+  public void setup() {
+    monitor = TestHelper.setInstanceForTesting();
+    interceptor = new MonitoringHandlerInterceptor();
+  }
+
+  @After
+  public void teaDown() {
+    TestHelper.resetInstanceForTesting();
+  }
 
   @Test
   public void shouldMeasureDurations() throws Exception {
@@ -44,7 +60,7 @@ public class MonitoringHandlerInterceptorTest {
     Thread.sleep(SLEEP_TIME);
     interceptor.afterCompletion(request, null, handlerInstance, null);
 
-    final Map<String, Timer> timerMap = createTimerMap();
+    fillCounterAndTimerMap();
 
     // measuring times on windows machines is a little tricky since the internal clock
     // does not roll with every ms tick but only every 15th or 16th tick
@@ -73,7 +89,7 @@ public class MonitoringHandlerInterceptorTest {
     Thread.sleep(SLEEP_TIME);
     interceptor.afterCompletion(request, null, handlerInstance, null);
 
-    final Map<String, Timer> timerMap = createTimerMap();
+    fillCounterAndTimerMap();
 
     assertNoMeasurement(timerMap, handlerInstance, HANDLING);
     assertNoMeasurement(timerMap, handlerInstance, RENDERING);
@@ -88,13 +104,27 @@ public class MonitoringHandlerInterceptorTest {
     Thread.sleep(SLEEP_TIME);
     interceptor.afterCompletion(request, null, handlerInstance, null);
 
-    final Map<String, Timer> timerMap = createTimerMap();
+    fillCounterAndTimerMap();
 
     assertThat(counterCalled.get(PREFIX + handlerInstance.getClass().getName() + TIME_ERROR), is(1L));
     assertNoMeasurement(timerMap, handlerInstance, HANDLING);
     assertNoMeasurement(timerMap, handlerInstance, RENDERING);
     assertNoMeasurement(timerMap, handlerInstance, COMPLETE);
   }
+
+  @Test
+  public void shouldDetectDuplicateInvocation() throws Exception {
+    HttpServletRequest request = new MockHttpServletRequest();
+    Object handlerInstance = new Integer(1);
+
+    interceptor.preHandle(request, null, handlerInstance);
+    interceptor.preHandle(request, null, handlerInstance);
+
+    fillCounterAndTimerMap();
+
+    assertThat(counterCalled.get(PREFIX + handlerInstance.getClass().getName() + DUPLICATE_HANDLER), is(1L));
+  }
+
 
   @Test
   public void shouldRemoveStartAndPostHandleTime() throws Exception {
@@ -118,18 +148,15 @@ public class MonitoringHandlerInterceptorTest {
     assertThat(request.getAttribute(POST_HANDLE_TIME), is(nullValue()));
   }
 
-  @Before
-  public void resetTimers() {
-    // monitor.clear();
-  }
 
   private void assertNoMeasurement(Map<String, Timer> timerMap, Object handlerInstance, String name) {
     String timerFullName = PREFIX + handlerInstance.getClass().getName() + name;
     assertTrue(!timerMap.containsKey(timerFullName));
   }
 
-  private Map<String, Timer> createTimerMap() {
-    final Map<String, Timer> timerMap = new HashMap<String, Timer>();
+  private void fillCounterAndTimerMap() {
+    counterCalled = new HashMap<String, Long>();
+    timerMap = new HashMap<String, Timer>();
     monitor.reportInto(new DoNothingReportVisitor() {
         @Override
         public void reportCounter(Counter counter) {
@@ -142,7 +169,6 @@ public class MonitoringHandlerInterceptorTest {
         }
 
       });
-    return timerMap;
   }
 
   private void assertTimer(Map<String, Timer> timerMap, Object handlerInstance, String timerName, int time) {
