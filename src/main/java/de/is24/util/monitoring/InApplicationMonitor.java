@@ -396,6 +396,8 @@ public final class InApplicationMonitor {
     plugins.add(corePlugin);
   }
 
+
+  //TODO  allow a thread local instance
   public CorePlugin getCorePlugin() {
     return corePlugin;
   }
