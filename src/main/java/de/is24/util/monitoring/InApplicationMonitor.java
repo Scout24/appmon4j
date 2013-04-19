@@ -21,9 +21,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  * @author OSchmitz
  */
-public final class InApplicationMonitor {
+public class InApplicationMonitor {
   private static final Logger LOGGER = Logger.getLogger(InApplicationMonitor.class);
-  private static Object semaphore = new Object();
+  protected static final Object semaphore = new Object();
 
 
   private volatile boolean monitorActive = true;
@@ -31,7 +31,7 @@ public final class InApplicationMonitor {
 
   private volatile KeyHandler keyHandler;
   private volatile CorePlugin corePlugin;
-  private static InApplicationMonitor INSTANCE;
+  protected static InApplicationMonitor INSTANCE;
 
   static {
     KeyHandler keyHandler = new DefaultKeyEscaper();
@@ -43,37 +43,6 @@ public final class InApplicationMonitor {
     this.keyHandler = keyHandler;
     this.corePlugin = corePlugin;
     registerPlugin(corePlugin);
-  }
-
-  /**
-   * This will fail if tests are run multi threaded use with utmost care.
-   */
-  protected static InApplicationMonitor initInstanceForTesting(CorePlugin corePlugin, KeyHandler keyHandler) {
-    synchronized (semaphore) {
-      if (INSTANCE != null) {
-        INSTANCE.getCorePlugin().destroy();
-      }
-      LOGGER.info("+++ Changing InApplicationMonitor() for Testing only +++");
-      INSTANCE = new InApplicationMonitor(corePlugin, keyHandler);
-      LOGGER.info("InApplicationMonitor changed successfully.");
-      return INSTANCE;
-    }
-  }
-
-  /**
-   * This will fail if tests are run multi threaded use with utmost care.
-   */
-  protected static void resetInstanceForTesting() {
-    synchronized (semaphore) {
-      if (INSTANCE != null) {
-        INSTANCE.getCorePlugin().destroy();
-      }
-
-      KeyHandler keyHandler = new DefaultKeyEscaper();
-      CorePlugin corePlugin = new CorePlugin(null, keyHandler);
-      INSTANCE = new InApplicationMonitor(corePlugin, keyHandler);
-      LOGGER.info("Reset InApplicationMonitor for Testing.");
-    }
   }
 
 
@@ -143,7 +112,7 @@ public final class InApplicationMonitor {
    */
   @Deprecated
   public int getMaxHistoryEntriesToKeep() {
-    return corePlugin.getMaxHistoryEntriesToKeep();
+    return getCorePlugin().getMaxHistoryEntriesToKeep();
   }
 
   /**
@@ -154,7 +123,7 @@ public final class InApplicationMonitor {
    */
   @Deprecated
   public void setMaxHistoryEntriesToKeep(int aMaxHistoryEntriesToKeep) {
-    corePlugin.setMaxHistoryEntriesToKeep(aMaxHistoryEntriesToKeep);
+    getCorePlugin().setMaxHistoryEntriesToKeep(aMaxHistoryEntriesToKeep);
   }
 
   /**
@@ -164,7 +133,7 @@ public final class InApplicationMonitor {
    * @param reportableObserver the class that wants to be notified
    */
   public void addReportableObserver(final ReportableObserver reportableObserver) {
-    corePlugin.addReportableObserver(reportableObserver);
+    getCorePlugin().addReportableObserver(reportableObserver);
   }
 
 
@@ -174,7 +143,7 @@ public final class InApplicationMonitor {
    * @param reportableObserver
    */
   public void removeReportableObserver(final ReportableObserver reportableObserver) {
-    corePlugin.removeReportableObserver(reportableObserver);
+    getCorePlugin().removeReportableObserver(reportableObserver);
   }
 
   /**
@@ -186,7 +155,7 @@ public final class InApplicationMonitor {
    * @deprecated use corePlugin directly, will be removed from InApplicationMonitor
    */
   public void reportInto(ReportVisitor reportVisitor) {
-    corePlugin.reportInto(reportVisitor);
+    getCorePlugin().reportInto(reportVisitor);
   }
 
   /**
@@ -207,7 +176,7 @@ public final class InApplicationMonitor {
   public void incrementHighRateCounter(String name) {
     if (monitorActive) {
       String escapedName = keyHandler.handle(name);
-      for (MonitorPlugin p : plugins) {
+      for (MonitorPlugin p : getPlugins()) {
         p.incrementHighRateCounter(escapedName, 1);
       }
     }
@@ -224,7 +193,7 @@ public final class InApplicationMonitor {
   public void incrementCounter(String name, int increment) {
     if (monitorActive) {
       String escapedName = keyHandler.handle(name);
-      for (MonitorPlugin p : plugins) {
+      for (MonitorPlugin p : getPlugins()) {
         p.incrementCounter(escapedName, increment);
       }
     }
@@ -238,7 +207,7 @@ public final class InApplicationMonitor {
    */
   public void initializeCounter(String name) {
     String escapedName = keyHandler.handle(name);
-    for (MonitorPlugin p : plugins) {
+    for (MonitorPlugin p : getPlugins()) {
       p.initializeCounter(escapedName);
     }
   }
@@ -257,7 +226,7 @@ public final class InApplicationMonitor {
   public void addTimerMeasurement(String name, long timing) {
     if (monitorActive) {
       String escapedName = keyHandler.handle(name);
-      for (MonitorPlugin p : plugins) {
+      for (MonitorPlugin p : getPlugins()) {
         p.addTimerMeasurement(escapedName, timing);
       }
     }
@@ -280,7 +249,7 @@ public final class InApplicationMonitor {
   public void addSingleEventTimerMeasurement(String name, long timing) {
     if (monitorActive) {
       String escapedName = keyHandler.handle(name);
-      for (MonitorPlugin p : plugins) {
+      for (MonitorPlugin p : getPlugins()) {
         p.addSingleEventTimerMeasurement(escapedName, timing);
       }
     }
@@ -303,7 +272,7 @@ public final class InApplicationMonitor {
     if (monitorActive) {
       String escapedName = keyHandler.handle(name);
 
-      for (MonitorPlugin p : plugins) {
+      for (MonitorPlugin p : getPlugins()) {
         p.addHighRateTimerMeasurement(escapedName, timing);
       }
     }
@@ -334,7 +303,7 @@ public final class InApplicationMonitor {
    */
   public void initializeTimerMeasurement(String name) {
     String escapedName = keyHandler.handle(name);
-    for (MonitorPlugin p : plugins) {
+    for (MonitorPlugin p : getPlugins()) {
       p.initializeTimerMeasurement(escapedName);
     }
   }
@@ -347,7 +316,7 @@ public final class InApplicationMonitor {
    * @param stateValueProvider the StateValueProvider instance to add
    */
   public void registerStateValue(StateValueProvider stateValueProvider) {
-    corePlugin.registerStateValue(stateValueProvider);
+    getCorePlugin().registerStateValue(stateValueProvider);
   }
 
   /**
@@ -361,7 +330,7 @@ public final class InApplicationMonitor {
    */
   public void registerVersion(String name, String version) {
     Version versionToAdd = new Version(keyHandler.handle(name), version);
-    corePlugin.registerVersion(versionToAdd);
+    getCorePlugin().registerVersion(versionToAdd);
   }
 
   /**
@@ -370,7 +339,7 @@ public final class InApplicationMonitor {
    * @param historizable the historizable to add
    */
   public void addHistorizable(Historizable historizable) {
-    corePlugin.addHistorizable(keyHandler.handle(historizable.getName()), historizable);
+    getCorePlugin().addHistorizable(keyHandler.handle(historizable.getName()), historizable);
   }
 
 
@@ -385,21 +354,38 @@ public final class InApplicationMonitor {
 
   public List<String> getRegisteredPluginKeys() {
     List<String> installedPluginKeys = new ArrayList<String>();
-    for (MonitorPlugin plugin : plugins) {
+    for (MonitorPlugin plugin : getPlugins()) {
       installedPluginKeys.add(plugin.getUniqueName());
     }
     return installedPluginKeys;
   }
 
   public void removeAllPlugins() {
-    plugins.clear();
-    plugins.add(corePlugin);
+    getPlugins().clear();
+    getPlugins().add(corePlugin);
   }
 
 
-  //TODO  allow a thread local instance
+  protected KeyHandler getKeyHandler() {
+    return keyHandler;
+  }
+
+  protected List<MonitorPlugin> getPlugins() {
+    return plugins;
+  }
+
   public CorePlugin getCorePlugin() {
     return corePlugin;
   }
 
+  public void setThreadLocalState() {
+    throw new UnsupportedOperationException(
+      "setThreadLocalState not supported on production InApplicationMonitor, initialize Testing Version");
+  }
+
+
+  public void resetThreadLocalState() {
+    throw new UnsupportedOperationException(
+      "resetThreadLocalState not supported on production InApplicationMonitor, initialize Testing Version");
+  }
 }

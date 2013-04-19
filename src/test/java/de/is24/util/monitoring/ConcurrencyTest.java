@@ -52,7 +52,7 @@ public class ConcurrencyTest {
 
   @After
   public void tearDown() {
-    InApplicationMonitor.resetInstanceForTesting();
+    TestingInApplicationMonitor.resetInstanceForTesting();
   }
 
   @Test
@@ -62,7 +62,7 @@ public class ConcurrencyTest {
       LOGGER.info("#########################   run " + i + " ###########################");
       LOGGER.info("#########################   run " + i + " ###########################");
       LOGGER.info("#########################   run " + i + " ###########################");
-      InApplicationMonitor.resetInstanceForTesting();
+      TestingInApplicationMonitor.resetInstanceForTesting();
       assertFalse(JMXTestHelper.checkInApplicationMonitorJMXBeanRegistered());
 
       createExecutor(THREADS);

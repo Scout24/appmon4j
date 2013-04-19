@@ -15,10 +15,10 @@ public class TestHelper {
           return "lala";
         }
       }, keyEscaper);
-    return InApplicationMonitor.initInstanceForTesting(corePlugin, keyEscaper);
+    return TestingInApplicationMonitor.initInstanceForTesting(corePlugin, keyEscaper);
   }
 
   public static void resetInstanceForTesting() {
-    InApplicationMonitor.resetInstanceForTesting();
+    TestingInApplicationMonitor.resetInstanceForTesting();
   }
 }

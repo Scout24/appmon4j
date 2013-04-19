@@ -11,12 +11,12 @@ import static org.fest.assertions.Assertions.assertThat;
 public class CorePluginTest {
   @Before
   public void setup() {
-    InApplicationMonitor.resetInstanceForTesting();
+    TestingInApplicationMonitor.resetInstanceForTesting();
   }
 
   @After
   public void tearDown() {
-    InApplicationMonitor.resetInstanceForTesting();
+    TestingInApplicationMonitor.resetInstanceForTesting();
   }
 
 
