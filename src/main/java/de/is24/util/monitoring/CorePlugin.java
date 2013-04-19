@@ -28,6 +28,7 @@ public class CorePlugin extends AbstractMonitorPlugin {
     new CopyOnWriteArrayList<ReportableObserver>();
   private final Monitors<Counter> countersTimers = new Monitors<Counter>(reportableObservers);
   private final Monitors<StateValueProvider> stateValues = new Monitors<StateValueProvider>(reportableObservers);
+  private final Monitors<MultiValueProvider> multiValues = new Monitors<MultiValueProvider>(reportableObservers);
   private final Monitors<Version> versions = new Monitors<Version>(reportableObservers);
   private final Monitors<HistorizableList> historizableLists = new Monitors<HistorizableList>(reportableObservers);
   private volatile InApplicationMonitorJMXConnector inApplicationMonitorJMXConnector;
@@ -200,6 +201,7 @@ public class CorePlugin extends AbstractMonitorPlugin {
   public void reportInto(ReportVisitor reportVisitor) {
     countersTimers.accept(reportVisitor);
     stateValues.accept(reportVisitor);
+    multiValues.accept(reportVisitor);
     versions.accept(reportVisitor);
     historizableLists.accept(reportVisitor);
   }
@@ -311,13 +313,30 @@ public class CorePlugin extends AbstractMonitorPlugin {
   }
 
   /**
-   * This method was intended to register module names with their
-   * current version identifier.
-   * This could / should actually be generalized into an non numeric
-   * state value
+   * Add a multi value provider to this appmon4j instance.
+   * {@link de.is24.util.monitoring.MultiValueProvider} instances allow access to multiple numeric
+   * values (long)
    *
-   * @param versionToAdd The Version Object to add
+   * @param multiValueProvider the MultoValueProvider instance to add
    */
+  public void registerMultiValueProvider(MultiValueProvider multiValueProvider) {
+    String name = multiValueProvider.getName();
+    MultiValueProvider oldProvider = multiValues.put(name, multiValueProvider);
+    if (oldProvider != null) {
+      LOGGER.warn("MultiValueProvider [" + oldProvider + "] @" + multiValueProvider.getName() +
+        " has been replaced by [" + multiValueProvider + "]!");
+    }
+    notifyReportableObservers(multiValueProvider);
+  }
+
+  /**
+  * This method was intended to register module names with their
+  * current version identifier.
+  * This could / should actually be generalized into an non numeric
+  * state value
+  *
+  * @param versionToAdd The Version Object to add
+  */
   public void registerVersion(Version versionToAdd) {
     String versionName = keyHandler.handle(versionToAdd.getName());
     versions.put(versionName, versionToAdd);
@@ -343,10 +362,18 @@ public class CorePlugin extends AbstractMonitorPlugin {
   }
 
   /**
-   * internally used method to retrieve or create and register a named {@link de.is24.util.monitoring.Counter}.
-   * @param name of the required {@link de.is24.util.monitoring.Counter}
-   * @return {@link de.is24.util.monitoring.Counter} instance registered for the given name
+   * @param name the name of the MultiValueProvider
+   * @return the MultiValueProvider
    */
+  MultiValueProvider getMultiValueProvider(String name) {
+    return multiValues.get(name);
+  }
+
+  /**
+  * internally used method to retrieve or create and register a named {@link de.is24.util.monitoring.Counter}.
+  * @param name of the required {@link de.is24.util.monitoring.Counter}
+  * @return {@link de.is24.util.monitoring.Counter} instance registered for the given name
+  */
   Counter getCounter(final String name) {
     return countersTimers.get("counter." + name, new Monitors.Factory<Counter>() {
         @Override
