@@ -26,7 +26,7 @@ public class MonitoringHandlerInterceptorTest {
   private static final String HANDLING = ".handling";
   private static final String RENDERING = ".rendering";
   private static final String COMPLETE = ".complete";
-  private static final String ERROR = ".error";
+  private static final String TIME_ERROR = ".timeError";
   private static final int SLEEP_TIME = 100;
 
   private final Map<String, Long> counterCalled = new HashMap<String, Long>();
@@ -90,7 +90,7 @@ public class MonitoringHandlerInterceptorTest {
 
     final Map<String, Timer> timerMap = createTimerMap();
 
-    assertThat(counterCalled.get(PREFIX + handlerInstance.getClass().getName() + ERROR), is(1L));
+    assertThat(counterCalled.get(PREFIX + handlerInstance.getClass().getName() + TIME_ERROR), is(1L));
     assertNoMeasurement(timerMap, handlerInstance, HANDLING);
     assertNoMeasurement(timerMap, handlerInstance, RENDERING);
     assertNoMeasurement(timerMap, handlerInstance, COMPLETE);

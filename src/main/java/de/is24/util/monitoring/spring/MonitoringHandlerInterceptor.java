@@ -10,6 +10,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.regex.Pattern;
 
 
+//TODO doppelte registrierung abfangen
+
+
 /** {@link org.springframework.web.servlet.HandlerInterceptor} to monitor duration of request processing **/
 public class MonitoringHandlerInterceptor implements HandlerInterceptor {
   private static final Logger LOG = Logger.getLogger(MonitoringHandlerInterceptor.class);
@@ -20,6 +23,7 @@ public class MonitoringHandlerInterceptor implements HandlerInterceptor {
   private static final String RENDERING = ".rendering";
   private static final String COMPLETE = ".complete";
   private static final String ERROR = ".error";
+  private static final String TIME_ERROR = ".timeError";
   private InApplicationMonitor monitor = InApplicationMonitor.getInstance();
   private static final Pattern CGLIB_PATTERN = Pattern.compile("[$]*EnhancerByCGLIB[0-9a-z$]*");
 
@@ -55,16 +59,20 @@ public class MonitoringHandlerInterceptor implements HandlerInterceptor {
 
     if (startTimeAttribute == null) {
       LOG.info("Could not find start_time. Something went wrong with handler: " + measurementPrefix);
-      monitor.incrementCounter(measurementPrefix + ERROR);
+      monitor.incrementCounter(measurementPrefix + TIME_ERROR);
       return;
     }
 
-    if (postHandleObject != null) {
-      long startTime = (Long) startTimeAttribute;
-      long postHandleTime = (Long) postHandleObject;
+    long startTime = (Long) startTimeAttribute;
+    if (ex != null) {
+      monitor.addTimerMeasurement(measurementPrefix + ERROR, startTime, currentTime);
+    } else {
+      if (postHandleObject != null) {
+        long postHandleTime = (Long) postHandleObject;
 
-      monitor.addTimerMeasurement(measurementPrefix + RENDERING, postHandleTime, currentTime);
-      monitor.addTimerMeasurement(measurementPrefix + COMPLETE, startTime, currentTime);
+        monitor.addTimerMeasurement(measurementPrefix + RENDERING, postHandleTime, currentTime);
+        monitor.addTimerMeasurement(measurementPrefix + COMPLETE, startTime, currentTime);
+      }
     }
   }
 
