@@ -1,4 +1,4 @@
-package com.yammer.metrics.core;
+package de.is24.util.monitoring.tools;
 
 import javax.management.MBeanServer;
 import java.io.OutputStream;
@@ -22,6 +22,7 @@ import java.util.Set;
 
 /**
  * A collection of Java Virtual Machine metrics.
+ * This code was originally taken from de.is24.util.monitoring.tools.VirtualMachineMetrics
  */
 public class VirtualMachineMBeans {
   private static final int MAX_STACK_TRACE_DEPTH = 100;
@@ -36,9 +37,9 @@ public class VirtualMachineMBeans {
     ManagementFactory.getPlatformMBeanServer());
 
   /**
-   * The default instance of {@link com.yammer.metrics.core.VirtualMachineMBeans}.
+   * The default instance of {@link VirtualMachineMBeans}.
    *
-   * @return the default {@link com.yammer.metrics.core.VirtualMachineMBeans instance}
+   * @return the default {@link VirtualMachineMBeans instance}
    */
   public static VirtualMachineMBeans getInstance() {
     return INSTANCE;

@@ -1,6 +1,5 @@
 package de.is24.util.monitoring.tools;
 
-import com.yammer.metrics.core.VirtualMachineMBeans;
 import de.is24.util.monitoring.CorePlugin;
 import de.is24.util.monitoring.StateValueProvider;
 import org.apache.log4j.Logger;
