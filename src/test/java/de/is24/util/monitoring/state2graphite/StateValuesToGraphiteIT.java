@@ -82,8 +82,10 @@ public class StateValuesToGraphiteIT {
   @Test
   public void handleMultiValueProviders() throws Exception {
     final List<State> states = new ArrayList<State>();
-    states.add(new State("test1", 123432));
-    states.add(new State("test2", 98765));
+    final String multiValueName = "test.multi.value";
+    states.add(new State(multiValueName, "test1", 123432));
+    states.add(new State(multiValueName, "test2", 98765));
+
     InApplicationMonitor.getInstance().getCorePlugin().registerMultiValueProvider(new MultiValueProvider() {
         @Override
         public Collection<State> getValues() {
@@ -92,7 +94,7 @@ public class StateValuesToGraphiteIT {
 
         @Override
         public String getName() {
-          return "test.multi.value";
+          return multiValueName;
         }
 
         @Override

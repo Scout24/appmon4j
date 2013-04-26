@@ -29,18 +29,20 @@ public class JMXExporter implements MultiValueProvider {
   private final MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
 
   private String domain;
+  private String name;
 
   /**
-   * Initialize Exporter for a given domain. The domain must not be empty.
-   *
-   * @param domain The JMX domain.
-   * @throws IllegalArgumentException if domain is null or empty.
-   */
+  * Initialize Exporter for a given domain. The domain must not be empty.
+  *
+  * @param domain The JMX domain.
+  * @throws IllegalArgumentException if domain is null or empty.
+  */
   public JMXExporter(String domain) {
     if ((domain == null) || (domain.trim().length() == 0)) {
       throw new IllegalArgumentException("domain must not be empty");
     }
     this.domain = domain;
+    name = "JMXExporter." + domain;
   }
 
   @Override
@@ -52,7 +54,7 @@ public class JMXExporter implements MultiValueProvider {
 
   @Override
   public String getName() {
-    return "JMXExporter_" + domain;
+    return name;
   }
 
   @Override
@@ -120,7 +122,7 @@ public class JMXExporter implements MultiValueProvider {
     String fullName = attributeName + ((path != null) ? ("." + path) : "");
 
     //LOGGER.debug("adding state for " + fullName + " with value " + value);
-    return new State(fullName, value);
+    return new State(name, fullName, value);
   }
 
   private String getAttributeName(ObjectName name, MBeanAttributeInfo info) {

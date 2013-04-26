@@ -4,8 +4,10 @@ import de.is24.util.monitoring.CorePlugin;
 import de.is24.util.monitoring.Counter;
 import de.is24.util.monitoring.HistorizableList;
 import de.is24.util.monitoring.InApplicationMonitor;
+import de.is24.util.monitoring.MultiValueProvider;
 import de.is24.util.monitoring.Reportable;
 import de.is24.util.monitoring.ReportableObserver;
+import de.is24.util.monitoring.State;
 import de.is24.util.monitoring.StateValueProvider;
 import de.is24.util.monitoring.Timer;
 import de.is24.util.monitoring.Version;
@@ -220,6 +222,12 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
       if ((entry.getValue() instanceof Counter) ||
           (entry.getValue() instanceof StateValueProvider)) {
         attributes.add(new MBeanAttributeInfo(entry.getKey(), "long", entry.getKey(), true, false, false));
+      } else if (entry.getValue() instanceof MultiValueProvider) {
+        //TODO:          composite here
+        MultiValueProvider multiValueProvider = (MultiValueProvider) entry.getValue();
+        for (State state : multiValueProvider.getValues()) {
+          attributes.add(new MBeanAttributeInfo(state.name, "String", state.name, true, false, false));
+        }
       } else if (entry.getValue() instanceof Version) {
         attributes.add(new MBeanAttributeInfo(entry.getKey(), "String", entry.getKey(), true, false, false));
       }

@@ -4,8 +4,8 @@ public class State {
   public String name;
   public long value;
 
-  public State(String name, long value) {
-    this.name = name;
+  public State(String parentName, String valueName, long value) {
+    this.name = parentName + "." + valueName;
     this.value = value;
   }
 }

@@ -1,6 +1,8 @@
 package de.is24.util.monitoring.tools;
 
 import de.is24.util.monitoring.CorePlugin;
+import de.is24.util.monitoring.MultiValueProvider;
+import de.is24.util.monitoring.ReportVisitor;
 import de.is24.util.monitoring.StateValueProvider;
 import org.apache.log4j.Logger;
 import javax.management.Attribute;
@@ -18,6 +20,7 @@ import java.lang.management.ThreadMXBean;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -312,36 +315,52 @@ public class VirtualMachineMetrics {
         });
     }
 
+    corePlugin.registerMultiValueProvider(new ThreadStateProvider());
   }
 
 
-  /**
-   * Returns a map of thread states to the percentage of all threads which are in that state.
-   *
-   * @return a map of thread states to percentages
-   */
-  public Map<State, Double> getThreadStatePercentages() {
-    final Map<State, Double> conditions = new HashMap<State, Double>();
-    for (State state : State.values()) {
-      conditions.put(state, 0.0);
-    }
+  public static class ThreadStateProvider implements MultiValueProvider {
+    @Override
+    public Collection<de.is24.util.monitoring.State> getValues() {
+      final List<de.is24.util.monitoring.State> threadStates = new ArrayList<de.is24.util.monitoring.State>();
+      final Map<State, Integer> conditions = new HashMap<State, Integer>();
 
-    ThreadMXBean threadMXBean = VirtualMachineMBeans.getInstance().getThreads();
-    final long[] allThreadIds = threadMXBean.getAllThreadIds();
-    final ThreadInfo[] allThreads = threadMXBean.getThreadInfo(allThreadIds);
-    int liveCount = 0;
-    for (ThreadInfo info : allThreads) {
-      if (info != null) {
-        final State state = info.getThreadState();
-        conditions.put(state, conditions.get(state) + 1);
-        liveCount++;
+      for (State state : State.values()) {
+        conditions.put(state, 0);
       }
-    }
-    for (State state : new ArrayList<State>(conditions.keySet())) {
-      conditions.put(state, conditions.get(state) / liveCount);
+
+      ThreadMXBean threadMXBean = VirtualMachineMBeans.getInstance().getThreads();
+      final long[] allThreadIds = threadMXBean.getAllThreadIds();
+      final ThreadInfo[] allThreads = threadMXBean.getThreadInfo(allThreadIds);
+      int liveCount = 0;
+      for (ThreadInfo info : allThreads) {
+        if (info != null) {
+          final State state = info.getThreadState();
+          conditions.put(state, conditions.get(state) + 1);
+          liveCount++;
+        }
+      }
+
+      long total = 0;
+      for (State state : new ArrayList<State>(conditions.keySet())) {
+        Integer value = conditions.get(state);
+        total = total + value.longValue();
+        threadStates.add(new de.is24.util.monitoring.State("jvm.threads", state.name(), value));
+      }
+      threadStates.add(new de.is24.util.monitoring.State("jvm.threads", "total", total));
+      return threadStates;
     }
 
-    return Collections.unmodifiableMap(conditions);
+    @Override
+    public String getName() {
+      return "VMThreadStates";
+    }
+
+    @Override
+    public void accept(ReportVisitor visitor) {
+      visitor.reportMultiValue(this);
+    }
+
   }
 
 

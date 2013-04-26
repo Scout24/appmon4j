@@ -57,13 +57,14 @@ public class StandAloneSimpleApp {
       System.exit(1);
     }
 
-    corePlugin.destroy();
 
-    if (JMXTestHelper.checkInApplicationMonitorJMXBeanRegistered()) {
-      LOGGER.error("JMX Bean still registered");
-      System.exit(1);
-    }
+    /*    corePlugin.destroy();
 
+        if (JMXTestHelper.checkInApplicationMonitorJMXBeanRegistered()) {
+          LOGGER.error("JMX Bean still registered");
+          System.exit(1);
+        }
+      */
 
     while (true) {
       try {
