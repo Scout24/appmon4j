@@ -21,7 +21,7 @@ public class TestingInApplicationMonitor extends InApplicationMonitor {
   /**
    * This will fail if tests are run multi threaded use with utmost care.
    */
-  protected static InApplicationMonitor initInstanceForTesting(CorePlugin corePlugin, KeyHandler keyHandler) {
+  public static InApplicationMonitor initInstanceForTesting(CorePlugin corePlugin, KeyHandler keyHandler) {
     synchronized (semaphore) {
       if (INSTANCE != null) {
         INSTANCE.getCorePlugin().destroy();
@@ -36,7 +36,7 @@ public class TestingInApplicationMonitor extends InApplicationMonitor {
   /**
    * This will fail if tests are run multi threaded use with utmost care.
    */
-  protected static void resetInstanceForTesting() {
+  public static void resetInstanceForTesting() {
     synchronized (semaphore) {
       if (INSTANCE != null) {
         INSTANCE.getCorePlugin().destroy();
