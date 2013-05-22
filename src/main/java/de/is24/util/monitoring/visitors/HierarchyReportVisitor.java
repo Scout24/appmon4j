@@ -1,12 +1,13 @@
 package de.is24.util.monitoring.visitors;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import org.apache.log4j.Logger;
-import de.is24.util.monitoring.visitors.AbstractSortedReportVisitor.Entry;
 
 
 /**
@@ -22,6 +23,7 @@ public class HierarchyReportVisitor extends AbstractSortedReportVisitor {
     tree = new Tree();
   }
 
+  @Override
   protected void addEntry(Entry entry) {
     tree.addEntry(entry);
   }
@@ -34,20 +36,14 @@ public class HierarchyReportVisitor extends AbstractSortedReportVisitor {
    *
    */
 
+  @Override
   public String toString() {
-    List list = tree.getAllNodesWithEntries();
     StringBuilder buffy = new StringBuilder();
-    buffy.append(getClass().getName());
-    buffy.append("\n");
+    buffy.append(getClass().getName()).append("\n");
 
-    Iterator iter = list.iterator();
-    while (iter.hasNext()) {
-      Tree.TreeNode element = (Tree.TreeNode) iter.next();
-      Iterator entryIterator = element.getEntries();
-      while (entryIterator.hasNext()) {
-        Entry entry = (Entry) entryIterator.next();
-        buffy.append(entry.getValue());
-        buffy.append("\n");
+    for (Tree.TreeNode element : tree.getAllNodesWithEntries()) {
+      for (Entry entry : element.entries()) {
+        buffy.append(entry.getValue()).append("\n");
       }
     }
     return buffy.toString();
@@ -74,18 +70,16 @@ public class HierarchyReportVisitor extends AbstractSortedReportVisitor {
       currentNode.addEntry(entry);
     }
 
-    List getAllNodesWithEntries() {
-      ArrayList list = new ArrayList();
-      root.addAllNodesWithEntries(list);
-      return list;
+    List<TreeNode> getAllNodesWithEntries() {
+      return root.addAllNodesWithEntries(new ArrayList<TreeNode>());
     }
 
 
     public static final class TreeNode {
       String name;
       String fqn;
-      TreeMap children;
-      TreeMap entries;
+      TreeMap<String, TreeNode> children;
+      TreeMap<String, Entry> entries;
 
       private TreeNode(String fqn, String name) {
         this.fqn = fqn;
@@ -95,12 +89,12 @@ public class HierarchyReportVisitor extends AbstractSortedReportVisitor {
       public TreeNode getChild(String childName) {
         TreeNode child = null;
         if (children != null) {
-          child = (TreeNode) children.get(childName);
+          child = children.get(childName);
         }
         if (child == null) {
           child = new TreeNode(fqn + "." + childName, childName);
           if (children == null) {
-            children = new TreeMap();
+            children = new TreeMap<String, TreeNode>();
           }
           children.put(childName, child);
         }
@@ -109,7 +103,7 @@ public class HierarchyReportVisitor extends AbstractSortedReportVisitor {
 
       public void addEntry(Entry entry) {
         if (entries == null) {
-          entries = new TreeMap();
+          entries = new TreeMap<String, Entry>();
         }
         entries.put(entry.getKey(), entry);
       }
@@ -118,22 +112,24 @@ public class HierarchyReportVisitor extends AbstractSortedReportVisitor {
         return (entries != null) && (entries.size() > 0);
       }
 
-      public Iterator getEntries() {
+      public Iterator<Entry> getEntries() {
         return (entries == null) ? null : entries.values().iterator();
+      }
+
+      public Collection<Entry> entries() {
+        return (entries == null) ? Collections.<Entry>emptyList() : entries.values();
       }
 
       public boolean hasChildren() {
         return (children != null) && (children.size() > 0);
       }
 
-      public List addAllNodesWithEntries(List list) {
+      public List<TreeNode> addAllNodesWithEntries(List<TreeNode> list) {
         if (this.hasEntries()) {
           list.add(this);
         }
         if (hasChildren()) {
-          Iterator iter = children.values().iterator();
-          while (iter.hasNext()) {
-            TreeNode treeNode = (TreeNode) iter.next();
+          for (TreeNode treeNode : children.values()) {
             treeNode.addAllNodesWithEntries(list);
           }
         }
