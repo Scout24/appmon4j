@@ -18,7 +18,7 @@ public class HistogramLikeValueTest {
     System.out.println("=====");
 
     StringWriterReportVisitor stringWriterReportVisitor = new StringWriterReportVisitor();
-    InApplicationMonitor.getInstance().reportInto(stringWriterReportVisitor);
+    InApplicationMonitor.getInstance().getCorePlugin().reportInto(stringWriterReportVisitor);
     System.out.println(stringWriterReportVisitor.toString());
   }
 
@@ -129,7 +129,7 @@ public class HistogramLikeValueTest {
 
     HistogramLikeValueAnalysisVisitor histogramLikeValueAnalysisVisitor = new HistogramLikeValueAnalysisVisitor(
       histogramLikeValue.getBaseName());
-    InApplicationMonitor.getInstance().reportInto(histogramLikeValueAnalysisVisitor);
+    InApplicationMonitor.getInstance().getCorePlugin().reportInto(histogramLikeValueAnalysisVisitor);
 
     System.out.println(histogramLikeValueAnalysisVisitor.toString());
 
@@ -151,7 +151,7 @@ public class HistogramLikeValueTest {
 
     HistogramLikeValueAnalysisVisitor histogramLikeValueAnalysisVisitor = new HistogramLikeValueAnalysisVisitor(
       histogramLikeValue.getBaseName());
-    InApplicationMonitor.getInstance().reportInto(histogramLikeValueAnalysisVisitor);
+    InApplicationMonitor.getInstance().getCorePlugin().reportInto(histogramLikeValueAnalysisVisitor);
 
     System.out.println(histogramLikeValueAnalysisVisitor.toString());
 

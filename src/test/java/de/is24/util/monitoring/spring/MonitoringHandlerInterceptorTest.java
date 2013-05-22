@@ -157,7 +157,7 @@ public class MonitoringHandlerInterceptorTest {
   private void fillCounterAndTimerMap() {
     counterCalled = new HashMap<String, Long>();
     timerMap = new HashMap<String, Timer>();
-    monitor.reportInto(new DoNothingReportVisitor() {
+    monitor.getCorePlugin().reportInto(new DoNothingReportVisitor() {
         @Override
         public void reportCounter(Counter counter) {
           counterCalled.put(counter.getName(), counter.getCount());

@@ -49,7 +49,7 @@ public class StateValuesToGraphite implements ReportableObserver {
 
 
   public void shutdown() {
-    InApplicationMonitor.getInstance().removeReportableObserver(this);
+    InApplicationMonitor.getInstance().getCorePlugin().removeReportableObserver(this);
     ex.shutdown();
   }
 

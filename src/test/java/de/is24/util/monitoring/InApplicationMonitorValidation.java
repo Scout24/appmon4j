@@ -64,7 +64,7 @@ public class InApplicationMonitorValidation {
     InApplicationMonitor instance = InApplicationMonitor.getInstance();
 
     StringWriterReportVisitor visitor = new StringWriterReportVisitor();
-    instance.reportInto(visitor);
+    instance.getCorePlugin().reportInto(visitor);
 
     String result = visitor.toString();
     LOGGER.info(result);
@@ -76,7 +76,7 @@ public class InApplicationMonitorValidation {
     InApplicationMonitor instance = InApplicationMonitor.getInstance();
 
     ValueOrderedReportVisitor visitor = new ValueOrderedReportVisitor();
-    instance.reportInto(visitor);
+    instance.getCorePlugin().reportInto(visitor);
 
     String result = visitor.toString();
     LOGGER.info(result);
@@ -88,7 +88,7 @@ public class InApplicationMonitorValidation {
     InApplicationMonitor instance = InApplicationMonitor.getInstance();
 
     HierarchyReportVisitor visitor = new HierarchyReportVisitor();
-    instance.reportInto(visitor);
+    instance.getCorePlugin().reportInto(visitor);
 
     String result = visitor.toString();
     LOGGER.info(result);

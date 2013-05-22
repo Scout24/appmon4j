@@ -124,7 +124,7 @@ public final class MonitoringDataSourceTest extends EasyMockSupport {
   @Before
   public void setUp() {
     this.observer = new AppMon4JObserver();
-    InApplicationMonitor.getInstance().addReportableObserver(this.observer);
+    InApplicationMonitor.getInstance().getCorePlugin().addReportableObserver(this.observer);
   }
 
   /** Clean up. */

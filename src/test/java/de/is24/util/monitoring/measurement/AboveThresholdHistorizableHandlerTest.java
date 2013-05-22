@@ -37,7 +37,7 @@ public class AboveThresholdHistorizableHandlerTest {
 
     handler.handle("measurment", 1001);
 
-    inApplicationMonitor.reportInto(extractorVisitor);
+    inApplicationMonitor.getCorePlugin().reportInto(extractorVisitor);
 
     assertThat(extractorVisitor.getExtractedList().size() == 1);
   }
@@ -48,7 +48,7 @@ public class AboveThresholdHistorizableHandlerTest {
     HistorizableExtractorVisitor extractorVisitor = new HistorizableExtractorVisitor("below");
     handler.handle("measurment", 1000);
 
-    inApplicationMonitor.reportInto(extractorVisitor);
+    inApplicationMonitor.getCorePlugin().reportInto(extractorVisitor);
 
     assertThat(extractorVisitor.getExtractedList()).isNull();
   }

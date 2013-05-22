@@ -52,12 +52,12 @@ public class ServiceStateManagerIT {
 
     StateValueExtractorReportVisitor stateValueExtractorReportVisitor = new StateValueExtractorReportVisitor(
       "lala.oneMinuteFailureRate");
-    InApplicationMonitor.getInstance().reportInto(stateValueExtractorReportVisitor);
+    InApplicationMonitor.getInstance().getCorePlugin().reportInto(stateValueExtractorReportVisitor);
     assertThat(stateValueExtractorReportVisitor.getValue(), is(50L));
 
     InApplicationMonitor.getInstance().incrementCounter("lala.ok");
     Thread.sleep(60 * 1000);
-    InApplicationMonitor.getInstance().reportInto(stateValueExtractorReportVisitor);
+    InApplicationMonitor.getInstance().getCorePlugin().reportInto(stateValueExtractorReportVisitor);
     assertThat(stateValueExtractorReportVisitor.getValue(), is(0L));
 
 

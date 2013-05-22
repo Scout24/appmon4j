@@ -38,7 +38,7 @@ public class TimerMeasurementHandlerTest {
   @Test
   public void addTimerMeasurementToInAppMonitor() throws Exception {
     handler.handle("test", 13);
-    inApplicationMonitor.reportInto(timerExtractor);
+    inApplicationMonitor.getCorePlugin().reportInto(timerExtractor);
     assertThat(timerExtractor.getExtractedTimer().getTimerSum() == 13);
     assertThat(timerExtractor.getExtractedTimer().getCount() == 1);
   }

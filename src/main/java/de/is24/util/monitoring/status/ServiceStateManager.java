@@ -30,7 +30,7 @@ public class ServiceStateManager implements ReportableObserver {
    * after adding all serviceState objects once call this method to connect ServiceStates with Monitors
    */
   public void initialize() {
-    InApplicationMonitor.getInstance().addReportableObserver(this);
+    InApplicationMonitor.getInstance().getCorePlugin().addReportableObserver(this);
   }
 
   @Override
@@ -41,7 +41,7 @@ public class ServiceStateManager implements ReportableObserver {
   }
 
   public void shutdown() {
-    InApplicationMonitor.getInstance().removeReportableObserver(this);
+    InApplicationMonitor.getInstance().getCorePlugin().removeReportableObserver(this);
     ex.shutdown();
   }
 
