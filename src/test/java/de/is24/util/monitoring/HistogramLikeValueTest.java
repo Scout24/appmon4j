@@ -3,8 +3,7 @@ package de.is24.util.monitoring;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import java.util.Random;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import de.is24.util.monitoring.helper.HistogramLikeValue;
 import de.is24.util.monitoring.visitors.HistogramLikeValueAnalysisVisitor;
@@ -12,6 +11,8 @@ import de.is24.util.monitoring.visitors.StringWriterReportVisitor;
 
 
 public class HistogramLikeValueTest {
+  @Rule
+  public final InApplicationMonitorRule inApplicationMonitorRule = new InApplicationMonitorRule();
   private HistogramLikeValue histogramLikeValue;
 
   private void dump() {
@@ -27,16 +28,6 @@ public class HistogramLikeValueTest {
     Counter binCounter = InApplicationMonitor.getInstance().getCorePlugin().getCounter(binName);
     assertNotNull(binCounter);
     assertEquals(expectedSize, binCounter.getCount());
-  }
-
-  @BeforeClass
-  public static void setupClass() {
-    TestHelper.setInstanceForTesting();
-  }
-
-  @AfterClass
-  public static void tearDownClass() {
-    TestHelper.resetInstanceForTesting();
   }
 
   @Test

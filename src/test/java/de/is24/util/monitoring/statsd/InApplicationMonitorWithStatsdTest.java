@@ -1,11 +1,9 @@
 package de.is24.util.monitoring.statsd;
 
 import de.is24.util.monitoring.InApplicationMonitor;
-import de.is24.util.monitoring.TestHelper;
-import org.junit.After;
-import org.junit.AfterClass;
+import de.is24.util.monitoring.InApplicationMonitorRule;
 import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.times;
@@ -16,30 +14,16 @@ import static org.mockito.Matchers.anyString;
 
 
 public class InApplicationMonitorWithStatsdTest {
+  @Rule
+  public final InApplicationMonitorRule inApplicationMonitorRule = new InApplicationMonitorRule();
   private InApplicationMonitor monitor;
   private StatsdClient statsdClient;
 
-  @BeforeClass
-  public static void setupClass() {
-    TestHelper.setInstanceForTesting();
-  }
-
-  @AfterClass
-  public static void tearDownClass() {
-    TestHelper.resetInstanceForTesting();
-  }
-
-
   @Before
   public void setup() {
-    monitor = InApplicationMonitor.getInstance();
+    monitor = inApplicationMonitorRule.getInApplicationMonitor();
     statsdClient = Mockito.mock(StatsdClient.class);
     monitor.registerPlugin(new StatsdPlugin(statsdClient, "StatsdPluginMock"));
-  }
-
-  @After
-  public void tearDown() {
-    InApplicationMonitor.getInstance().removeAllPlugins();
   }
 
   @Test

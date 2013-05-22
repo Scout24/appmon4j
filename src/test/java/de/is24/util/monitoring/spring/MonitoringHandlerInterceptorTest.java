@@ -1,12 +1,9 @@
 package de.is24.util.monitoring.spring;
 
-import de.is24.util.monitoring.Counter;
-import de.is24.util.monitoring.InApplicationMonitor;
-import de.is24.util.monitoring.TestHelper;
-import de.is24.util.monitoring.Timer;
+import de.is24.util.monitoring.*;
 import de.is24.util.monitoring.tools.DoNothingReportVisitor;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -32,6 +29,8 @@ public class MonitoringHandlerInterceptorTest {
   private static final String DUPLICATE_HANDLER = ".duplicateHandler";
 
   private static final int SLEEP_TIME = 100;
+  @Rule
+  public final InApplicationMonitorRule inApplicationMonitorRule = new InApplicationMonitorRule();
 
   private Map<String, Long> counterCalled;
   private Map<String, Timer> timerMap;
@@ -40,13 +39,8 @@ public class MonitoringHandlerInterceptorTest {
 
   @Before
   public void setup() {
-    monitor = TestHelper.setInstanceForTesting();
+    monitor = inApplicationMonitorRule.getInApplicationMonitor();
     interceptor = new MonitoringHandlerInterceptor();
-  }
-
-  @After
-  public void teaDown() {
-    TestHelper.resetInstanceForTesting();
   }
 
   @Test

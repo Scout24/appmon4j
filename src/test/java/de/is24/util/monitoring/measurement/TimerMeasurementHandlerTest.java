@@ -1,34 +1,25 @@
 package de.is24.util.monitoring.measurement;
 
 import de.is24.util.monitoring.InApplicationMonitor;
-import de.is24.util.monitoring.TestHelper;
+import de.is24.util.monitoring.InApplicationMonitorRule;
 import de.is24.util.monitoring.Timer;
 import de.is24.util.monitoring.tools.DoNothingReportVisitor;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import static org.fest.assertions.Assertions.assertThat;
 
 
 public class TimerMeasurementHandlerTest {
+  @Rule
+  public final InApplicationMonitorRule inApplicationMonitorRule = new InApplicationMonitorRule();
   InApplicationMonitor inApplicationMonitor;
   TimerMeasurementHandler handler;
   TimerExtractor timerExtractor;
 
-  @BeforeClass
-  public static void setupClass() {
-    TestHelper.setInstanceForTesting();
-  }
-
-  @AfterClass
-  public static void tearDownClass() {
-    TestHelper.resetInstanceForTesting();
-  }
-
   @Before
   public void setup() {
-    inApplicationMonitor = InApplicationMonitor.getInstance();
+    inApplicationMonitor = inApplicationMonitorRule.getInApplicationMonitor();
 
     handler = new TimerMeasurementHandler();
 

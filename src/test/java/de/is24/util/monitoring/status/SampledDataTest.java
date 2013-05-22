@@ -1,26 +1,17 @@
 package de.is24.util.monitoring.status;
 
-import de.is24.util.monitoring.TestHelper;
-import org.junit.AfterClass;
+import de.is24.util.monitoring.InApplicationMonitorRule;
 import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 
 public class SampledDataTest {
+  @Rule
+  public final InApplicationMonitorRule inApplicationMonitorRule = new InApplicationMonitorRule();
   SampledData sampledData;
-
-  @BeforeClass
-  public static void setupClass() {
-    TestHelper.setInstanceForTesting();
-  }
-
-  @AfterClass
-  public static void tearDownClass() {
-    TestHelper.resetInstanceForTesting();
-  }
 
   @Before
   public void setup() {

@@ -1,14 +1,13 @@
 package de.is24.util.monitoring.status;
 
 import de.is24.util.monitoring.InApplicationMonitor;
+import de.is24.util.monitoring.InApplicationMonitorRule;
 import de.is24.util.monitoring.StateValueProvider;
-import de.is24.util.monitoring.TestHelper;
 import de.is24.util.monitoring.tools.DoNothingReportVisitor;
 import org.apache.log4j.Logger;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -16,17 +15,9 @@ import static org.junit.Assert.assertThat;
 
 public class ServiceStateManagerIT {
   private static final Logger LOGGER = Logger.getLogger(ServiceStateManagerIT.class);
+  @Rule
+  public final InApplicationMonitorRule inApplicationMonitorRule = new InApplicationMonitorRule();
   private ServiceStateManager serviceStateManager;
-
-  @BeforeClass
-  public static void setupClass() {
-    TestHelper.setInstanceForTesting();
-  }
-
-  @AfterClass
-  public static void tearDownClass() {
-    TestHelper.resetInstanceForTesting();
-  }
 
   @Before
   public void setup() {

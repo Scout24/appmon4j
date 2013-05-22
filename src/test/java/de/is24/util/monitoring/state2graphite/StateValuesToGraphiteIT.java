@@ -1,15 +1,16 @@
 package de.is24.util.monitoring.state2graphite;
 
 import de.is24.util.monitoring.InApplicationMonitor;
+import de.is24.util.monitoring.InApplicationMonitorRule;
 import de.is24.util.monitoring.MultiValueProvider;
 import de.is24.util.monitoring.ReportVisitor;
 import de.is24.util.monitoring.SimpleStateValueProvider;
 import de.is24.util.monitoring.State;
 import de.is24.util.monitoring.StateValueProvider;
-import de.is24.util.monitoring.TestHelper;
 import de.is24.util.monitoring.tools.LocalHostNameResolver;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,14 +24,14 @@ import static org.mockito.Mockito.when;
 
 
 public class StateValuesToGraphiteIT {
+  @Rule
+  public final InApplicationMonitorRule inApplicationMonitorRule = new InApplicationMonitorRule();
   private GraphiteConnection graphiteConnection;
   private StateValuesToGraphite target;
 
 
   @Before
   public void setUp() throws Exception {
-    TestHelper.setInstanceForTesting();
-
     LocalHostNameResolver localHostNameResolver = mock(LocalHostNameResolver.class);
     when(localHostNameResolver.getLocalHostName()).thenReturn("testHost");
 
@@ -42,7 +43,6 @@ public class StateValuesToGraphiteIT {
   @After
   public void tearDown() {
     target.shutdown();
-    TestHelper.resetInstanceForTesting();
   }
 
   @Test
