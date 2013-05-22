@@ -132,6 +132,7 @@ public class InApplicationMonitor {
    * @deprecated use corePlugin directly, will be removed from InApplicationMonitor
    * @param reportableObserver the class that wants to be notified
    */
+  @Deprecated
   public void addReportableObserver(final ReportableObserver reportableObserver) {
     getCorePlugin().addReportableObserver(reportableObserver);
   }
@@ -142,6 +143,7 @@ public class InApplicationMonitor {
    * @deprecated use corePlugin directly, will be removed from InApplicationMonitor
    * @param reportableObserver
    */
+  @Deprecated
   public void removeReportableObserver(final ReportableObserver reportableObserver) {
     getCorePlugin().removeReportableObserver(reportableObserver);
   }
@@ -154,6 +156,7 @@ public class InApplicationMonitor {
    * by all regieteres {@link Reportable} instances.
    * @deprecated use corePlugin directly, will be removed from InApplicationMonitor
    */
+  @Deprecated
   public void reportInto(ReportVisitor reportVisitor) {
     getCorePlugin().reportInto(reportVisitor);
   }
