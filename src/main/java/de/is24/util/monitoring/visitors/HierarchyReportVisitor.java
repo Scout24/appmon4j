@@ -70,7 +70,7 @@ public class HierarchyReportVisitor extends AbstractSortedReportVisitor {
       currentNode.addEntry(entry);
     }
 
-    List<TreeNode> getAllNodesWithEntries() {
+    public List<TreeNode> getAllNodesWithEntries() {
       return root.addAllNodesWithEntries(new ArrayList<TreeNode>());
     }
 
