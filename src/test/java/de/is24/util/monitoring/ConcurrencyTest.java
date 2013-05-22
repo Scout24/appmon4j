@@ -110,7 +110,7 @@ public class ConcurrencyTest {
   private class ObserverJob extends Job {
     @Override
     protected void doJob() {
-      InApplicationMonitor.getInstance().addReportableObserver(new ReportableObserver() {
+      InApplicationMonitor.getInstance().getCorePlugin().addReportableObserver(new ReportableObserver() {
           @Override
           public void addNewReportable(Reportable reportable) {
             try {
