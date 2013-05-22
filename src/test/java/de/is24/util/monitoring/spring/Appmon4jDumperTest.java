@@ -1,8 +1,8 @@
 package de.is24.util.monitoring.spring;
 
 import de.is24.util.monitoring.InApplicationMonitor;
+import de.is24.util.monitoring.InApplicationMonitorRule;
 import de.is24.util.monitoring.SimpleStateValueProvider;
-import de.is24.util.monitoring.TestHelper;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
@@ -12,6 +12,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.support.GenericApplicationContext;
@@ -28,8 +29,8 @@ import static org.hamcrest.Matchers.containsString;
  * @author <a href="mailto:sebastian.kirsch@immobilienscout24.de">Sebastian Kirsch</a>
  */
 public class Appmon4jDumperTest {
-  private Appmon4jDumper objectUnderTest;
-  private InApplicationMonitor inApplicationMonitor;
+  @Rule
+  public final InApplicationMonitorRule inApplicationMonitorRule = new InApplicationMonitorRule();
   private Appender appender;
   private final List<LoggingEvent> loggingEvents = new ArrayList<LoggingEvent>();
 
@@ -44,19 +45,16 @@ public class Appmon4jDumperTest {
       }
     };
     Logger.getLogger(Appmon4jDumper.class).addAppender(appender);
-
-    inApplicationMonitor = TestHelper.setInstanceForTesting();
-    objectUnderTest = new Appmon4jDumper(inApplicationMonitor);
   }
 
   @After
   public void tearDown() {
     Logger.getLogger(Appmon4jDumper.class).removeAppender(appender);
-    TestHelper.resetInstanceForTesting();
   }
 
   @Test
   public void dumpContainsReportingValues() {
+    InApplicationMonitor inApplicationMonitor = inApplicationMonitorRule.getInApplicationMonitor();
     String counterName = "DummyCounter";
     String timerName = "DummyTimer";
     String stateValueName = "DummyStateValue";
@@ -64,7 +62,10 @@ public class Appmon4jDumperTest {
     inApplicationMonitor.addTimerMeasurement(timerName, 42L);
     inApplicationMonitor.registerStateValue(new SimpleStateValueProvider(stateValueName, 42L));
 
+
+    Appmon4jDumper objectUnderTest = new Appmon4jDumper(inApplicationMonitorRule.getInApplicationMonitor());
     objectUnderTest.onApplicationEvent(new ContextClosedEvent(new GenericApplicationContext()));
+
     assertThat(loggingEvents,
       Matchers.<LoggingEvent>hasItem(
         allOf(
