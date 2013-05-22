@@ -83,6 +83,7 @@ public class GenericMonitoringWrapper<E> implements InvocationHandler {
    *          the reporter to report timing information to
    * @return the monitoring wrapper
    */
+  @SuppressWarnings("unchecked")
   public static <E> E wrapObject(final Class<E> clazz, final Object target, final TimingReporter timingReporter) {
     return (E) Proxy.newProxyInstance(GenericMonitoringWrapper.class.getClassLoader(), new Class[] { clazz },
       new GenericMonitoringWrapper<E>(clazz, target, timingReporter));

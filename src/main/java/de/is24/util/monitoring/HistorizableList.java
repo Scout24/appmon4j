@@ -65,6 +65,7 @@ public class HistorizableList implements Reportable, Iterable<Historizable> {
    * The iterator actually iterates over a clone of the internal list,
    * to prevent concorrent modification problems.
    */
+  @SuppressWarnings("unchecked")
   public Iterator<Historizable> iterator() {
     synchronized (historizables) {
       return ((LinkedList<Historizable>) historizables.clone()).iterator();
