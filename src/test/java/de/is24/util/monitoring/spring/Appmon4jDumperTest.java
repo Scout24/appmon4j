@@ -36,7 +36,7 @@ public class Appmon4jDumperTest {
 
 
   @Before
-  public void setUp() {
+  public void instrumentLoggingForTesting() {
     loggingEvents.clear();
     appender = new NullAppender() {
       @Override
@@ -48,7 +48,8 @@ public class Appmon4jDumperTest {
   }
 
   @After
-  public void tearDown() {
+  public void clearLoggingInstrumentation() {
+    loggingEvents.clear();
     Logger.getLogger(Appmon4jDumper.class).removeAppender(appender);
   }
 
