@@ -34,7 +34,6 @@ public class Appmon4jDumperTest {
   private Appender appender;
   private final List<LoggingEvent> loggingEvents = new ArrayList<LoggingEvent>();
 
-
   @Before
   public void instrumentLoggingForTesting() {
     loggingEvents.clear();
