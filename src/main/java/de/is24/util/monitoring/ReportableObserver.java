@@ -4,7 +4,8 @@ package de.is24.util.monitoring;
  * Classes can register themselves as ReportableObserver if they want to be notified
  * about new reportables that are registered on the InApplicationMonitor
  *
- * @author ptraeder
+ * Implementations should overwrite toString(), to provide some context to CorePlugin.getRegisteredReportableObservers()
+ *
  */
 public interface ReportableObserver {
   /**

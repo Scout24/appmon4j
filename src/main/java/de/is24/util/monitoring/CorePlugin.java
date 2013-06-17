@@ -7,6 +7,8 @@ import de.is24.util.monitoring.keyhandler.TransparentKeyHandler;
 import de.is24.util.monitoring.tools.VirtualMachineMetrics;
 import org.apache.log4j.Logger;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -425,11 +427,19 @@ public class CorePlugin extends AbstractMonitorPlugin {
     corePluginToSyncWith.addReportableObserver(syncObserver);
   }
 
+  public List<String> getRegisteredReportableObservers() {
+    ArrayList<String> list = new ArrayList<String>();
+    for (ReportableObserver observer : reportableObservers) {
+      list.add(observer.toString());
+    }
+    return list;
+  }
+
   private class SyncObserver implements ReportableObserver {
     @Override
     public void addNewReportable(Reportable reportable) {
       String name = keyHandler.handle(reportable.getName());
-      LOGGER.info("#### syncing reportable " + reportable.getName());
+      LOGGER.info("syncing reportable " + reportable.getName());
       if ((reportable instanceof Counter) || (reportable instanceof Timer)) {
         countersTimers.putIfAbsent(name, (Counter) reportable);
       } else if (reportable instanceof Version) {

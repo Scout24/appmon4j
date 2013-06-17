@@ -7,7 +7,6 @@ import de.is24.util.monitoring.InApplicationMonitor;
 import de.is24.util.monitoring.MultiValueProvider;
 import de.is24.util.monitoring.Reportable;
 import de.is24.util.monitoring.ReportableObserver;
-import de.is24.util.monitoring.State;
 import de.is24.util.monitoring.StateValueProvider;
 import de.is24.util.monitoring.Timer;
 import de.is24.util.monitoring.Version;
@@ -34,6 +33,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+import javax.management.openmbean.CompositeData;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +61,7 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
   private static final String IS_MONITOR_ACTIVE = "isMonitorActive";
 
   private static final String GET_REGISTERED_PLUGIN_KEYS = "getRegisteredPluginKeys";
+  private static final String GET_REGISTERED_OBSERVERS = "getRegisteredReportableObservers";
   private static final String REMOVE_ALL_PLUGINS = "removeAllPlugins";
   private static final String ADD_STATSD_PLUGIN = "addStatsdPlugin";
   private static final String ADD_STATE_VALUES_TO_GRAPHITE = "addStateValuesToGraphite";
@@ -223,11 +224,11 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
           (entry.getValue() instanceof StateValueProvider)) {
         attributes.add(new MBeanAttributeInfo(entry.getKey(), "long", entry.getKey(), true, false, false));
       } else if (entry.getValue() instanceof MultiValueProvider) {
-        //TODO:          composite here
-        MultiValueProvider multiValueProvider = (MultiValueProvider) entry.getValue();
-        for (State state : multiValueProvider.getValues()) {
-          attributes.add(new MBeanAttributeInfo(state.name, "String", state.name, true, false, false));
-        }
+        LOG.info("### add multi value " + entry.getKey());
+        attributes.add(new MBeanAttributeInfo(entry.getKey(), "javax.management.openmbean.CompositeData",
+            entry.getKey(),
+            true, false,
+            false));
       } else if (entry.getValue() instanceof Version) {
         attributes.add(new MBeanAttributeInfo(entry.getKey(), "String", entry.getKey(), true, false, false));
       }
@@ -256,6 +257,9 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
       new MBeanOperationInfo(IS_MONITOR_ACTIVE, "check if monitor is active", null, "java.lang.Boolean",
         MBeanOperationInfo.INFO),
       new MBeanOperationInfo(GET_REGISTERED_PLUGIN_KEYS, "list registered plugin keys", null, "java.util.List",
+        MBeanOperationInfo.INFO),
+      new MBeanOperationInfo(GET_REGISTERED_OBSERVERS, "list registered reportable observers", null,
+        "java.util.List",
         MBeanOperationInfo.INFO),
       new MBeanOperationInfo(REMOVE_ALL_PLUGINS, "remove all plugins", null, "void",
         MBeanOperationInfo.ACTION),
@@ -296,6 +300,10 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
         return ((Counter) reportable).getCount();
       } else if (reportable instanceof StateValueProvider) {
         return ((StateValueProvider) reportable).getValue();
+      } else if (reportable instanceof MultiValueProvider) {
+        CompositeData compositeData = new MultiValueProviderHelper(((MultiValueProvider) reportable)).toComposite();
+        LOG.info("type : " + compositeData.getCompositeType().toString());
+        return compositeData;
       } else if (reportable instanceof Version) {
         return ((Version) reportable).getValue();
       }
@@ -345,6 +353,8 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
       return isMonitorActive();
     } else if (actionName.equals(GET_REGISTERED_PLUGIN_KEYS)) {
       return getRegisteredPluginKeys();
+    } else if (actionName.equals(GET_REGISTERED_OBSERVERS)) {
+      return getRegisteredObservers();
     } else if (actionName.equals(REMOVE_ALL_PLUGINS)) {
       InApplicationMonitor.getInstance().removeAllPlugins();
     } else if (actionName.equals(ADD_STATSD_PLUGIN)) {
@@ -353,7 +363,7 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
       String appName = (String) params[2];
       Double sampleRate = (Double) params[3];
       addStatsdPlugin(host, port, appName, sampleRate);
-    } else if (actionName.equals(ADD_STATSD_PLUGIN)) {
+    } else if (actionName.equals(ADD_STATE_VALUES_TO_GRAPHITE)) {
       String host = (String) params[0];
       Integer port = (Integer) params[1];
       String appName = (String) params[2];
@@ -376,8 +386,13 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
 
   private void addStateValuesToGraphite(String host, Integer port, String appName) {
     try {
+      LOG.info("About to create a StateValueToGraphite Instance in JMXConnector with host: " + host + ", port: " +
+        port + ", appName: " + appName);
       new StateValuesToGraphite(host, port, appName);
+      LOG.info("Creation of StateValueToGraphite Instance succeeded");
     } catch (Exception e) {
+      LOG.warn("Creation of StateValueToGraphite Instance in JMXConnector failed: host: " + host + ", port: " +
+        port + ", appName: " + appName, e);
       throw new RuntimeException(e);
     }
   }
@@ -411,5 +426,9 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
 
   public List<String> getRegisteredPluginKeys() {
     return InApplicationMonitor.getInstance().getRegisteredPluginKeys();
+  }
+
+  public List<String> getRegisteredObservers() {
+    return InApplicationMonitor.getInstance().getCorePlugin().getRegisteredReportableObservers();
   }
 }

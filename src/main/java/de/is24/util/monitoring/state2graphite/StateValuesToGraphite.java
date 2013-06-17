@@ -21,6 +21,7 @@ public class StateValuesToGraphite implements ReportableObserver {
   private ScheduledExecutorService ex;
   private Map<String, StateValueProvider> stateValues;
   private Map<String, MultiValueProvider> multiValueProviders;
+  private GraphiteConnection graphiteClient;
 
   public StateValuesToGraphite(String graphiteHost, int graphitePort, String appName) {
     this(appName, new LocalHostNameResolver(), new GraphiteConnection(graphiteHost, graphitePort));
@@ -29,6 +30,8 @@ public class StateValuesToGraphite implements ReportableObserver {
 
   StateValuesToGraphite(String appName, LocalHostNameResolver localHostNameResolver,
                         GraphiteConnection graphiteClient) {
+    this.graphiteClient = graphiteClient;
+
     String keyPrefix = appName + "." + localHostNameResolver.getLocalHostName() + ".states";
     stateValues = new ConcurrentHashMap<String, StateValueProvider>();
     multiValueProviders = new ConcurrentHashMap<String, MultiValueProvider>();
@@ -116,5 +119,10 @@ public class StateValuesToGraphite implements ReportableObserver {
       }
     }
 
+  }
+
+  @Override
+  public String toString() {
+    return "StateValuesToGraphite:" + graphiteClient.toString();
   }
 }

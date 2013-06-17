@@ -73,4 +73,8 @@ public class GraphiteConnection {
     }
   }
 
+  @Override
+  public String toString() {
+    return "GraphiteConection:" + graphiteHost + "," + graphitePort;
+  }
 }
