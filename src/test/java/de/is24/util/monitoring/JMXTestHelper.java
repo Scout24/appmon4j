@@ -1,9 +1,12 @@
 package de.is24.util.monitoring;
 
 import org.apache.log4j.Logger;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
 import javax.management.MBeanInfo;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import javax.management.ReflectionException;
 import java.lang.management.ManagementFactory;
 import java.util.Set;
 
@@ -88,4 +91,10 @@ public class JMXTestHelper {
 
   }
 
+
+  public static Object invoke(ObjectName objectName, Object[] params, String[] signature)
+                       throws InstanceNotFoundException, MBeanException, ReflectionException {
+    Object result = platformMBeanServer.invoke(objectName, "addStateValuesToGraphite", params, signature);
+    return result;
+  }
 }
