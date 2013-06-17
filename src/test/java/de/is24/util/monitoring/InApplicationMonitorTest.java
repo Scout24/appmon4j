@@ -9,6 +9,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import static de.is24.util.monitoring.TestHelper.initializeWithJMXNaming;
 import static org.fest.assertions.Assertions.assertThat;
 
 
@@ -181,20 +182,6 @@ public class InApplicationMonitorTest {
       InApplicationMonitor.getInstance().resetThreadLocalState();
     }
 
-  }
-
-
-  private CorePlugin initializeWithJMXNaming() {
-    DefaultKeyEscaper keyEscaper = new DefaultKeyEscaper();
-    CorePlugin corePlugin = new CorePlugin(new JmxAppMon4JNamingStrategy() {
-        @Override
-        public String getJmxPrefix() {
-          return "lala";
-        }
-      }, keyEscaper);
-    InApplicationMonitor explicitInitializedInApplicationMonitor = InApplicationMonitor.initInstance(
-      corePlugin, keyEscaper);
-    return corePlugin;
   }
 
 
