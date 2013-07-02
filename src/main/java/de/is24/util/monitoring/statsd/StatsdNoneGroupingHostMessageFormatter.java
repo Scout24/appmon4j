@@ -1,23 +1,31 @@
 package de.is24.util.monitoring.statsd;
 
-public class StatsdNoneGroupingHostMessageFormatter implements StatsdMessageFormatter {
-  private final String appName;
-  private final String localHostName;
-
+public class StatsdNoneGroupingHostMessageFormatter extends StatsdMessageFormatter {
   public StatsdNoneGroupingHostMessageFormatter(String appName, String localHostName) {
-    this.appName = appName;
-    this.localHostName = localHostName;
+    super(appName, localHostName);
   }
 
+  public StatsdNoneGroupingHostMessageFormatter(final String appName) {
+    super(appName);
+  }
+
+  @Override
   public String formatSampledValue(String stat, double sampleRate) {
-    StringBuilder builder = new StringBuilder();
-    builder.append(stat).append("|@").append(sampleRate).append("|").append(appName).append(".").append(localHostName);
-    return builder.toString();
+    return new StringBuilder().append(getAppName())
+      .append(".")
+      .append(getLocalHostName())
+      .append(".")
+      .append(stat)
+      .append("|@")
+      .append(sampleRate)
+      .append("|")
+      .toString();
   }
 
+  @Override
   public String formatUnsampledValue(String stat) {
     StringBuilder builder = new StringBuilder();
-    builder.append(stat).append("||").append(appName).append(".").append(localHostName);
+    builder.append(getAppName()).append(".").append(getLocalHostName()).append(".").append(stat).append("||");
     return builder.toString();
   }
 }
