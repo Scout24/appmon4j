@@ -17,11 +17,12 @@ class StatsdClient {
   private final StatsdMessageFormatter messageFormatter;
 
   public StatsdClient(String host, int port, String appName) throws UnknownHostException, SocketException {
-    this(InetAddress.getByName(host), port, appName);
+    this(host, port, new StatsdHostGroupedMessageFormatter(appName));
   }
 
-  public StatsdClient(InetAddress host, int port, String appName) throws SocketException {
-    this(new StatsdDatagrammSocket(host, port), new StatsdHostGroupedMessageFormatter(appName));
+  public StatsdClient(String host, int port, StatsdMessageFormatter messageFormatter) throws UnknownHostException,
+                                                                                             SocketException {
+    this(new StatsdDatagrammSocket(InetAddress.getByName(host), port), messageFormatter);
   }
 
   StatsdClient(StatsdDatagrammSocket socket, StatsdMessageFormatter formatter) {
