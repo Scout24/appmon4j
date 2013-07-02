@@ -1,6 +1,5 @@
 package de.is24.util.monitoring.statsd;
 
-import de.is24.util.monitoring.tools.LocalHostNameResolver;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
@@ -19,12 +18,8 @@ public class StatsdClientTest {
 
   @Before
   public void setUp() throws Exception {
-    LocalHostNameResolver localHostNameResolver = mock(LocalHostNameResolver.class);
-    when(localHostNameResolver.getLocalHostName()).thenReturn("testHost");
-
     socket = mock(StatsdDatagrammSocket.class);
-
-    target = new StatsdClient(socket, localHostNameResolver, "test");
+    target = new StatsdClient(socket, new StatsdHostGroupedMessageFormatter("test", "testHost"));
   }
 
   @Test
@@ -119,12 +114,6 @@ public class StatsdClientTest {
     assertThat(target.increment("testIncrement", 1, 0.5)).isEqualTo(false);
   }
 
-  @Test
-  public void formatSampledValue() throws Exception {
-    String expected = "stat|@0.01|test.testHost";
-    assertThat(target.formatSampledValue("stat", 0.01)).isEqualTo(expected);
-  }
-
   private void expectToFail() throws IOException {
     socket.send(anyString());
     when(socket).thenThrow(new IOException());
@@ -134,5 +123,4 @@ public class StatsdClientTest {
     StatsdClient.rng = mock(Random.class);
     when(StatsdClient.rng.nextDouble()).thenReturn(value);
   }
-
 }

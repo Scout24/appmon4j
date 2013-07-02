@@ -1,6 +1,5 @@
 package de.is24.util.monitoring.statsd;
 
-import de.is24.util.monitoring.tools.LocalHostNameResolver;
 import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -15,21 +14,19 @@ class StatsdClient {
   static Random rng = new Random();
 
   private final StatsdDatagrammSocket socket;
-  private final String localHostName;
-  private final String appName;
+  private final StatsdMessageFormatter messageFormatter;
 
   public StatsdClient(String host, int port, String appName) throws UnknownHostException, SocketException {
     this(InetAddress.getByName(host), port, appName);
   }
 
   public StatsdClient(InetAddress host, int port, String appName) throws SocketException {
-    this(new StatsdDatagrammSocket(host, port), new LocalHostNameResolver(), appName);
+    this(new StatsdDatagrammSocket(host, port), new StatsdHostGroupedMessageFormatter(appName));
   }
 
-  StatsdClient(StatsdDatagrammSocket socket, LocalHostNameResolver localHostNameResolver, String appName) {
+  StatsdClient(StatsdDatagrammSocket socket, StatsdMessageFormatter formatter) {
     this.socket = socket;
-    this.localHostName = localHostNameResolver.getLocalHostName().replaceAll("\\.", "_");
-    this.appName = appName;
+    this.messageFormatter = formatter;
   }
 
   public void close() {
@@ -45,11 +42,7 @@ class StatsdClient {
   }
 
   private String formatTimer(String key, int value) {
-    // replacement because of synchronization for String.format("%s:%d|ms",
-
-    StringBuilder builder = new StringBuilder();
-    builder.append(key).append(":").append(value).append("|ms");
-    return builder.toString();
+    return new StringBuilder().append(key).append(":").append(value).append("|ms").toString();
   }
 
   public boolean decrement(String key) {
@@ -93,10 +86,7 @@ class StatsdClient {
   }
 
   private String formatCounter(String key, int magnitude) {
-    // replacement because of synchronization for String.format("%s:%s|c"
-    StringBuilder builder = new StringBuilder();
-    builder.append(key).append(":").append(magnitude).append("|c");
-    return builder.toString();
+    return new StringBuilder().append(key).append(":").append(magnitude).append("|c").toString();
   }
 
   public boolean increment(int magnitude, double sampleRate, String... keys) {
@@ -116,7 +106,7 @@ class StatsdClient {
     if (sampleRate < 1.0) {
       for (String stat : stats) {
         if (rng.nextDouble() <= sampleRate) {
-          String key = formatSampledValue(stat, sampleRate);
+          String key = messageFormatter.formatSampledValue(stat, sampleRate);
           if (doSend(key)) {
             retval = true;
           }
@@ -124,7 +114,7 @@ class StatsdClient {
       }
     } else {
       for (String stat : stats) {
-        String key = formatUnsampledValue(stat);
+        String key = messageFormatter.formatUnsampledValue(stat);
         if (doSend(key)) {
           retval = true;
         }
@@ -132,20 +122,6 @@ class StatsdClient {
     }
 
     return retval;
-  }
-
-  protected String formatSampledValue(String stat, double sampleRate) {
-    // replacement because of synchronization for String.format(Locale.ENGLISH, "%s|@%f|%s.%s"
-    StringBuilder builder = new StringBuilder();
-    builder.append(stat).append("|@").append(sampleRate).append("|").append(appName).append(".").append(localHostName);
-    return builder.toString();
-  }
-
-  protected String formatUnsampledValue(String stat) {
-    // replacement because of synchronization for String.format("%s||%s.%s"
-    StringBuilder builder = new StringBuilder();
-    builder.append(stat).append("||").append(appName).append(".").append(localHostName);
-    return builder.toString();
   }
 
   private boolean doSend(String stat) {
