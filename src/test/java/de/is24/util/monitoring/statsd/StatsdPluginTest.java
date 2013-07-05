@@ -3,8 +3,8 @@ package de.is24.util.monitoring.statsd;
 import org.junit.Before;
 import org.junit.Test;
 import static org.mockito.Matchers.anyDouble;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -18,7 +18,7 @@ public class StatsdPluginTest {
   @Before
   public void setUp() throws Exception {
     client = mock(StatsdClient.class);
-    target = new StatsdPlugin(client, "StatdsClientMock");
+    target = new StatsdPlugin(client, "StatdsClientMock", 1.0);
   }
 
   @Test

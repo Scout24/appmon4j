@@ -43,21 +43,27 @@ public class StatsdPlugin extends AbstractMonitorPlugin {
    */
   public StatsdPlugin(String host, int port, String appName, double sampleRate) throws UnknownHostException,
                                                                                        SocketException {
-    this(new StatsdClient(host, port, appName), "StatsdPlugin_" + host + "_" + port + "_" + sampleRate);
+    this(new StatsdClient(host, port, appName), getUniqeName(host, port, sampleRate), sampleRate);
+  }
+
+  public StatsdPlugin(String host, int port, double sampleRate, StatsdMessageFormatter statsdMessageFormatter)
+               throws SocketException, UnknownHostException {
+    this(new StatsdClient(host, port, statsdMessageFormatter), getUniqeName(host, port, sampleRate), sampleRate);
+
+  }
+
+  StatsdPlugin(StatsdClient client, String uniqeName, double sampleRate) {
+    this.delegate = client;
+    this.uniqueName = uniqeName;
     if (sampleRate < 0) {
       throw new IllegalArgumentException("negative sample rate not permitted");
     }
     this.sampleRate = sampleRate;
-
     initHighVolumeSampleRate();
   }
 
-
-  StatsdPlugin(StatsdClient client, String uniqeName) {
-    this.delegate = client;
-    this.uniqueName = uniqeName;
-    this.sampleRate = 1.0;
-    initHighVolumeSampleRate();
+  private static String getUniqeName(final String host, final int port, final double sampleRate) {
+    return "StatsdPlugin_" + host + "_" + port + "_" + sampleRate;
   }
 
   @Override
