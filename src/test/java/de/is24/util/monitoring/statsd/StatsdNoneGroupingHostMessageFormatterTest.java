@@ -9,13 +9,13 @@ public class StatsdNoneGroupingHostMessageFormatterTest {
 
   @Test
   public void testFormatSampledValue() throws Exception {
-    String expected = "test.testHost.stat|@0.01|";
+    String expected = "test.testHost.stat|@0.01";
     assertThat(formatter.formatSampledValue("stat", 0.01)).isEqualTo(expected);
   }
 
   @Test
   public void testFormatUnsampledValue() throws Exception {
-    String expected = "test.testHost.stat||";
+    String expected = "test.testHost.stat|";
     assertThat(formatter.formatUnsampledValue("stat")).isEqualTo(expected);
   }
 }

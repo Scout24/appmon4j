@@ -18,14 +18,13 @@ public class StatsdNoneGroupingHostMessageFormatter extends StatsdMessageFormatt
       .append(stat)
       .append("|@")
       .append(sampleRate)
-      .append("|")
       .toString();
   }
 
   @Override
   public String formatUnsampledValue(String stat) {
     StringBuilder builder = new StringBuilder();
-    builder.append(getAppName()).append(".").append(getLocalHostName()).append(".").append(stat).append("||");
+    builder.append(getAppName()).append(".").append(getLocalHostName()).append(".").append(stat).append("|");
     return builder.toString();
   }
 }
