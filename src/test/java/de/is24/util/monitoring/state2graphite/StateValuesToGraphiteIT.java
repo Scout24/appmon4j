@@ -82,7 +82,7 @@ public class StateValuesToGraphiteIT {
   @Test
   public void handleMultiValueProviders() throws Exception {
     final List<State> states = new ArrayList<State>();
-    final String multiValueName = "test.multi.value";
+    final String multiValueName = "lala";
     states.add(new State(multiValueName, "test1", 123432));
     states.add(new State(multiValueName, "test2", 98765));
 
@@ -94,7 +94,7 @@ public class StateValuesToGraphiteIT {
 
         @Override
         public String getName() {
-          return multiValueName;
+          return "testMultiValue";
         }
 
         @Override
@@ -106,7 +106,8 @@ public class StateValuesToGraphiteIT {
     // and Scheduler is still running
     Thread.sleep(2000);
     verify(graphiteConnection, times(1)).send(contains("testAppName.testHost.states.StateTest 4711 "));
-    verify(graphiteConnection, times(1)).send(contains("testAppName.testHost.states.test.multi.value.test1 123432 "));
-    verify(graphiteConnection, times(1)).send(contains("testAppName.testHost.states.test.multi.value.test2 98765 "));
+    verify(graphiteConnection, times(1)).send(contains(
+        "testAppName.testHost.states.testMultiValue.lala.test1 123432 "));
+    verify(graphiteConnection, times(1)).send(contains("testAppName.testHost.states.testMultiValue.lala.test2 98765 "));
   }
 }
