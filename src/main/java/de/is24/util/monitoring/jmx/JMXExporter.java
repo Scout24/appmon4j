@@ -65,8 +65,9 @@ public class JMXExporter implements MultiValueProvider {
 
   protected void searchAndLogNumericAttributes(List<State> result) {
     Map<ObjectName, MBeanInfo> mBeanInfoMap = getMBeanInfos();
-    for (ObjectName name : mBeanInfoMap.keySet()) {
-      MBeanInfo mBeanInfo = mBeanInfoMap.get(name);
+    for (Map.Entry<ObjectName, MBeanInfo> entry : mBeanInfoMap.entrySet()) {
+      ObjectName name = entry.getKey();
+      MBeanInfo mBeanInfo = entry.getValue();
       MBeanAttributeInfo[] attributes = mBeanInfo.getAttributes();
       for (MBeanAttributeInfo info : attributes) {
         try {
