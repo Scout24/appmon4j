@@ -1,7 +1,8 @@
 package de.is24.util.monitoring.state2graphite;
 
 import de.is24.util.monitoring.tools.ConnectionState;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -9,7 +10,7 @@ import java.net.Socket;
 
 
 public class GraphiteConnection {
-  private static final Logger LOGGER = Logger.getLogger(GraphiteConnection.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(GraphiteConnection.class);
   private final String graphiteHost;
   private final int graphitePort;
   private ConnectionState connectionState = ConnectionState.UNKNOWN;
@@ -43,7 +44,7 @@ public class GraphiteConnection {
           }
         }
         if (connectionState != ConnectionState.SUCCESS) {
-          LOGGER.info("Connection to graphite Host " +
+          LOGGER.info("Connection to graphite Host {}",
             ((connectionState == ConnectionState.UNKNOWN) ? "established" : "recovered"));
           connectionState = ConnectionState.SUCCESS;
         }

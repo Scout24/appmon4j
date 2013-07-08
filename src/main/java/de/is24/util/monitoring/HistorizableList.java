@@ -1,6 +1,7 @@
 package de.is24.util.monitoring;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -18,7 +19,7 @@ public class HistorizableList implements Reportable, Iterable<Historizable> {
   private final int fMaxEntriesToKeep;
   private final LinkedList<Historizable> historizables = new LinkedList<Historizable>();
 
-  private static final Logger LOGGER = Logger.getLogger(HistorizableList.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(HistorizableList.class);
 
   /**
    * This class is only constructed by {@link InApplicationMonitor}

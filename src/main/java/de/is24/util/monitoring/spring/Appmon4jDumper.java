@@ -3,7 +3,8 @@ package de.is24.util.monitoring.spring;
 import de.is24.util.monitoring.InApplicationMonitor;
 import de.is24.util.monitoring.visitors.AbstractSortedReportVisitor;
 import de.is24.util.monitoring.visitors.HierarchyReportVisitor;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextClosedEvent;
 import static de.is24.util.monitoring.visitors.HierarchyReportVisitor.Tree.TreeNode;
@@ -16,7 +17,7 @@ import static de.is24.util.monitoring.visitors.HierarchyReportVisitor.Tree.TreeN
  * @author <a href="mailto:sebastian.kirsch@immobilienscout24.de">Sebastian Kirsch</a>
  */
 public class Appmon4jDumper implements ApplicationListener<ContextClosedEvent> {
-  private static final Logger LOGGER = Logger.getLogger(Appmon4jDumper.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(Appmon4jDumper.class);
   private final InApplicationMonitor inApplicationMonitor;
 
   public Appmon4jDumper(InApplicationMonitor inApplicationMonitor) {
@@ -28,7 +29,7 @@ public class Appmon4jDumper implements ApplicationListener<ContextClosedEvent> {
     if (LOGGER.isInfoEnabled()) {
       HierarchyReportVisitor reportVisitor = new HierarchyReportVisitor();
       inApplicationMonitor.getCorePlugin().reportInto(reportVisitor);
-      LOGGER.info("Dumping InApplicationMonitor content on ContextClosedEvent:\n" + dumpReporting((reportVisitor)));
+      LOGGER.info("Dumping InApplicationMonitor content on ContextClosedEvent:\n {}", dumpReporting((reportVisitor)));
     }
   }
 

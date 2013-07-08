@@ -2,7 +2,8 @@ package de.is24.util.monitoring.status;
 
 import de.is24.util.monitoring.Counter;
 import de.is24.util.monitoring.Reportable;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -13,7 +14,7 @@ import org.apache.log4j.Logger;
  * Therefor it samples the counters every 10 seconds.
  */
 public class ServiceState {
-  private static final Logger LOGGER = Logger.getLogger(ServiceState.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ServiceState.class);
   private final String name;
   private final String successCounterKey;
   private final String errorCounterKey;
@@ -41,7 +42,7 @@ public class ServiceState {
     }
     if (previousSuccessCounterValue <= successCounterCount) {
       successDelta = successCounterCount - previousSuccessCounterValue;
-      LOGGER.debug("successDelta : " + successDelta + " errorDelta : " + errorDelta);
+      LOGGER.debug("successDelta : {} errorDelta : {}", successDelta, errorDelta);
       sampledData.addSample(successDelta, errorDelta);
     }
     previousErrorCounterValue = errorCounterCount;
@@ -50,13 +51,13 @@ public class ServiceState {
 
 
   public void checkForReportable(Reportable reportable) {
-    LOGGER.debug("checking reportable with name " + reportable.getName());
+    LOGGER.debug("checking reportable with name {}", reportable.getName());
     if ((successCounter == null) && (reportable instanceof Counter) && reportable.getName().equals(successCounterKey)) {
-      LOGGER.info("found " + successCounterKey);
+      LOGGER.info("found {}", successCounterKey);
       successCounter = (Counter) reportable;
     }
     if ((errorCounter == null) && (reportable instanceof Counter) && reportable.getName().equals(errorCounterKey)) {
-      LOGGER.info("found " + errorCounterKey);
+      LOGGER.info("found {}", errorCounterKey);
       errorCounter = (Counter) reportable;
     }
   }

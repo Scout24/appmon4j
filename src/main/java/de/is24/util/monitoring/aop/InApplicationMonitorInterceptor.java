@@ -7,7 +7,8 @@ import de.is24.util.monitoring.measurement.TimerMeasurementHandler;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -19,7 +20,7 @@ import org.apache.log4j.Logger;
  *
  */
 public class InApplicationMonitorInterceptor implements MethodInterceptor {
-  private static final Logger LOG = Logger.getLogger(InApplicationMonitorInterceptor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(InApplicationMonitorInterceptor.class);
 
   private String prefix;
   MeasurementHandler[] handlers = new MeasurementHandler[] { new TimerMeasurementHandler() };

@@ -14,14 +14,15 @@ import de.is24.util.monitoring.state2graphite.StateValuesToGraphite;
 import de.is24.util.monitoring.statsd.StatsdPlugin;
 import de.is24.util.monitoring.visitors.HistogramLikeValueAnalysisVisitor;
 import de.is24.util.monitoring.visitors.StringWriterReportVisitor;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.management.Attribute;
 import javax.management.AttributeList;
 import javax.management.AttributeNotFoundException;
 import javax.management.DynamicMBean;
 import javax.management.InstanceAlreadyExistsException;
-import javax.management.InvalidAttributeValueException;
 import javax.management.InstanceNotFoundException;
+import javax.management.InvalidAttributeValueException;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanException;
 import javax.management.MBeanInfo;
@@ -66,7 +67,7 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
   private static final String ADD_STATSD_PLUGIN = "addStatsdPlugin";
   private static final String ADD_STATE_VALUES_TO_GRAPHITE = "addStateValuesToGraphite";
 
-  private static final Logger LOG = Logger.getLogger(InApplicationMonitorJMXConnector.class);
+  private static final Logger LOG = LoggerFactory.getLogger(InApplicationMonitorJMXConnector.class);
 
   private static volatile InApplicationMonitorJMXConnector instance;
   private static final Object semaphore = new Object();

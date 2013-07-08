@@ -9,10 +9,11 @@ import de.is24.util.monitoring.State;
 import de.is24.util.monitoring.StateValueProvider;
 import de.is24.util.monitoring.Timer;
 import de.is24.util.monitoring.Version;
-import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
@@ -22,7 +23,7 @@ import java.util.Collection;
  * @author oschmitz
  */
 public abstract class UnsortedWriterReportVisitor implements ReportVisitor {
-  private static final Logger LOGGER = Logger.getLogger(UnsortedWriterReportVisitor.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(UnsortedWriterReportVisitor.class);
   private static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss");
 
   protected Writer writer;

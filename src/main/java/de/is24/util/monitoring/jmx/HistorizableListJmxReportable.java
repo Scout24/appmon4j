@@ -3,11 +3,12 @@
  */
 package de.is24.util.monitoring.jmx;
 
+import de.is24.util.monitoring.HistorizableList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import javax.management.MBeanAttributeInfo;
 import java.util.ArrayList;
 import java.util.List;
-import javax.management.MBeanAttributeInfo;
-import org.apache.log4j.Logger;
-import de.is24.util.monitoring.HistorizableList;
 
 
 /**
@@ -16,7 +17,7 @@ import de.is24.util.monitoring.HistorizableList;
  * @author <a href="mailto:sschubert@immobilienscout24.de">Stefan Schubert</a>, IT-E, IS24
  */
 class HistorizableListJmxReportable implements JmxReportable {
-  private static final Logger LOGGER = Logger.getLogger(HistorizableListJmxReportable.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(HistorizableListJmxReportable.class);
 
   private final HistorizableList reportable;
 

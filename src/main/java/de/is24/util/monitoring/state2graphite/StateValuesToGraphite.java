@@ -7,7 +7,8 @@ import de.is24.util.monitoring.ReportableObserver;
 import de.is24.util.monitoring.State;
 import de.is24.util.monitoring.StateValueProvider;
 import de.is24.util.monitoring.tools.LocalHostNameResolver;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 
 public class StateValuesToGraphite implements ReportableObserver {
-  private static final Logger LOGGER = Logger.getLogger(StateValuesToGraphite.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(StateValuesToGraphite.class);
   private ScheduledExecutorService ex;
   private Map<String, StateValueProvider> stateValues;
   private Map<String, MultiValueProvider> multiValueProviders;
@@ -67,7 +68,7 @@ public class StateValuesToGraphite implements ReportableObserver {
 
     @Override
     public void run() {
-      LOGGER.debug("writing " + stateValues.size() + " state values to graphite");
+      LOGGER.debug("writing {} state values to graphite", stateValues.size());
 
       Long curTimeInSec = System.currentTimeMillis() / 1000;
       StringBuilder lines = new StringBuilder();
@@ -93,7 +94,7 @@ public class StateValuesToGraphite implements ReportableObserver {
           // only add complete lines if getValue throws Exception
           lines.append(line.toString());
         } catch (Exception e) {
-          LOGGER.warn("getting StateValue failed for " + stateValueProvider.getName());
+          LOGGER.warn("getting StateValue failed for {}", stateValueProvider.getName());
         }
       }
     }

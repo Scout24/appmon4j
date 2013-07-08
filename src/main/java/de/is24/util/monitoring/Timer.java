@@ -1,7 +1,8 @@
 package de.is24.util.monitoring;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.concurrent.atomic.AtomicLong;
-import org.apache.log4j.Logger;
 
 
 /**
@@ -21,7 +22,7 @@ import org.apache.log4j.Logger;
  * @author OSchmitz
  */
 public class Timer extends Counter {
-  private static final Logger LOGGER = Logger.getLogger(Timer.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(Timer.class);
   private final AtomicLong timerSum = new AtomicLong();
   private final AtomicLong timerSumOfSquares = new AtomicLong();
 

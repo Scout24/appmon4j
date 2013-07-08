@@ -2,14 +2,15 @@ package de.is24.util.monitoring;
 
 import de.is24.util.monitoring.keyhandler.DefaultKeyEscaper;
 import de.is24.util.monitoring.keyhandler.KeyHandler;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 
 // TODO move this class, and maybe some other tools to a dedicated Testing module and provide a dedicated jar
 public class TestingInApplicationMonitor extends InApplicationMonitor {
-  private static final Logger LOGGER = Logger.getLogger(TestingInApplicationMonitor.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(TestingInApplicationMonitor.class);
   private static final ThreadLocal<CorePlugin> threadLocalCorePlugin = new InheritableThreadLocal<CorePlugin>();
   private static final ThreadLocal<List<MonitorPlugin>> threadLocalPluginsList =
     new InheritableThreadLocal<List<MonitorPlugin>>();

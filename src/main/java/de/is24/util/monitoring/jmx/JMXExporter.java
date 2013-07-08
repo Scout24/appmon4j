@@ -3,7 +3,8 @@ package de.is24.util.monitoring.jmx;
 import de.is24.util.monitoring.MultiValueProvider;
 import de.is24.util.monitoring.ReportVisitor;
 import de.is24.util.monitoring.State;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanInfo;
 import javax.management.MBeanServer;
@@ -25,7 +26,7 @@ import java.util.Set;
  * Statsd or Graphite plugins instead.
  */
 public class JMXExporter implements MultiValueProvider {
-  private static final Logger LOGGER = Logger.getLogger(JMXExporter.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(JMXExporter.class);
   private final MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
 
   private String domain;
@@ -75,15 +76,14 @@ public class JMXExporter implements MultiValueProvider {
           String attributeName = getAttributeName(name, info);
           handleObject(attributeName, null, valueObject, result);
         } catch (Exception e) {
-          LOGGER.info("Error accessing numeric MBean Attribute " + name.toString() + " " + info.toString() +
-            e.getMessage());
+          LOGGER.info("Error accessing numeric MBean Attribute {} {} {}", name, info, e.getMessage());
         }
       }
     }
   }
 
   private void handleObject(String attributeName, String path, Object valueObject, List<State> result) {
-    LOGGER.debug("handling " + attributeName);
+    LOGGER.debug("handling {}", attributeName);
 
     Long value = null;
     if (valueObject instanceof Long) {
@@ -147,7 +147,7 @@ public class JMXExporter implements MultiValueProvider {
         result.put(name, platformMBeanServer.getMBeanInfo(name));
       }
 
-      LOGGER.info("searching for MBeans in domain  " + domain + " found " + result.size() + " Bean Infos");
+      LOGGER.info("searching for MBeans in domain  {} found {} Bean Infos", domain, result.size());
       return result;
     } catch (Exception e) {
       LOGGER.warn("oops", e);

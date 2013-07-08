@@ -2,11 +2,12 @@ package de.is24.util.monitoring;
 
 import de.is24.util.monitoring.jmx.JmxAppMon4JNamingStrategy;
 import de.is24.util.monitoring.keyhandler.DefaultKeyEscaper;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class StandAloneSimpleApp {
-  private static final Logger LOGGER = Logger.getLogger(StandAloneSimpleApp.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(StandAloneSimpleApp.class);
 
   public static void main(String[] args) {
     CorePlugin corePlugin = new CorePlugin(new JmxAppMon4JNamingStrategy() {

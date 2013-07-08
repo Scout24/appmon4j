@@ -1,19 +1,18 @@
 package de.is24.util.monitoring;
 
-import java.util.Random;
-import org.apache.log4j.Logger;
 import de.is24.util.monitoring.visitors.HierarchyReportVisitor;
 import de.is24.util.monitoring.visitors.StringWriterReportVisitor;
 import de.is24.util.monitoring.visitors.ValueOrderedReportVisitor;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.util.Random;
 
 
 /**
  * @author oschmitz
  */
 public class InApplicationMonitorValidation {
-  private static final Logger LOGGER = Logger.getLogger(InApplicationMonitorValidation.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(InApplicationMonitorValidation.class);
 
 
   @org.junit.BeforeClass

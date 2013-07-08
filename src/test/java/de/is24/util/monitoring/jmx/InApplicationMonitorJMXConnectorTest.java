@@ -3,9 +3,10 @@ package de.is24.util.monitoring.jmx;
 import de.is24.util.monitoring.InApplicationMonitor;
 import de.is24.util.monitoring.JMXTestHelper;
 import de.is24.util.monitoring.TestingInApplicationMonitor;
-import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.management.ObjectName;
 import java.util.List;
 import static de.is24.util.monitoring.TestHelper.initializeWithJMXNaming;
@@ -13,7 +14,7 @@ import static org.fest.assertions.Assertions.assertThat;
 
 
 public class InApplicationMonitorJMXConnectorTest {
-  private static final Logger LOGGER = Logger.getLogger(InApplicationMonitorJMXConnectorTest.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(InApplicationMonitorJMXConnectorTest.class);
 
   @Before
   public void setupClass() {
@@ -54,7 +55,7 @@ public class InApplicationMonitorJMXConnectorTest {
 
 
       Object result = JMXTestHelper.invoke(objectName, params, signature);
-      LOGGER.info(result);
+      LOGGER.info(result + "");
 
     } catch (Exception e) {
       LOGGER.warn("oops", e);

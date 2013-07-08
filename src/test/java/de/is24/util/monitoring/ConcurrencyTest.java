@@ -3,25 +3,26 @@ package de.is24.util.monitoring;
 import de.is24.util.monitoring.jmx.SimpleJmxAppmon4jNamingStrategy;
 import de.is24.util.monitoring.keyhandler.DefaultKeyEscaper;
 import de.is24.util.monitoring.keyhandler.KeyHandler;
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.text.NumberFormat;
 import java.util.Random;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertTrue;
 
 
 public class ConcurrencyTest {
   private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance();
-  private static final Logger LOGGER = Logger.getLogger(ConcurrencyTest.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ConcurrencyTest.class);
 
   static {
     NUMBER_FORMAT.setGroupingUsed(true);

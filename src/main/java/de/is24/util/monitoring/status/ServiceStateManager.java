@@ -3,7 +3,8 @@ package de.is24.util.monitoring.status;
 import de.is24.util.monitoring.InApplicationMonitor;
 import de.is24.util.monitoring.Reportable;
 import de.is24.util.monitoring.ReportableObserver;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -12,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 
 public class ServiceStateManager implements ReportableObserver {
-  private static final Logger LOGGER = Logger.getLogger(ServiceStateManager.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ServiceStateManager.class);
   private ScheduledExecutorService ex;
   private Map<String, ServiceState> serviceStates;
 
@@ -50,7 +51,7 @@ public class ServiceStateManager implements ReportableObserver {
     public void run() {
       LOGGER.debug("updating service state");
       for (ServiceState state : serviceStates.values()) {
-        LOGGER.debug("checking " + state.getName());
+        LOGGER.debug("checking {}", state.getName());
         state.check();
       }
       LOGGER.debug("done with service state");

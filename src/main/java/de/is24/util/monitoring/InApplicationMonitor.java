@@ -3,7 +3,8 @@ package de.is24.util.monitoring;
 
 import de.is24.util.monitoring.keyhandler.DefaultKeyEscaper;
 import de.is24.util.monitoring.keyhandler.KeyHandler;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -22,7 +23,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author OSchmitz
  */
 public class InApplicationMonitor {
-  private static final Logger LOGGER = Logger.getLogger(InApplicationMonitor.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(InApplicationMonitor.class);
   protected static final Object semaphore = new Object();
 
 

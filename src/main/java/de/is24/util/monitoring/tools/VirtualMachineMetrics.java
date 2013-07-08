@@ -4,7 +4,8 @@ import de.is24.util.monitoring.CorePlugin;
 import de.is24.util.monitoring.MultiValueProvider;
 import de.is24.util.monitoring.ReportVisitor;
 import de.is24.util.monitoring.StateValueProvider;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.management.Attribute;
 import javax.management.AttributeList;
 import javax.management.JMException;
@@ -34,7 +35,7 @@ import java.util.concurrent.TimeUnit;
  * This code was originally taken from de.is24.util.monitoring.tools.VirtualMachineMetrics
  */
 public class VirtualMachineMetrics {
-  private static final Logger LOGGER = Logger.getLogger(VirtualMachineMetrics.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(VirtualMachineMetrics.class);
   private static final int MAX_STACK_TRACE_DEPTH = 100;
 
 
@@ -286,10 +287,10 @@ public class VirtualMachineMetrics {
       });
 
     List<GarbageCollectorMXBean> garbageCollectors = VirtualMachineMBeans.getInstance().getGarbageCollectors();
-    LOGGER.info("found " + garbageCollectors.size() + " garbage collectors");
+    LOGGER.info("found {} garbage collectors", garbageCollectors.size());
     for (GarbageCollectorMXBean gc : garbageCollectors) {
       final GarbageCollectorMXBean finalGC = gc;
-      LOGGER.info("adding garbage collector " + gc.getName());
+      LOGGER.info("adding garbage collector {}", gc.getName());
 
       corePlugin.registerStateValue(new StateValueProvider() {
           @Override

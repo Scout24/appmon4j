@@ -4,7 +4,6 @@ import de.is24.util.monitoring.InApplicationMonitor;
 import de.is24.util.monitoring.InApplicationMonitorRule;
 import de.is24.util.monitoring.StateValueProvider;
 import de.is24.util.monitoring.tools.DoNothingReportVisitor;
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -14,7 +13,6 @@ import static org.junit.Assert.assertThat;
 
 
 public class ServiceStateManagerIT {
-  private static final Logger LOGGER = Logger.getLogger(ServiceStateManagerIT.class);
   @Rule
   public final InApplicationMonitorRule inApplicationMonitorRule = new InApplicationMonitorRule();
   private ServiceStateManager serviceStateManager;

@@ -1,6 +1,13 @@
 package de.is24.util.monitoring.jmx;
 
-import java.text.SimpleDateFormat;
+import de.is24.util.monitoring.Counter;
+import de.is24.util.monitoring.HistorizableList;
+import de.is24.util.monitoring.Reportable;
+import de.is24.util.monitoring.StateValueProvider;
+import de.is24.util.monitoring.Timer;
+import de.is24.util.monitoring.Version;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.management.Attribute;
 import javax.management.AttributeList;
 import javax.management.AttributeNotFoundException;
@@ -9,13 +16,7 @@ import javax.management.InvalidAttributeValueException;
 import javax.management.MBeanException;
 import javax.management.MBeanInfo;
 import javax.management.ReflectionException;
-import org.apache.log4j.Logger;
-import de.is24.util.monitoring.Counter;
-import de.is24.util.monitoring.HistorizableList;
-import de.is24.util.monitoring.Reportable;
-import de.is24.util.monitoring.StateValueProvider;
-import de.is24.util.monitoring.Timer;
-import de.is24.util.monitoring.Version;
+import java.text.SimpleDateFormat;
 
 
 /**
@@ -25,7 +26,7 @@ import de.is24.util.monitoring.Version;
  * @author ptraeder
  */
 public class InApplicationMonitorDynamicMBean implements DynamicMBean {
-  static final Logger LOGGER = Logger.getLogger(InApplicationMonitorDynamicMBean.class);
+  static final Logger LOGGER = LoggerFactory.getLogger(InApplicationMonitorDynamicMBean.class);
 
   static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
@@ -47,7 +48,7 @@ public class InApplicationMonitorDynamicMBean implements DynamicMBean {
     } else if (reportable instanceof HistorizableList) {
       type = new HistorizableListJmxReportable((HistorizableList) reportable);
     } else {
-      LOGGER.warn("Unknown reportable: " + reportable.getName() + " of type " + reportable.getClass().getName());
+      LOGGER.warn("Unknown reportable: {} of type {}", reportable.getName(), reportable.getClass().getName());
       type = NoJmxReportable.getInstance();
     }
   }
@@ -89,7 +90,7 @@ public class InApplicationMonitorDynamicMBean implements DynamicMBean {
    * @see javax.management.DynamicMBean#setAttribute(javax.management.Attribute)
    */
   public void setAttribute(Attribute attribute) throws AttributeNotFoundException, InvalidAttributeValueException,
-    MBeanException, ReflectionException {
+                                                       MBeanException, ReflectionException {
   }
 
 
@@ -104,7 +105,7 @@ public class InApplicationMonitorDynamicMBean implements DynamicMBean {
    * @see javax.management.DynamicMBean#invoke(java.lang.String, java.lang.Object[], java.lang.String[])
    */
   public Object invoke(String actionName, Object[] params, String[] signature) throws MBeanException,
-    ReflectionException {
+                                                                                      ReflectionException {
     return null;
   }
 

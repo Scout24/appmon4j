@@ -1,6 +1,7 @@
 package de.is24.util.monitoring;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
 import javax.management.MBeanInfo;
@@ -12,7 +13,7 @@ import java.util.Set;
 
 
 public class JMXTestHelper {
-  private static final Logger LOGGER = Logger.getLogger(JMXTestHelper.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(JMXTestHelper.class);
   private static final MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
 
 

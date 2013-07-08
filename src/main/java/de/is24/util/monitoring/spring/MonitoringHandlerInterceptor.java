@@ -1,7 +1,8 @@
 package de.is24.util.monitoring.spring;
 
 import de.is24.util.monitoring.InApplicationMonitor;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -12,7 +13,7 @@ import java.util.regex.Pattern;
 
 /** {@link org.springframework.web.servlet.HandlerInterceptor} to monitor duration of request processing **/
 public class MonitoringHandlerInterceptor implements HandlerInterceptor {
-  private static final Logger LOG = Logger.getLogger(MonitoringHandlerInterceptor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MonitoringHandlerInterceptor.class);
   private static final String PREFIX = "MonitoringHandlerInterceptor.";
   static final String START_TIME = PREFIX + "startTime";
   static final String POST_HANDLE_TIME = PREFIX + "postHandleTime";

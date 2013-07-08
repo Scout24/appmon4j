@@ -2,11 +2,12 @@ package de.is24.util.monitoring.status;
 
 import de.is24.util.monitoring.InApplicationMonitor;
 import de.is24.util.monitoring.StateValueProvider;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class SampledData {
-  private static final Logger LOGGER = Logger.getLogger(SampledData.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(SampledData.class);
   final int maxIndex = 15;
   long[] successData = new long[maxIndex];
   long[] failureData = new long[maxIndex];
@@ -83,7 +84,7 @@ public class SampledData {
   }
 
   private float calcFailureRate(long successCount, long failureCount) {
-    LOGGER.debug("success count " + successCount + ", failureCount : " + failureCount);
+    LOGGER.debug("success count {}, failureCount : {}", successCount, failureCount);
 
     long total = successCount + failureCount;
     return (total == 0) ? 0.0f : ((float) failureCount / total);

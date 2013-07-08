@@ -1,7 +1,7 @@
 package de.is24.util.monitoring;
 
-import org.apache.log4j.Logger;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
 
@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author OSchmitz
  */
 public class Counter implements Reportable {
-  private static final Logger LOGGER = Logger.getLogger(Counter.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(Counter.class);
   private final String fName;
   private final AtomicLong count = new AtomicLong();
 

@@ -5,7 +5,8 @@ import de.is24.util.monitoring.jmx.JmxAppMon4JNamingStrategy;
 import de.is24.util.monitoring.keyhandler.KeyHandler;
 import de.is24.util.monitoring.keyhandler.TransparentKeyHandler;
 import de.is24.util.monitoring.tools.VirtualMachineMetrics;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +24,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * And thus it makes no sense to let them implement some of the patterns like reportableObserver etc.
  */
 public class CorePlugin extends AbstractMonitorPlugin {
-  private static final Logger LOGGER = Logger.getLogger(CorePlugin.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CorePlugin.class);
   private volatile int maxHistoryEntriesToKeep = 5;
   private final CopyOnWriteArrayList<ReportableObserver> reportableObservers =
     new CopyOnWriteArrayList<ReportableObserver>();
@@ -307,8 +308,8 @@ public class CorePlugin extends AbstractMonitorPlugin {
     String name = keyHandler.handle(stateValueProvider.getName());
     StateValueProvider oldProvider = stateValues.put(name, stateValueProvider);
     if (oldProvider != null) {
-      LOGGER.warn("StateValueProvider [" + oldProvider + "] @" + stateValueProvider.getName() +
-        " has been replaced by [" + stateValueProvider + "]!");
+      LOGGER.warn("StateValueProvider [{}] @{} has been replaced by [{}]!", oldProvider, stateValueProvider.getName(),
+        stateValueProvider);
     }
     notifyReportableObservers(stateValueProvider);
   }
@@ -324,8 +325,8 @@ public class CorePlugin extends AbstractMonitorPlugin {
     String name = multiValueProvider.getName();
     MultiValueProvider oldProvider = multiValues.put(name, multiValueProvider);
     if (oldProvider != null) {
-      LOGGER.warn("MultiValueProvider [" + oldProvider + "] @" + multiValueProvider.getName() +
-        " has been replaced by [" + multiValueProvider + "]!");
+      LOGGER.warn("MultiValueProvider [{}] @{} has been replaced by [{}]!", oldProvider, multiValueProvider.getName(),
+        multiValueProvider);
     }
     notifyReportableObservers(multiValueProvider);
   }
@@ -414,8 +415,7 @@ public class CorePlugin extends AbstractMonitorPlugin {
 
   public void syncFrom(CorePlugin corePluginToSyncWith) {
     for (ReportableObserver reportableObserver : corePluginToSyncWith.reportableObservers) {
-      LOGGER.warn("while syncing: adding reportable observer " + reportableObserver
-        .getClass().getName());
+      LOGGER.warn("while syncing: adding reportable observer {}", reportableObserver.getClass().getName());
       addReportableObserver(reportableObserver);
     }
 
@@ -438,7 +438,7 @@ public class CorePlugin extends AbstractMonitorPlugin {
     @Override
     public void addNewReportable(Reportable reportable) {
       String name = keyHandler.handle(reportable.getName());
-      LOGGER.info("syncing reportable " + reportable.getName());
+      LOGGER.info("syncing reportable {}", reportable.getName());
       if ((reportable instanceof Counter) || (reportable instanceof Timer)) {
         countersTimers.putIfAbsent(name, (Counter) reportable);
       } else if (reportable instanceof Version) {

@@ -2,7 +2,6 @@ package de.is24.util.monitoring.jmx;
 
 import de.is24.util.monitoring.State;
 import de.is24.util.monitoring.keyhandler.ValidatingKeyHandler;
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +32,6 @@ import static org.fest.assertions.Assertions.assertThat;
 
 
 public class JMXExporterTest {
-  private final Logger LOGGER = Logger.getLogger(JMXExporter.class);
   private ObjectName objectName;
   private static final String TEST_BEAN_DOMAIN = "JXMExporterTest";
   private TestMBean testMBean;

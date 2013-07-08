@@ -1,11 +1,12 @@
 package de.is24.util.monitoring.tools;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.net.UnknownHostException;
 
 
 public class LocalHostNameResolver {
-  private static final Logger LOG = Logger.getLogger(LocalHostNameResolver.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LocalHostNameResolver.class);
   private final LocalHostProvider localHostProvider;
 
   public LocalHostNameResolver() {

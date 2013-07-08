@@ -1,5 +1,7 @@
 package de.is24.util.monitoring.visitors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -7,14 +9,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
-import org.apache.log4j.Logger;
 
 
 /**
  * @author oschmitz
  */
 public class HierarchyReportVisitor extends AbstractSortedReportVisitor {
-  private static final Logger LOGGER = Logger.getLogger(HierarchyReportVisitor.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(HierarchyReportVisitor.class);
 
   private Tree tree;
 
