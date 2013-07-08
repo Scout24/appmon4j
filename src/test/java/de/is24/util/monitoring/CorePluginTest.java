@@ -22,7 +22,6 @@ public class CorePluginTest {
 
   @Test
   public void doNotInitializeJMXStuffIfNoNamingProvided() throws Exception {
-    CorePlugin corePlugin = new CorePlugin(null, null);
     assertThat(JMXTestHelper.checkInApplicationMonitorJMXBeanRegistered()).isEqualTo(false);
   }
 
@@ -133,7 +132,6 @@ public class CorePluginTest {
 
   @Test
   public void syncReportableObserverShouldBeDiscardedAfterGC() throws InterruptedException {
-    CorePlugin defaultCorePlugin = InApplicationMonitor.getInstance().getCorePlugin();
     InApplicationMonitor.getInstance().incrementCounter("lalala");
 
 

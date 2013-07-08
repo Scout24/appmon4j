@@ -30,8 +30,7 @@ public class TestHelper {
           return "lala";
         }
       }, keyEscaper);
-    InApplicationMonitor explicitInitializedInApplicationMonitor = InApplicationMonitor.initInstance(
-      corePlugin, keyEscaper);
+    InApplicationMonitor.initInstance(corePlugin, keyEscaper);
     return corePlugin;
   }
 

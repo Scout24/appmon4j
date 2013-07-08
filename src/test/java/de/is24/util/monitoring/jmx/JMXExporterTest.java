@@ -60,7 +60,7 @@ public class JMXExporterTest {
   @Test
   public void doNotFailIfSomeOperationIsNotSupported() {
     JMXExporter jmxExporter = new JMXExporter(TEST_BEAN_DOMAIN);
-    Collection<State> values = jmxExporter.getValues();
+    jmxExporter.getValues();
   }
 
   @Test
@@ -91,7 +91,7 @@ public class JMXExporterTest {
   @Test
   public void beAbleToHandleJavaLangWithoutException() {
     JMXExporter jmxExporter = new JMXExporter(JAVA_LANG);
-    Collection<State> values = jmxExporter.getValues();
+    jmxExporter.getValues();
   }
 
   @Test

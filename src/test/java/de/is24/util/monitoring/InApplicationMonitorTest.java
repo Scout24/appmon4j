@@ -108,7 +108,7 @@ public class InApplicationMonitorTest {
       Future<Boolean> task = executorService.submit(new Callable<Boolean>() {
           @Override
           public Boolean call() throws Exception {
-            boolean result = true;
+            boolean result;
             try {
               //wait until parent thread has set up thread local State
               Thread.sleep(10);
