@@ -46,10 +46,14 @@ public class StatsdPlugin extends AbstractMonitorPlugin {
     this(new StatsdClient(host, port, appName), getUniqeName(host, port, sampleRate), sampleRate);
   }
 
+  public StatsdPlugin(String host, int port, StatsdMessageFormatter statsdMessageFormatter)
+               throws SocketException, UnknownHostException {
+    this(new StatsdClient(host, port, statsdMessageFormatter), getUniqeName(host, port, 1.0), 1.0);
+  }
+
   public StatsdPlugin(String host, int port, double sampleRate, StatsdMessageFormatter statsdMessageFormatter)
                throws SocketException, UnknownHostException {
     this(new StatsdClient(host, port, statsdMessageFormatter), getUniqeName(host, port, sampleRate), sampleRate);
-
   }
 
   StatsdPlugin(StatsdClient client, String uniqeName, double sampleRate) {
