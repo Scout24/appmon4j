@@ -4,10 +4,10 @@ import java.util.regex.Pattern;
 
 
 public class RegexKeyEscaper implements KeyHandler {
-  private final Pattern KEY_ESCAPE_PATTERN;
+  private final Pattern keyEscapePattern;
 
   public RegexKeyEscaper(String pattern) {
-    KEY_ESCAPE_PATTERN = Pattern.compile(pattern);
+    keyEscapePattern = Pattern.compile(pattern);
   }
 
 
@@ -20,6 +20,6 @@ public class RegexKeyEscaper implements KeyHandler {
    *         Due to performance and responsibility reasons.
    */
   public String handle(String name) {
-    return KEY_ESCAPE_PATTERN.matcher(name).replaceAll("_");
+    return keyEscapePattern.matcher(name).replaceAll("_");
   }
 }

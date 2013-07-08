@@ -23,13 +23,13 @@ public class TestingInApplicationMonitor extends InApplicationMonitor {
    */
   public static InApplicationMonitor initInstanceForTesting(CorePlugin corePlugin, KeyHandler keyHandler) {
     synchronized (semaphore) {
-      if (INSTANCE != null) {
-        INSTANCE.getCorePlugin().destroy();
+      if (instance != null) {
+        instance.getCorePlugin().destroy();
       }
       LOGGER.info("+++ Changing InApplicationMonitor() for Testing only +++");
-      INSTANCE = new TestingInApplicationMonitor(corePlugin, keyHandler);
+      instance = new TestingInApplicationMonitor(corePlugin, keyHandler);
       LOGGER.info("InApplicationMonitor changed successfully.");
-      return INSTANCE;
+      return instance;
     }
   }
 
@@ -38,13 +38,13 @@ public class TestingInApplicationMonitor extends InApplicationMonitor {
    */
   public static void resetInstanceForTesting() {
     synchronized (semaphore) {
-      if (INSTANCE != null) {
-        INSTANCE.getCorePlugin().destroy();
+      if (instance != null) {
+        instance.getCorePlugin().destroy();
       }
 
       KeyHandler keyHandler = new DefaultKeyEscaper();
       CorePlugin corePlugin = new CorePlugin(null, keyHandler);
-      INSTANCE = new TestingInApplicationMonitor(corePlugin, keyHandler);
+      instance = new TestingInApplicationMonitor(corePlugin, keyHandler);
       LOGGER.info("Reset InApplicationMonitor for Testing.");
     }
   }

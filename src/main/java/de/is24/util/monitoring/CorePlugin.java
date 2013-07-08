@@ -23,8 +23,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * And thus it makes no sense to let them implement some of the patterns like reportableObserver etc.
  */
 public class CorePlugin extends AbstractMonitorPlugin {
-  private static Logger LOGGER = Logger.getLogger(CorePlugin.class);
-  protected volatile boolean monitorActive = true;
+  private static final Logger LOGGER = Logger.getLogger(CorePlugin.class);
   private volatile int maxHistoryEntriesToKeep = 5;
   private final CopyOnWriteArrayList<ReportableObserver> reportableObservers =
     new CopyOnWriteArrayList<ReportableObserver>();

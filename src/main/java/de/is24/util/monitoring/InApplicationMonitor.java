@@ -31,12 +31,12 @@ public class InApplicationMonitor {
 
   private volatile KeyHandler keyHandler;
   private volatile CorePlugin corePlugin;
-  protected static InApplicationMonitor INSTANCE;
+  protected static InApplicationMonitor instance;
 
   static {
     KeyHandler keyHandler = new DefaultKeyEscaper();
     CorePlugin corePlugin = new CorePlugin(null, keyHandler);
-    INSTANCE = new InApplicationMonitor(corePlugin, keyHandler);
+    instance = new InApplicationMonitor(corePlugin, keyHandler);
   }
 
   protected InApplicationMonitor(CorePlugin corePlugin, KeyHandler keyHandler) {
@@ -52,7 +52,7 @@ public class InApplicationMonitor {
   * @return InApplicationMonitor Singleton
   */
   public static InApplicationMonitor getInstance() {
-    return INSTANCE;
+    return instance;
   }
 
   public static InApplicationMonitor initInstance(CorePlugin corePlugin, KeyHandler keyHandler) {
@@ -60,22 +60,22 @@ public class InApplicationMonitor {
     synchronized (semaphore) {
       LOGGER.info("+++ initializing InApplicationMonitor() +++");
 
-      INSTANCE.keyHandler = keyHandler;
+      instance.keyHandler = keyHandler;
 
       LOGGER.info("syncing from previous core plugin");
-      previousCorePlugin = INSTANCE.corePlugin;
+      previousCorePlugin = instance.corePlugin;
       corePlugin.syncFrom(previousCorePlugin);
 
-      INSTANCE.plugins.add(corePlugin);
-      INSTANCE.plugins.remove(previousCorePlugin);
-      INSTANCE.corePlugin = corePlugin;
+      instance.plugins.add(corePlugin);
+      instance.plugins.remove(previousCorePlugin);
+      instance.corePlugin = corePlugin;
       LOGGER.info("InApplicationMonitor updated successfully.");
     }
     if ((previousCorePlugin != null) && (previousCorePlugin != corePlugin)) {
       previousCorePlugin.destroy();
     }
 
-    return INSTANCE;
+    return instance;
   }
 
 

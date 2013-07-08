@@ -9,7 +9,7 @@ import java.net.Socket;
 
 
 public class GraphiteConnection {
-  private final Logger LOGGER = Logger.getLogger(GraphiteConnection.class);
+  private static final Logger LOGGER = Logger.getLogger(GraphiteConnection.class);
   private final String graphiteHost;
   private final int graphitePort;
   private ConnectionState connectionState = ConnectionState.UNKNOWN;
