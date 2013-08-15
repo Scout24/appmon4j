@@ -66,6 +66,7 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
   private static final String REMOVE_ALL_PLUGINS = "removeAllPlugins";
   private static final String ADD_STATSD_PLUGIN = "addStatsdPlugin";
   private static final String ADD_STATE_VALUES_TO_GRAPHITE = "addStateValuesToGraphite";
+  private static final String ADD_JMX_EXPORTER = "addJmxExporter";
 
   private static final Logger LOG = LoggerFactory.getLogger(InApplicationMonitorJMXConnector.class);
 
@@ -279,6 +280,9 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
           new MBeanParameterInfo("app name", "java.lang.String", "")
         }, "void",
         MBeanOperationInfo.ACTION),
+      new MBeanOperationInfo(ADD_JMX_EXPORTER, "",
+        new MBeanParameterInfo[] { new MBeanParameterInfo("jmx domain to export", "java.lang.String", "") }, "void",
+        MBeanOperationInfo.ACTION),
     };
 
     // assemble the MBean description
@@ -369,6 +373,9 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
       Integer port = (Integer) params[1];
       String appName = (String) params[2];
       addStateValuesToGraphite(host, port, appName);
+    } else if (actionName.equals(ADD_JMX_EXPORTER)) {
+      String domain = (String) params[0];
+      addJMXExporter(domain);
     }
     return null;
   }
@@ -398,6 +405,10 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
     }
   }
 
+  private void addJMXExporter(String domain) {
+    JMXExporter jmxExporter = new JMXExporter(domain);
+    corePlugin.registerMultiValueProvider(jmxExporter);
+  }
 
   public String dumpStringWriter() {
     StringWriterReportVisitor visitor = new StringWriterReportVisitor();

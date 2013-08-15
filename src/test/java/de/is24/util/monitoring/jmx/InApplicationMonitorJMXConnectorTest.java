@@ -2,6 +2,7 @@ package de.is24.util.monitoring.jmx;
 
 import de.is24.util.monitoring.InApplicationMonitor;
 import de.is24.util.monitoring.JMXTestHelper;
+import de.is24.util.monitoring.MultiValueProvider;
 import de.is24.util.monitoring.TestingInApplicationMonitor;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,12 +39,28 @@ public class InApplicationMonitorJMXConnectorTest {
     assertThat(observerName).isEqualTo("StateValuesToGraphite:GraphiteConection:host,2003");
   }
 
-  public static void callAddStateValuesToGraphite(String domain, String host, int i, String name) {
+  @Test
+  public void callingAddJmxExporterMethodAddsTheJMXExporter() {
+    // given a default configured InApplication Monitor
+    InApplicationMonitor.getInstance();
+    initializeWithJMXNaming();
+
+    // when calling JMX Operation addJmxExporter
+    callAddJMXExporter("lala", "java.lang");
+
+    // then
+    MultiValueProvider multiValueProvider = InApplicationMonitor.getInstance()
+      .getCorePlugin()
+      .getMultiValueProvider("JMXExporter.java.lang");
+    assertThat(multiValueProvider).isNotNull();
+  }
+
+  public static void callAddStateValuesToGraphite(String domain, String host, int port, String name) {
     try {
       ObjectName objectName = new ObjectName(domain + ":name=InApplicationMonitor");
       Object[] params = {
         host,
-        Integer.valueOf(i),
+        Integer.valueOf(port),
         name
       };
 
@@ -54,7 +71,24 @@ public class InApplicationMonitorJMXConnectorTest {
       };
 
 
-      Object result = JMXTestHelper.invoke(objectName, params, signature);
+      Object result = JMXTestHelper.invoke(objectName, params, signature, "addStateValuesToGraphite");
+      LOGGER.info(result + "");
+
+    } catch (Exception e) {
+      LOGGER.warn("oops", e);
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static void callAddJMXExporter(String domain, String exportDomain) {
+    try {
+      ObjectName objectName = new ObjectName(domain + ":name=InApplicationMonitor");
+      Object[] params = { exportDomain };
+
+      String[] signature = { String.class.getName() };
+
+
+      Object result = JMXTestHelper.invoke(objectName, params, signature, "addJmxExporter");
       LOGGER.info(result + "");
 
     } catch (Exception e) {

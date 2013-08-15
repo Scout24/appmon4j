@@ -367,7 +367,7 @@ public class CorePlugin extends AbstractMonitorPlugin {
    * @param name the name of the MultiValueProvider
    * @return the MultiValueProvider
    */
-  MultiValueProvider getMultiValueProvider(String name) {
+  public MultiValueProvider getMultiValueProvider(String name) {
     return multiValues.get(name);
   }
 

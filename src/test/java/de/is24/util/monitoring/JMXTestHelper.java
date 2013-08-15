@@ -93,9 +93,9 @@ public class JMXTestHelper {
   }
 
 
-  public static Object invoke(ObjectName objectName, Object[] params, String[] signature)
+  public static Object invoke(ObjectName objectName, Object[] params, String[] signature, String operationName)
                        throws InstanceNotFoundException, MBeanException, ReflectionException {
-    Object result = platformMBeanServer.invoke(objectName, "addStateValuesToGraphite", params, signature);
+    Object result = platformMBeanServer.invoke(objectName, operationName, params, signature);
     return result;
   }
 }
