@@ -281,7 +281,7 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
         }, "void",
         MBeanOperationInfo.ACTION),
       new MBeanOperationInfo(ADD_JMX_EXPORTER, "",
-        new MBeanParameterInfo[] { new MBeanParameterInfo("jmx domain to export", "java.lang.String", "") }, "void",
+        new MBeanParameterInfo[] { new MBeanParameterInfo("jmx pattern to searc", "java.lang.String", "") }, "void",
         MBeanOperationInfo.ACTION),
     };
 
@@ -374,8 +374,8 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
       String appName = (String) params[2];
       addStateValuesToGraphite(host, port, appName);
     } else if (actionName.equals(ADD_JMX_EXPORTER)) {
-      String domain = (String) params[0];
-      addJMXExporter(domain);
+      String pattern = (String) params[0];
+      addJMXExporter(pattern);
     }
     return null;
   }
@@ -405,9 +405,16 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
     }
   }
 
-  private void addJMXExporter(String domain) {
-    JMXExporter jmxExporter = new JMXExporter(domain);
-    corePlugin.registerMultiValueProvider(jmxExporter);
+  private void addJMXExporter(String pattern) {
+    JMXExporter jmxExporter = null;
+    try {
+      jmxExporter = new JMXExporter(pattern);
+      corePlugin.registerMultiValueProvider(jmxExporter);
+    } catch (MalformedObjectNameException e) {
+      LOG.warn("Creation of JMXExporter failed: pattern: " + pattern, e);
+      throw new RuntimeException(e);
+    }
+
   }
 
   public String dumpStringWriter() {

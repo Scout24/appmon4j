@@ -9,7 +9,7 @@ public class ValidatingKeyHandler implements KeyHandler {
   @Override
   public String handle(String name) {
     if (!validationPattern.matcher(name).matches()) {
-      throw new IllegalArgumentException("invalid key value");
+      throw new IllegalArgumentException("invalid key value: " + name);
     }
     return name;
   }

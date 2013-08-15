@@ -46,12 +46,12 @@ public class InApplicationMonitorJMXConnectorTest {
     initializeWithJMXNaming();
 
     // when calling JMX Operation addJmxExporter
-    callAddJMXExporter("lala", "java.lang");
+    callAddJMXExporter("lala", "java.lang:*");
 
     // then
     MultiValueProvider multiValueProvider = InApplicationMonitor.getInstance()
       .getCorePlugin()
-      .getMultiValueProvider("JMXExporter.java.lang");
+      .getMultiValueProvider("JMXExporter.java.lang:*");
     assertThat(multiValueProvider).isNotNull();
   }
 

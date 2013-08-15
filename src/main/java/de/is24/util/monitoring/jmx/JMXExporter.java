@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanInfo;
 import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
 import java.lang.management.ManagementFactory;
@@ -27,23 +28,25 @@ import java.util.Set;
  */
 public class JMXExporter implements MultiValueProvider {
   private static final Logger LOGGER = LoggerFactory.getLogger(JMXExporter.class);
+  private static final String JMXEXPORTER = "JMXExporter";
   private final MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
 
-  private String domain;
+  private final ObjectName objectPattern;
+  private final String pattern;
+
   private String name;
 
   /**
-  * Initialize Exporter for a given domain. The domain must not be empty.
+  * Initialize Exporter for a given ObjectName pattern. The pattern must be a valid object name.
   *
-  * @param domain The JMX domain.
-  * @throws IllegalArgumentException if domain is null or empty.
+  * @param pattern The JMX domain.
+  * @throws MalformedObjectNameException in case of an invalid pattern
   */
-  public JMXExporter(String domain) {
-    if ((domain == null) || (domain.trim().length() == 0)) {
-      throw new IllegalArgumentException("domain must not be empty");
-    }
-    this.domain = domain;
-    name = "JMXExporter." + domain;
+  public JMXExporter(String pattern) throws MalformedObjectNameException {
+    this.pattern = pattern;
+    this.objectPattern = new ObjectName(pattern);
+
+    name = JMXEXPORTER + "." + pattern;
   }
 
   @Override
@@ -122,8 +125,7 @@ public class JMXExporter implements MultiValueProvider {
   private State createState(String attributeName, String path, Long value) {
     String fullName = attributeName + ((path != null) ? ("." + path) : "");
 
-    //LOGGER.debug("adding state for " + fullName + " with value " + value);
-    return new State(name, fullName, value);
+    return new State(JMXEXPORTER, fullName, value);
   }
 
   private String getAttributeName(ObjectName name, MBeanAttributeInfo info) {
@@ -139,15 +141,13 @@ public class JMXExporter implements MultiValueProvider {
 
   protected Map<ObjectName, MBeanInfo> getMBeanInfos() {
     try {
-      ObjectName inAppJMXName = new ObjectName(domain + ":*");
-
-      Set<ObjectName> objectNames = platformMBeanServer.queryNames(inAppJMXName, null);
+      Set<ObjectName> objectNames = platformMBeanServer.queryNames(objectPattern, null);
       Map<ObjectName, MBeanInfo> result = new HashMap<ObjectName, MBeanInfo>(objectNames.size());
       for (ObjectName name : objectNames) {
         result.put(name, platformMBeanServer.getMBeanInfo(name));
       }
 
-      LOGGER.info("searching for MBeans in domain  {} found {} Bean Infos", domain, result.size());
+      LOGGER.info("searching for MBeans matching pattern  {} found {} Bean Infos", pattern, result.size());
       return result;
     } catch (Exception e) {
       LOGGER.warn("oops", e);

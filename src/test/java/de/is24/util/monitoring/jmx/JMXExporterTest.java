@@ -56,14 +56,14 @@ public class JMXExporterTest {
   }
 
   @Test
-  public void doNotFailIfSomeOperationIsNotSupported() {
-    JMXExporter jmxExporter = new JMXExporter(TEST_BEAN_DOMAIN);
+  public void doNotFailIfSomeOperationIsNotSupported() throws MalformedObjectNameException {
+    JMXExporter jmxExporter = new JMXExporter(TEST_BEAN_DOMAIN + ":*");
     jmxExporter.getValues();
   }
 
   @Test
-  public void logNumericAttributes() {
-    JMXExporter jmxExporter = new JMXExporter(TEST_BEAN_DOMAIN);
+  public void logNumericAttributes() throws MalformedObjectNameException {
+    JMXExporter jmxExporter = new JMXExporter(TEST_BEAN_DOMAIN + ":*");
 
     Collection<State> values = jmxExporter.getValues();
     assertThat(values.size()).isEqualTo(7);
@@ -72,7 +72,7 @@ public class JMXExporterTest {
   @Test
   public void convertToLong() throws MalformedObjectNameException, MBeanRegistrationException,
                                      InstanceAlreadyExistsException, NotCompliantMBeanException {
-    JMXExporter jmxExporter = new JMXExporter(TEST_BEAN_DOMAIN);
+    JMXExporter jmxExporter = new JMXExporter(TEST_BEAN_DOMAIN + ":*");
     Collection<State> values = jmxExporter.getValues();
 
     assertValue(values, "long", 1234567890L);
@@ -87,14 +87,14 @@ public class JMXExporterTest {
   }
 
   @Test
-  public void beAbleToHandleJavaLangWithoutException() {
-    JMXExporter jmxExporter = new JMXExporter(JAVA_LANG);
+  public void beAbleToHandleJavaLangWithoutExceptionInGetValues() throws MalformedObjectNameException {
+    JMXExporter jmxExporter = new JMXExporter(JAVA_LANG + ":*");
     jmxExporter.getValues();
   }
 
   @Test
-  public void generateStrictlyValidValueKeysForTestBean() {
-    JMXExporter jmxExporter = new JMXExporter(TEST_BEAN_DOMAIN);
+  public void generateStrictlyValidValueKeysForTestBean() throws MalformedObjectNameException {
+    JMXExporter jmxExporter = new JMXExporter(TEST_BEAN_DOMAIN + ":*");
     Collection<State> values = jmxExporter.getValues();
     ValidatingKeyHandler validatingKeyHandler = new ValidatingKeyHandler();
     for (State value : values) {
@@ -103,8 +103,8 @@ public class JMXExporterTest {
   }
 
   @Test
-  public void generateStrictlyValidValueKeysForJavaLang() {
-    JMXExporter jmxExporter = new JMXExporter(JAVA_LANG);
+  public void generateStrictlyValidValueKeysForJavaLang() throws MalformedObjectNameException {
+    JMXExporter jmxExporter = new JMXExporter(JAVA_LANG + ":*");
     Collection<State> values = jmxExporter.getValues();
     ValidatingKeyHandler validatingKeyHandler = new ValidatingKeyHandler();
     for (State value : values) {
