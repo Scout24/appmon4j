@@ -14,6 +14,7 @@ import javax.management.openmbean.CompositeData;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,10 +32,16 @@ public class JMXExporter implements MultiValueProvider {
   private static final String JMXEXPORTER = "JMXExporter";
   private final MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
 
-  private final ObjectName objectPattern;
-  private final String pattern;
+  private final List<ObjectName> objectPatterns;
 
-  private String name;
+
+  /**
+   * Initialize Exporter
+   *
+   */
+  public JMXExporter() {
+    objectPatterns = Collections.synchronizedList(new ArrayList<ObjectName>());
+  }
 
   /**
   * Initialize Exporter for a given ObjectName pattern. The pattern must be a valid object name.
@@ -43,10 +50,20 @@ public class JMXExporter implements MultiValueProvider {
   * @throws MalformedObjectNameException in case of an invalid pattern
   */
   public JMXExporter(String pattern) throws MalformedObjectNameException {
-    this.pattern = pattern;
-    this.objectPattern = new ObjectName(pattern);
+    this();
+    addPattern(pattern);
+  }
 
-    name = JMXEXPORTER + "." + pattern;
+  public void addPattern(String pattern) throws MalformedObjectNameException {
+    objectPatterns.add(new ObjectName(pattern));
+  }
+
+  public List<ObjectName> listPatterns() {
+    return Collections.unmodifiableList(objectPatterns);
+  }
+
+  public boolean removePattern(String pattern) throws MalformedObjectNameException {
+    return objectPatterns.remove(new ObjectName(pattern));
   }
 
   @Override
@@ -58,7 +75,7 @@ public class JMXExporter implements MultiValueProvider {
 
   @Override
   public String getName() {
-    return name;
+    return JMXEXPORTER;
   }
 
   @Override
@@ -76,17 +93,21 @@ public class JMXExporter implements MultiValueProvider {
       for (MBeanAttributeInfo info : attributes) {
         try {
           Object valueObject = platformMBeanServer.getAttribute(name, info.getName());
-          String attributeName = getAttributeName(name, info);
-          handleObject(attributeName, null, valueObject, result);
+          String attributeName = getBaseName(name);
+          handleObject(attributeName, info.getName(), valueObject, result);
         } catch (Exception e) {
-          LOGGER.info("Error accessing numeric MBean Attribute {} {} {}", name, info, e.getMessage());
+          if ((e.getCause() != null) && e.getCause().getClass().equals(UnsupportedOperationException.class)) {
+            LOGGER.debug("ignoring unsupported numeric MBean Attribute {} {} {}", name, info);
+          } else {
+            LOGGER.info("Error accessing numeric MBean Attribute {} {} {}", name, info, e.getMessage());
+          }
         }
       }
     }
   }
 
-  private void handleObject(String attributeName, String path, Object valueObject, List<State> result) {
-    LOGGER.debug("handling {}", attributeName);
+  private void handleObject(String baseName, String path, Object valueObject, List<State> result) {
+    LOGGER.debug("handling {}", baseName);
 
     Long value = null;
     if (valueObject instanceof Long) {
@@ -102,10 +123,10 @@ public class JMXExporter implements MultiValueProvider {
     } else if (valueObject instanceof Float) {
       value = ((Float) valueObject).longValue();
     } else if (valueObject instanceof CompositeData) {
-      logComposite(attributeName, path, (CompositeData) valueObject, result);
+      logComposite(baseName, path, (CompositeData) valueObject, result);
     }
     if (value != null) {
-      result.add(createState(attributeName, path, value));
+      result.add(createState(baseName, path, value));
     }
   }
 
@@ -122,32 +143,30 @@ public class JMXExporter implements MultiValueProvider {
     }
   }
 
-  private State createState(String attributeName, String path, Long value) {
-    String fullName = attributeName + ((path != null) ? ("." + path) : "");
-
-    return new State(JMXEXPORTER, fullName, value);
+  private State createState(String baseName, String path, Long value) {
+    return new State(baseName, path, value);
   }
 
-  private String getAttributeName(ObjectName name, MBeanAttributeInfo info) {
+  private String getBaseName(ObjectName name) {
     StringBuilder builder = new StringBuilder();
-    builder.append(name.getDomain())
-    .append(".")
-    .append(name.getCanonicalKeyPropertyListString())
-    .append(".")
-    .append(info.getName());
-    return builder.toString().replaceAll("[:* =]", "_").replaceAll(",", ".");
+    builder.append(name.getDomain()).append(".").append(name.getCanonicalKeyPropertyListString());
+    return builder.toString();
   }
 
 
   protected Map<ObjectName, MBeanInfo> getMBeanInfos() {
     try {
-      Set<ObjectName> objectNames = platformMBeanServer.queryNames(objectPattern, null);
-      Map<ObjectName, MBeanInfo> result = new HashMap<ObjectName, MBeanInfo>(objectNames.size());
-      for (ObjectName name : objectNames) {
-        result.put(name, platformMBeanServer.getMBeanInfo(name));
+      Map<ObjectName, MBeanInfo> result = new HashMap<ObjectName, MBeanInfo>();
+      for (ObjectName objectPattern : objectPatterns) {
+        Set<ObjectName> objectNames = platformMBeanServer.queryNames(objectPattern, null);
+        for (ObjectName name : objectNames) {
+          result.put(name, platformMBeanServer.getMBeanInfo(name));
+        }
       }
 
-      LOGGER.info("searching for MBeans matching pattern  {} found {} Bean Infos", pattern, result.size());
+
+      LOGGER.info("searching for MBeans using {} patterns found {} matching Bean Infos", objectPatterns.size(),
+        result.size());
       return result;
     } catch (Exception e) {
       LOGGER.warn("oops", e);

@@ -5,7 +5,7 @@ public class State {
   public long value;
 
   public State(String parentName, String valueName, long value) {
-    this.name = parentName + "." + valueName;
+    this.name = (parentName + "." + valueName).replaceAll("[:* =]", "_").replaceAll(",", ".");
     this.value = value;
   }
 }

@@ -1,12 +1,15 @@
 package de.is24.util.monitoring;
 
 import de.is24.util.monitoring.jmx.InApplicationMonitorJMXConnector;
+import de.is24.util.monitoring.jmx.JMXExporter;
 import de.is24.util.monitoring.jmx.JmxAppMon4JNamingStrategy;
 import de.is24.util.monitoring.keyhandler.KeyHandler;
 import de.is24.util.monitoring.keyhandler.TransparentKeyHandler;
 import de.is24.util.monitoring.tools.VirtualMachineMetrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +38,7 @@ public class CorePlugin extends AbstractMonitorPlugin {
   private final Monitors<HistorizableList> historizableLists = new Monitors<HistorizableList>(reportableObservers);
   private volatile InApplicationMonitorJMXConnector inApplicationMonitorJMXConnector;
   private KeyHandler keyHandler;
+  private final JMXExporter jmxExporter;
 
   WeakReference<ReportableObserver> syncObserverReference;
 
@@ -48,6 +52,9 @@ public class CorePlugin extends AbstractMonitorPlugin {
       } else {
         this.keyHandler = new TransparentKeyHandler();
       }
+
+      jmxExporter = new JMXExporter();
+      registerMultiValueProvider(jmxExporter);
       if (jmxAppMon4JNamingStrategy != null) {
         inApplicationMonitorJMXConnector = new InApplicationMonitorJMXConnector(this,
           jmxAppMon4JNamingStrategy);
@@ -412,6 +419,29 @@ public class CorePlugin extends AbstractMonitorPlugin {
         }
       });
   }
+
+  public void addJMXExporterPattern(String pattern) {
+    try {
+      jmxExporter.addPattern(pattern);
+    } catch (MalformedObjectNameException e) {
+      LOGGER.warn("adding JMXExporter pattern failed", e);
+      throw new RuntimeException(e);
+    }
+  }
+
+  public boolean removeJMXExporter(String pattern) {
+    try {
+      return jmxExporter.removePattern(pattern);
+    } catch (MalformedObjectNameException e) {
+      LOGGER.warn("removing JMXExporter pattern failed due to illegal Object Name", e);
+      throw new RuntimeException(e);
+    }
+  }
+
+  public List<ObjectName> listJMXExporter() {
+    return jmxExporter.listPatterns();
+  }
+
 
   public void syncFrom(CorePlugin corePluginToSyncWith) {
     for (ReportableObserver reportableObserver : corePluginToSyncWith.reportableObservers) {

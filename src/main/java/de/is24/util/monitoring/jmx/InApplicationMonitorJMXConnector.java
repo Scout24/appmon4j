@@ -20,22 +20,14 @@ import javax.management.Attribute;
 import javax.management.AttributeList;
 import javax.management.AttributeNotFoundException;
 import javax.management.DynamicMBean;
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.InstanceNotFoundException;
 import javax.management.InvalidAttributeValueException;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanException;
 import javax.management.MBeanInfo;
 import javax.management.MBeanOperationInfo;
 import javax.management.MBeanParameterInfo;
-import javax.management.MBeanRegistrationException;
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
-import javax.management.ObjectName;
 import javax.management.ReflectionException;
 import javax.management.openmbean.CompositeData;
-import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +58,9 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
   private static final String REMOVE_ALL_PLUGINS = "removeAllPlugins";
   private static final String ADD_STATSD_PLUGIN = "addStatsdPlugin";
   private static final String ADD_STATE_VALUES_TO_GRAPHITE = "addStateValuesToGraphite";
-  private static final String ADD_JMX_EXPORTER = "addJmxExporter";
+  private static final String ADD_JMX_EXPORTER_PATTERN = "addJmxExporterPattern";
+  private static final String LIST_JMX_EXPORTER_PATTERN = "listJmxExporterPattern";
+  private static final String REMOVE_JMX_EXPORTER_PATTERN = "removeJmxExporterPattern";
 
   private static final Logger LOG = LoggerFactory.getLogger(InApplicationMonitorJMXConnector.class);
 
@@ -75,13 +69,11 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
 
   private final Map<String, Reportable> reportables = new ConcurrentHashMap<String, Reportable>();
 
-  private MBeanServer beanServer;
-  private String jmxPrefix = "";
-
+  private final JMXBeanRegistrationHelper jmxBeanRegistrationHelper;
   private final CorePlugin corePlugin;
 
-
-  public InApplicationMonitorJMXConnector(CorePlugin corePlugin, JmxAppMon4JNamingStrategy jmxAppMon4JNamingStrategy) {
+  public InApplicationMonitorJMXConnector(CorePlugin corePlugin,
+                                          JmxAppMon4JNamingStrategy jmxAppMon4JNamingStrategy) {
     synchronized (semaphore) {
       LOG.info("initializing InApplicationMonitorJMXConnector");
       if (instance != null) {
@@ -89,14 +81,16 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
         throw new IllegalStateException("JMXConnector already initialized");
       }
       this.corePlugin = corePlugin;
-      this.jmxPrefix = jmxAppMon4JNamingStrategy.getJmxPrefix() + ":";
+      this.jmxBeanRegistrationHelper = new JMXBeanRegistrationHelper(jmxAppMon4JNamingStrategy);
       registerJMXStuff();
 
       // register yourself as ReportableObserver so that we're notified about every new reportable
       corePlugin.addReportableObserver(this);
       instance = this;
     }
+
   }
+
 
   public void shutdown() {
     synchronized (semaphore) {
@@ -104,13 +98,28 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
       corePlugin.removeReportableObserver(this);
       removeAllReportables();
       try {
-        beanServer.unregisterMBean(new ObjectName(jmxPrefix + "name=InApplicationMonitor"));
+        jmxBeanRegistrationHelper.unregisterMBeanOnJMX("InApplicationMonitor", null);
       } catch (Exception e) {
         LOG.warn("problem when unregistering InApplicationMonitorJMXConnector during shutdown", e);
       }
       instance = null;
     }
   }
+
+  /**
+   * registers the InApplicationMonitor as JMX MBean on the running JMX
+   * server - if no JMX server is running, one is started automagically.
+   */
+  private void registerJMXStuff() {
+    LOG.info("registering InApplicationMonitorDynamicMBean on JMX server");
+
+    try {
+      jmxBeanRegistrationHelper.registerMBeanOnJMX(this, "InApplicationMonitor", null);
+    } catch (Exception e) {
+      LOG.error("could not register MBean server : ", e);
+    }
+  }
+
 
   /**
   * This method is called for each reportable that is registered on the InApplicationMonitor.
@@ -132,9 +141,9 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
         InApplicationMonitorDynamicMBean bean = new InApplicationMonitorDynamicMBean(reportable);
         try {
           if (beanAlreadyRegistred) {
-            unregisterMBeanOnJMX(bean, reportableKey, "InApplicationMonitor");
+            jmxBeanRegistrationHelper.unregisterMBeanOnJMX(reportableKey, "InApplicationMonitor");
           }
-          registerMBeanOnJMX(bean, reportableKey, "InApplicationMonitor");
+          jmxBeanRegistrationHelper.registerMBeanOnJMX(bean, reportableKey, "InApplicationMonitor");
         } catch (Exception e) {
           LOG.error("could not register MBean for " + reportableKey, e);
         }
@@ -156,7 +165,7 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
         // MBean for each reportable
         if ((reportable instanceof Timer) || (reportable instanceof HistorizableList)) {
           try {
-            unregisterMBeanOnJMX(reportable, reportableKey, "InApplicationMonitor");
+            jmxBeanRegistrationHelper.unregisterMBeanOnJMX(reportableKey, "InApplicationMonitor");
           } catch (Exception e) {
             LOG.error("could not unregister MBean for " + reportableKey, e);
           }
@@ -167,51 +176,6 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
     reportables.clear();
   }
 
-
-  /**
-  * registers the InApplicationMonitor as JMX MBean on the running JMX
-  * server - if no JMX server is running, one is started automagically.
-  */
-  private void registerJMXStuff() {
-    LOG.info("registering InApplicationMonitorDynamicMBean on JMX server");
-
-    beanServer = ManagementFactory.getPlatformMBeanServer();
-    try {
-      beanServer.registerMBean(this,
-        new ObjectName(jmxPrefix + "name=InApplicationMonitor"));
-    } catch (Exception e) {
-      LOG.error("could not register MBean server : ", e);
-    }
-  }
-
-
-  protected void registerMBeanOnJMX(Object object, String name, String type) throws InstanceAlreadyExistsException,
-                                                                                    MBeanRegistrationException,
-                                                                                    NotCompliantMBeanException,
-                                                                                    MalformedObjectNameException {
-    beanServer.registerMBean(object, createBeanName(name, type));
-  }
-
-  protected void unregisterMBeanOnJMX(Object object, String name, String type) throws InstanceNotFoundException,
-                                                                                      MBeanRegistrationException,
-                                                                                      MalformedObjectNameException {
-    ObjectName beanName = createBeanName(name, type);
-    if (beanServer.isRegistered(beanName)) {
-      beanServer.unregisterMBean(beanName);
-    }
-  }
-
-  private ObjectName createBeanName(String name, String type) throws MalformedObjectNameException {
-    StringBuilder buf = new StringBuilder(jmxPrefix);
-    if (type != null) {
-      buf.append("type=");
-      buf.append(type);
-      buf.append(",");
-    }
-    buf.append("name=");
-    buf.append(name);
-    return new ObjectName(buf.toString());
-  }
 
   /* MBean methods */
 
@@ -280,8 +244,16 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
           new MBeanParameterInfo("app name", "java.lang.String", "")
         }, "void",
         MBeanOperationInfo.ACTION),
-      new MBeanOperationInfo(ADD_JMX_EXPORTER, "",
-        new MBeanParameterInfo[] { new MBeanParameterInfo("jmx pattern to searc", "java.lang.String", "") }, "void",
+      new MBeanOperationInfo(ADD_JMX_EXPORTER_PATTERN,
+        "This will add an ObjectName pattern to the JMXExporter",
+        new MBeanParameterInfo[] { new MBeanParameterInfo("ObjectName pattern", "java.lang.String", ""), }, "void",
+        MBeanOperationInfo.ACTION),
+      new MBeanOperationInfo(LIST_JMX_EXPORTER_PATTERN, "List current JMXExporter Patterns", null, "java.util.List",
+        MBeanOperationInfo.ACTION),
+      new MBeanOperationInfo(REMOVE_JMX_EXPORTER_PATTERN,
+        "This will remove an ObjectName pattern to the JMXExporter",
+        new MBeanParameterInfo[] { new MBeanParameterInfo("ObjectName pattern", "java.lang.String", ""), },
+        "java.lang.Boolean",
         MBeanOperationInfo.ACTION),
     };
 
@@ -373,12 +345,18 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
       Integer port = (Integer) params[1];
       String appName = (String) params[2];
       addStateValuesToGraphite(host, port, appName);
-    } else if (actionName.equals(ADD_JMX_EXPORTER)) {
+    } else if (actionName.equals(ADD_JMX_EXPORTER_PATTERN)) {
       String pattern = (String) params[0];
-      addJMXExporter(pattern);
+      corePlugin.addJMXExporterPattern(pattern);
+    } else if (actionName.equals(LIST_JMX_EXPORTER_PATTERN)) {
+      return corePlugin.listJMXExporter();
+    } else if (actionName.equals(REMOVE_JMX_EXPORTER_PATTERN)) {
+      String pattern = (String) params[0];
+      return corePlugin.removeJMXExporter(pattern);
     }
     return null;
   }
+
 
   /* operations that can be invoked via JMX */
 
@@ -405,17 +383,6 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
     }
   }
 
-  private void addJMXExporter(String pattern) {
-    JMXExporter jmxExporter = null;
-    try {
-      jmxExporter = new JMXExporter(pattern);
-      corePlugin.registerMultiValueProvider(jmxExporter);
-    } catch (MalformedObjectNameException e) {
-      LOG.warn("Creation of JMXExporter failed: pattern: " + pattern, e);
-      throw new RuntimeException(e);
-    }
-
-  }
 
   public String dumpStringWriter() {
     StringWriterReportVisitor visitor = new StringWriterReportVisitor();
