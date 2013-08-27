@@ -27,6 +27,7 @@ import javax.management.openmbean.OpenDataException;
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;
 import java.lang.management.ManagementFactory;
+import java.net.URL;
 import java.util.Collection;
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -111,6 +112,82 @@ public class JMXExporterTest {
       validatingKeyHandler.handle(value.name);
     }
   }
+
+  @Test
+  public void readPatternFromFile() throws Exception {
+    URL url = getClass().getResource("/jmxExporter/patternTestFile.txt");
+    JMXExporter jmxExporter = new JMXExporter();
+
+    jmxExporter.readFromFile(url.getFile());
+    assertThat(jmxExporter.listPatterns().size()).isEqualTo(2);
+  }
+
+  @Test
+  public void eachPatternOnlyAddedOnce() throws Exception {
+    URL url = getClass().getResource("/jmxExporter/duplicatePatternTestFile.txt");
+    JMXExporter jmxExporter = new JMXExporter();
+
+    jmxExporter.readFromFile(url.getFile());
+    assertThat(jmxExporter.listPatterns().size()).isEqualTo(1);
+  }
+
+  @Test
+  public void nonExistingSilentlyIgnored() throws Exception {
+    JMXExporter jmxExporter = new JMXExporter();
+
+    jmxExporter.readFromDirectory("nonExistingDir");
+    assertThat(jmxExporter.listPatterns().size()).isEqualTo(0);
+
+  }
+
+  @Test
+  public void emptyDirIsOkay() throws Exception {
+    URL url = getClass().getResource("/emptyDir");
+    JMXExporter jmxExporter = new JMXExporter();
+
+    jmxExporter.readFromDirectory(url.getFile());
+    assertThat(jmxExporter.listPatterns().size()).isEqualTo(0);
+
+  }
+
+
+  @Test
+  public void readPatternFilesFromDir() throws Exception {
+    URL url = getClass().getResource("/jmxExporter");
+    JMXExporter jmxExporter = new JMXExporter();
+
+    jmxExporter.readFromDirectory(url.getFile());
+    assertThat(jmxExporter.listPatterns().size()).isEqualTo(2);
+
+  }
+
+  @Test
+  public void EmptyLinesInPatternFromFileWillNotLeadToMatchAllObjectName() throws Exception {
+    URL url = getClass().getResource("/jmxExporter/emptyLinePatternTestFile.txt");
+    JMXExporter jmxExporter = new JMXExporter();
+
+    jmxExporter.readFromFile(url.getFile());
+    assertThat(jmxExporter.listPatterns().size()).isEqualTo(2);
+  }
+
+  @Test
+  public void skipInvalidPatternWhenReadingFromFile() throws Exception {
+    URL url = getClass().getResource("/jmxExporter/invalidPatternTestFile.txt");
+    JMXExporter jmxExporter = new JMXExporter();
+
+    jmxExporter.readFromFile(url.getFile());
+    assertThat(jmxExporter.listPatterns().size()).isEqualTo(1);
+  }
+
+  @Test
+  public void doNotFailOnEmptyFile() throws Exception {
+    URL url = getClass().getResource("/jmxExporter/emptyPatternTestFile.txt");
+    JMXExporter jmxExporter = new JMXExporter();
+
+    jmxExporter.readFromFile(url.getFile());
+    assertThat(jmxExporter.listPatterns().size()).isEqualTo(0);
+  }
+
 
   private void assertValue(Collection<State> values, String name, long targetValue) {
     int checked = 0;

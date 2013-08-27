@@ -429,7 +429,7 @@ public class CorePlugin extends AbstractMonitorPlugin {
     }
   }
 
-  public boolean removeJMXExporter(String pattern) {
+  public boolean removeJMXExporterPattern(String pattern) {
     try {
       return jmxExporter.removePattern(pattern);
     } catch (MalformedObjectNameException e) {
@@ -438,10 +438,17 @@ public class CorePlugin extends AbstractMonitorPlugin {
     }
   }
 
-  public List<ObjectName> listJMXExporter() {
+  public List<ObjectName> listJMXExporterPattern() {
     return jmxExporter.listPatterns();
   }
 
+  public void readJMXExporterPatternFromFile(String filename) {
+    jmxExporter.readFromFile(filename);
+  }
+
+  public void readJMXExporterPatternFromDir(String dirname) {
+    jmxExporter.readFromDirectory(dirname);
+  }
 
   public void syncFrom(CorePlugin corePluginToSyncWith) {
     for (ReportableObserver reportableObserver : corePluginToSyncWith.reportableObservers) {

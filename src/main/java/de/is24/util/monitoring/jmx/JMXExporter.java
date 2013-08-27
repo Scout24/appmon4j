@@ -3,6 +3,8 @@ package de.is24.util.monitoring.jmx;
 import de.is24.util.monitoring.MultiValueProvider;
 import de.is24.util.monitoring.ReportVisitor;
 import de.is24.util.monitoring.State;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.LineIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.management.MBeanAttributeInfo;
@@ -11,11 +13,14 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
+import java.io.File;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +37,7 @@ public class JMXExporter implements MultiValueProvider {
   private static final String JMXEXPORTER = "JMXExporter";
   private final MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
 
-  private final List<ObjectName> objectPatterns;
+  private final Set<ObjectName> objectPatterns;
 
 
   /**
@@ -40,7 +45,7 @@ public class JMXExporter implements MultiValueProvider {
    *
    */
   public JMXExporter() {
-    objectPatterns = Collections.synchronizedList(new ArrayList<ObjectName>());
+    objectPatterns = Collections.synchronizedSet(new HashSet<ObjectName>());
   }
 
   /**
@@ -59,7 +64,7 @@ public class JMXExporter implements MultiValueProvider {
   }
 
   public List<ObjectName> listPatterns() {
-    return Collections.unmodifiableList(objectPatterns);
+    return new ArrayList<ObjectName>(objectPatterns);
   }
 
   public boolean removePattern(String pattern) throws MalformedObjectNameException {
@@ -175,5 +180,55 @@ public class JMXExporter implements MultiValueProvider {
 
   }
 
+  public void readFromDirectory(String path) {
+    LOGGER.info("reading JMXExporter Patterns from directory {}", path);
 
+    File dir = new File(path);
+    if (dir.exists() && dir.isDirectory()) {
+      Collection<File> files = FileUtils.listFiles(dir, null, false);
+      if (files.size() == 0) {
+        LOGGER.warn("no files found in readFromDirectory {}", path);
+      }
+      for (File file : files) {
+        readFromFile(file);
+      }
+    } else {
+      LOGGER.warn("JMXExporter config dir {} does not exist.", dir.getAbsolutePath());
+    }
+  }
+
+  public void readFromFile(String filename) {
+    readFromFile(new File(filename));
+  }
+
+  public void readFromFile(File file) {
+    LOGGER.info("reading JMXExporter Patterns from file {}", file.getAbsolutePath());
+
+    LineIterator it;
+    try {
+      it = FileUtils.lineIterator(file, "UTF-8");
+    } catch (IOException e) {
+      LOGGER.warn("Error while reading patterns from file " + file.getAbsolutePath(), e);
+      throw new RuntimeException(e);
+    }
+
+    try {
+      while (it.hasNext()) {
+        String pattern = it.nextLine();
+
+        // an empty pattern would be translated to *:*, we do not want this default behaviour of ObjectName here.
+        if (pattern.length() > 0) {
+          try {
+            addPattern(pattern);
+          } catch (MalformedObjectNameException e) {
+            LOGGER.warn("Ignoring malformed ObjectName pattern while applying pattern {} from file {} {} ", pattern,
+              file.getAbsolutePath(), e.getMessage());
+          }
+        }
+      }
+    } finally {
+      LineIterator.closeQuietly(it);
+    }
+
+  }
 }

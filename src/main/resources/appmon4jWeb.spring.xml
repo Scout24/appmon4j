@@ -24,10 +24,10 @@
   </bean>
   <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
     <property name="targetObject"><ref bean="appmon4j.corePlugin"/></property>
-    <property name="targetMethod"><value>addJMXExporterPattern</value></property>
+    <property name="targetMethod"><value>readJMXExporterPatternFromDir</value></property>
     <property name="arguments">
       <list>
-        <value>java.lang:*</value>
+        <value>/etc/appmon4j-jmxexport/${appname:web}</value>
       </list>
     </property>
   </bean>

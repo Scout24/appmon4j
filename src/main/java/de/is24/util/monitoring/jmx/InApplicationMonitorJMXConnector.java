@@ -349,10 +349,10 @@ public final class InApplicationMonitorJMXConnector implements DynamicMBean, Rep
       String pattern = (String) params[0];
       corePlugin.addJMXExporterPattern(pattern);
     } else if (actionName.equals(LIST_JMX_EXPORTER_PATTERN)) {
-      return corePlugin.listJMXExporter();
+      return corePlugin.listJMXExporterPattern();
     } else if (actionName.equals(REMOVE_JMX_EXPORTER_PATTERN)) {
       String pattern = (String) params[0];
-      return corePlugin.removeJMXExporter(pattern);
+      return corePlugin.removeJMXExporterPattern(pattern);
     }
     return null;
   }
