@@ -51,6 +51,9 @@ public class StateValuesToGraphite implements ReportableObserver {
     }
   }
 
+  public long multiValueProviderCount() {
+    return multiValueProviders.size();
+  }
 
   public void shutdown() {
     InApplicationMonitor.getInstance().getCorePlugin().removeReportableObserver(this);

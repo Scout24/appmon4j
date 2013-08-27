@@ -85,7 +85,7 @@ public class JMXExporter implements MultiValueProvider {
 
   @Override
   public void accept(ReportVisitor visitor) {
-    //visitor.reportMultiValue(this);
+    visitor.reportMultiValue(this);
   }
 
 
