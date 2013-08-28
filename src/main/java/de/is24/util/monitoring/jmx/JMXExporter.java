@@ -169,8 +169,7 @@ public class JMXExporter implements MultiValueProvider {
         }
       }
 
-
-      LOGGER.info("searching for MBeans using {} patterns found {} matching Bean Infos", objectPatterns.size(),
+      LOGGER.debug("searching for MBeans using {} patterns found {} matching Bean Infos", objectPatterns.size(),
         result.size());
       return result;
     } catch (Exception e) {
