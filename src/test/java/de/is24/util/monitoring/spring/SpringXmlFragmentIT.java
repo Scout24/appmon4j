@@ -7,6 +7,7 @@ import de.is24.util.monitoring.state2graphite.StateValuesToGraphite;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import java.util.List;
 import static org.fest.assertions.Assertions.assertThat;
 
 
@@ -38,6 +39,20 @@ public class SpringXmlFragmentIT {
 
     assertThat(((StateValuesToGraphite) classPathXmlApplicationContext.getBean("appmon4j.stateValuesToGraphite"))
       .multiValueProviderCount()).isEqualTo(2);
+  }
+
+  @Test
+  public void saveStatsdPluginShouldLoad() throws Exception {
+    ClassPathXmlApplicationContext classPathXmlApplicationContext = new ClassPathXmlApplicationContext(
+      "classpath:propertyPlaceholder.spring.xml",
+      "classpath:appmon4jWeb.spring.xml",
+      "classpath:appmon4jSaveStatsd.spring.xml");
+    CorePlugin corePlugin = InApplicationMonitor.getInstance().getCorePlugin();
+    List<String> registeredPluginKeys = InApplicationMonitor.getInstance().getRegisteredPluginKeys();
+    assertThat(registeredPluginKeys).isNotNull();
+    assertThat(registeredPluginKeys.get(1)).isEqualTo("StatsdPlugin_localhost_8125_1.0");
+
+
   }
 
 

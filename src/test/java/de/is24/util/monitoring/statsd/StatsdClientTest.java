@@ -3,6 +3,8 @@ package de.is24.util.monitoring.statsd;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Random;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.anyString;
@@ -113,6 +115,17 @@ public class StatsdClientTest {
     mockRngAndReturn(0.4);
     assertThat(target.increment("testIncrement", 1, 0.5)).isEqualTo(false);
   }
+
+  @Test(expected = UnknownHostException.class)
+  public void instantiationFailsIfHostCanNotBeResolved() throws UnknownHostException, SocketException {
+    StatsdClient failApp = new StatsdClient("host.not.known", 8125, "failApp");
+  }
+
+  @Test
+  public void instantiationDoesNotFailIfHostNotListening() throws UnknownHostException, SocketException {
+    StatsdClient client = new StatsdClient("localhost", 8125, "works");
+  }
+
 
   private void expectToFail() throws IOException {
     socket.send(anyString());
