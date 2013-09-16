@@ -27,7 +27,7 @@
     <property name="targetMethod"><value>readJMXExporterPatternFromDir</value></property>
     <property name="arguments">
       <list>
-        <value>/etc/appmon4j-jmxexport/${appname:standalone}</value>
+        <value>/etc/appmon4j-jmxexport/${appName:standalone}</value>
       </list>
     </property>
   </bean>
