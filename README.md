@@ -30,12 +30,12 @@ All Reportables have a name, which is a simple String. Names can be choosen free
 
 Example de.is24.util.monitoring.InApplicationMonitor.InstanceAccessCount.
 
-Reportable names do not need to and can not be configured in advance. The first use of any given name creates the requested reportable. But sometimes it is useful to initialize a reportable (which is used for errors) so that IT-B can check their polling system even if no error occured so far.
+Reportable names do not need to and can not be configured in advance. The first use of any given name creates the requested reportable. But sometimes it is useful to initialize a reportable (which is used for errors) so that a monitoring systems configuration can be tested, even if an error has not been counted yet.
 
 Reportables
 ----------
 
-The most important Reportables are used for monitoring events
+The most important Reportables are used to measure events. Depending on what you want to know, you either use a simple counter, or if execution time is relevant, use a timer.
 ### Counter
 
 * Counters are used to count events. 
@@ -49,8 +49,6 @@ The most important Reportables are used for monitoring events
 
 ### Timer
 
-currently a subclass of counter although this makes no sense and should be refactored
-
 *   Timers count and measure timed events.
 *   Timers allow adding timer measurements, implicitly incrementing the count
 
@@ -60,7 +58,7 @@ currently a subclass of counter although this makes no sense and should be refac
 *   rendering duration
 *   parsing time of xml input
 
-A timer will expose the following attributes:
+A timer will expose the following attributes if JMX Connector is configured:
 
 *   count: the number of reported events
 *   timerSum: the total amount of reported measurements; this is usually reported as [ms]
@@ -82,7 +80,7 @@ Additional Reportables are
 
 ### MultiStateProvider
 
-*   Expose several State Values by one Reportable instance. Usefull if one single Reportable wants to delivery multiple State values, especially if the count of States may vary over time.
+*   Expose several State Values by one Reportable instance. Useful if one single Reportable wants to delivery multiple State values, especially if the count of States may vary over time.
 
 ##### Examples
 
@@ -172,6 +170,11 @@ To add data / information the following methods are provided
 get data out
 -----------
 
+### Expose metrics by JMX
+
+Instead of using the default InApplicationMonitor instance implicitly created, initialize InApplicationMonitor with a CorePlugin provided with an Instance of JmxAppMon4JNamingStrategy. This enables JMX exposure of all Reportables.
+For examples see [appmon4jStandalone.spring.xml](https://github.com/ImmobilienScout24/appmon4j/blob/master/src/main/resources/appmon4jStandalone.spring.xml) .
+
 ### Graphing aka statsd / graphite connection
 
 We use statsd and graphite for graphing. 
@@ -198,7 +201,9 @@ You could put the following block into your applications spring config. Please e
      </bean>
 
 
-### Expose JMX Bean values
+### Push numerical values from other JMX Beans to graphite
+
+Requires StateValuesToGraphite plugins 
 
 If you want to expose numeric values of other JMX Beans, you can use JMXExporter to do so.
 
