@@ -2,58 +2,26 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.is24.common</groupId>
-  <artifactId>appmon4j</artifactId>
-  <packaging>pom</packaging>
+  <artifactId>appmon4j-core</artifactId>
+  <packaging>jar</packaging>
   <version>1.46-SNAPSHOT</version>
-  <name>appmon4j-reactor</name>
+  <name>appmon4j-core</name>
   <description>A lightweight application monitoring framework</description>
   <url>https://github.com/ImmobilienScout24/appmon4j</url>
 
   <parent>
-    <groupId>org.sonatype.oss</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>7</version>
+    <groupId>de.is24.common</groupId>
+    <artifactId>appmon4j</artifactId>
+    <version>1.46-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <modules>
-    <module>core</module>
-  </modules>
-  
-  <organization>
-    <name>Immobilien Scout GmbH</name>
-    <url>http://www.immobilienscout24.de</url>
-  </organization>
-  <licenses>
-    <license>
-      <name>The Apache Software License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-
-  <issueManagement>
-  	<system>github</system>
-  	<url>https://github.com/ImmobilienScout24/appmon4j/issues</url>
-  </issueManagement>
-  <scm>
-    <connection>scm:git:https://github.com/ImmobilienScout24/appmon4j.git</connection>
-    <developerConnection>scm:git:https://github.com/ImmobilienScout24/appmon4j.git</developerConnection>
-    <url>https://github.com/ImmobilienScout24/appmon4j.git</url>
-  </scm>
-
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <spring.version>3.2.3.RELEASE</spring.version>
-    <spring.webflow.version>2.3.0.RELEASE</spring.webflow.version>
-  </properties>
   
   <prerequisites>
     <maven>2.2.1</maven>
   </prerequisites>
   
   <build>
-    <pluginManagement>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -187,7 +155,6 @@
         </configuration>
       </plugin>
     </plugins>
-    </pluginManagement>
     <extensions>
       <extension>
         <groupId>org.apache.maven.wagon</groupId>
@@ -197,168 +164,134 @@
     </extensions>
   </build>
 
-  <dependencyManagement>
   <dependencies>
           
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
-      <version>1.7.5</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.5</version>
     </dependency>
     
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
-      <version>1.2.17</version>
       <scope>compile</scope>
     </dependency>
 
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
-      <version>2.6</version>
       <scope>compile</scope>
     </dependency>
 
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>2.2</version>
     </dependency>
 
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>14.0.1</version>
     </dependency>
 
       <dependency>
           <groupId>org.aspectj</groupId>
           <artifactId>aspectjrt</artifactId>
-          <version>1.7.2</version>
           <optional>true</optional>
       </dependency>
       <dependency>
           <groupId>org.aspectj</groupId>
           <artifactId>aspectjweaver</artifactId>
-          <version>1.7.2</version>
           <optional>true</optional>
       </dependency>
 
       <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
-      <version>${spring.version}</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-web</artifactId>
-      <version>${spring.version}</version>
       <optional>true</optional>
     </dependency>
       <dependency>
           <groupId>org.springframework</groupId>
           <artifactId>spring-context</artifactId>
-          <version>${spring.version}</version>
           <optional>true</optional>
       </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
-      <version>${spring.version}</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>${spring.version}</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.springframework.webflow</groupId>
       <artifactId>spring-webflow</artifactId>
-      <version>${spring.webflow.version}</version>
       <optional>true</optional>
     </dependency>
 
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
-      <version>2.5</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>joda-time</groupId>
       <artifactId>joda-time</artifactId>
-      <version>2.2</version>
     </dependency>
 
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.easytesting</groupId>
       <artifactId>fest-assert</artifactId>
-      <version>1.4</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>1.9.5</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.easymock</groupId>
       <artifactId>easymock</artifactId>
-      <version>3.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-core</artifactId>
-      <version>1.3</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-library</artifactId>
-      <version>1.3</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>de.flapdoodle.embed</groupId>
       <artifactId>de.flapdoodle.embed.mongo</artifactId>
-      <version>1.31</version>
       <scope>test</scope>
     </dependency>
 
   </dependencies>
-  </dependencyManagement>
-  <developers>
-    <developer>
-      <id>OSchmi</id>
-      <email>Oliver.schmitz@immobilienscout24.de</email>
-      <name>Oliver Schmitz</name>
-      <organization>Immobilien Scout GmbH</organization>
-      <organizationUrl>http://www.immobilienscout24.de</organizationUrl>
-      <timezone>1</timezone>
-    </developer>
-  </developers>
+
 
   <profiles>
     <profile>
@@ -388,83 +321,6 @@
         </plugins>
       </build>
     </profile>
-    <profile>
-          <id>sonar-coverage</id>
-          <activation>
-              <activeByDefault>false</activeByDefault>
-          </activation>
-          <properties>
-              <sonar.jacoco.reportPath>${project.build.directory}/jacoco-ut.exec</sonar.jacoco.reportPath>
-              <sonar.jacoco.itReportPath>${project.build.directory}/jacoco.exec</sonar.jacoco.itReportPath>
-              <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-          </properties>
-          <build>
-              <plugins>
-                  <plugin>
-                      <groupId>org.apache.maven.plugins</groupId>
-                      <artifactId>maven-failsafe-plugin</artifactId>
-                      <version>2.12.4</version>
-                      <configuration>
-                          <argLine>${argLine}</argLine>
-                      </configuration>
-                  </plugin>
-                  <plugin>
-                      <groupId>org.jacoco</groupId>
-                      <artifactId>jacoco-maven-plugin</artifactId>
-                      <version>0.6.3.201306030806</version>
-                      <configuration>
-                          <append>true</append>
-                      </configuration>
-                      <executions>
-                          <execution>
-                              <id>jacoco-initialize</id>
-                              <goals>
-                                  <goal>prepare-agent</goal>
-                              </goals>
-                          </execution>
-                          <execution>
-                              <id>jacoco-site</id>
-                              <phase>verify</phase>
-                              <goals>
-                                  <goal>report</goal>
-                              </goals>
-                          </execution>
-                      </executions>
-                  </plugin>
-                  <plugin>
-                      <groupId>org.apache.maven.plugins</groupId>
-                      <artifactId>maven-antrun-plugin</artifactId>
-                      <version>1.7</version>
-                      <executions>
-                          <execution>
-                              <phase>pre-integration-test</phase>
-                              <configuration>
-                                  <target>
-                                      <taskdef resource="net/sf/antcontrib/antcontrib.properties" />
-                                      <if>
-                                          <available file="${project.build.directory}/jacoco.exec" />
-                                          <then>
-                                              <move file="${project.build.directory}/jacoco.exec" tofile="${sonar.jacoco.reportPath}" verbose="true" />
-                                          </then>
-                                      </if>
-                                  </target>
-                              </configuration>
-                              <goals>
-                                  <goal>run</goal>
-                              </goals>
-                          </execution>
-                      </executions>
-                      <dependencies>
-                          <dependency>
-                              <groupId>ant-contrib</groupId>
-                              <artifactId>ant-contrib</artifactId>
-                              <version>20020829</version>
-                          </dependency>
-                      </dependencies>
-                  </plugin>
-              </plugins>
-          </build>
-      </profile>
   </profiles>
 
 
