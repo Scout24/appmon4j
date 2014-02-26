@@ -1,6 +1,8 @@
 package de.is24.util.monitoring.statsd;
 
 import de.is24.util.monitoring.AbstractMonitorPlugin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
@@ -11,6 +13,8 @@ import java.net.UnknownHostException;
  * Enable via InApplicationMonitor.getInstance().registerPlugin(new StatsdPlugin("myStatsdHost", 1234));
  */
 public class StatsdPlugin extends AbstractMonitorPlugin {
+  private static final Logger LOG = LoggerFactory.getLogger(StatsdPlugin.class);
+
   private final StatsdClient delegate;
   private final String uniqueName;
   private double sampleRate;
@@ -64,6 +68,7 @@ public class StatsdPlugin extends AbstractMonitorPlugin {
     }
     this.sampleRate = sampleRate;
     initHighVolumeSampleRate();
+    LOG.info("StatsdPlugin {} initialized", uniqueName);
   }
 
   private static String getUniqeName(final String host, final int port, final double sampleRate) {
@@ -72,6 +77,7 @@ public class StatsdPlugin extends AbstractMonitorPlugin {
 
   @Override
   public void afterRemovalNotification() {
+    LOG.info("StatsdPlugin {} notified of removal", uniqueName);
     delegate.close();
   }
 

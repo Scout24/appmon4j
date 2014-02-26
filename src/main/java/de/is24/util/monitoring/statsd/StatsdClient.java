@@ -29,9 +29,11 @@ class StatsdClient {
   StatsdClient(StatsdDatagrammSocket socket, StatsdMessageFormatter formatter) {
     this.socket = socket;
     this.messageFormatter = formatter;
+    LOG.info("StatsdClient connected to {} initialized", socket.toString());
   }
 
   public void close() {
+    LOG.info("closing StatsdClient connected to {}", socket.toString());
     socket.close();
   }
 

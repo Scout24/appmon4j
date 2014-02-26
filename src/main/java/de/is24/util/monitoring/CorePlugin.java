@@ -64,6 +64,7 @@ public class CorePlugin extends AbstractMonitorPlugin {
                                              : ("NoJmx" + UUID.randomUUID().toString()));
       initDefaultStateValues();
     }
+    LOGGER.info("CorePlugin {} initialized", uniqueName);
   }
 
   public void initDefaultStateValues() {
@@ -97,6 +98,7 @@ public class CorePlugin extends AbstractMonitorPlugin {
 
   @Override
   public void afterRemovalNotification() {
+    LOGGER.info("CorePlugin {} notified of removal", uniqueName);
     destroy();
   }
 
