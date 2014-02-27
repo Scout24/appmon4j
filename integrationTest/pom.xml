@@ -2,11 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.is24.common</groupId>
-  <artifactId>appmon4j-core</artifactId>
+  <artifactId>appmon4j-integration-tests</artifactId>
   <packaging>jar</packaging>
   <version>1.47-SNAPSHOT</version>
-  <name>appmon4j-core</name>
-  <description>A lightweight application monitoring framework</description>
+  <name>appmon4j-integration-tests</name>
+  <description>A lightweight application monitoring framework </description>
   <url>https://github.com/ImmobilienScout24/appmon4j</url>
 
   <parent>
@@ -142,7 +142,16 @@
   </build>
 
   <dependencies>
-          
+    <dependency>
+      <groupId>de.is24.common</groupId>
+      <artifactId>appmon4j-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>de.is24.common</groupId>
+      <artifactId>appmon4j-testutil</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
@@ -261,6 +270,11 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>de.flapdoodle.embed</groupId>
+      <artifactId>de.flapdoodle.embed.process</artifactId>
+      <scope>test</scope>
+    </dependency>
 
   </dependencies>
 

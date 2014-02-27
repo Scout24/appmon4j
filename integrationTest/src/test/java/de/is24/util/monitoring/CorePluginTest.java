@@ -2,6 +2,7 @@ package de.is24.util.monitoring;
 
 import de.is24.util.monitoring.jmx.JmxAppMon4JNamingStrategy;
 import de.is24.util.monitoring.keyhandler.DefaultKeyEscaper;
+import org.fest.assertions.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +23,7 @@ public class CorePluginTest {
 
   @Test
   public void doNotInitializeJMXStuffIfNoNamingProvided() throws Exception {
-    assertThat(JMXTestHelper.checkInApplicationMonitorJMXBeanRegistered()).isEqualTo(false);
+    Assertions.assertThat(JMXTestHelper.checkInApplicationMonitorJMXBeanRegistered()).isEqualTo(false);
   }
 
   @Test
@@ -33,7 +34,7 @@ public class CorePluginTest {
           return "lala";
         }
       }, null);
-    assertThat(JMXTestHelper.checkInApplicationMonitorJMXBeanRegistered("lala")).isEqualTo(true);
+    Assertions.assertThat(JMXTestHelper.checkInApplicationMonitorJMXBeanRegistered("lala")).isEqualTo(true);
     corePlugin.destroy();
   }
 
@@ -44,7 +45,7 @@ public class CorePluginTest {
     corePlugin.incrementCounter(counterKey, 1);
 
     Counter counter = corePlugin.getCounter(counterKey);
-    assertThat(counter.getCount()).isEqualTo(1L);
+    Assertions.assertThat(counter.getCount()).isEqualTo(1L);
   }
 
   @Test
@@ -54,7 +55,7 @@ public class CorePluginTest {
     corePlugin.incrementHighRateCounter(counterKey, 1);
 
     Counter counter = corePlugin.getCounter(counterKey);
-    assertThat(counter.getCount()).isEqualTo(1L);
+    Assertions.assertThat(counter.getCount()).isEqualTo(1L);
   }
 
 
@@ -65,7 +66,7 @@ public class CorePluginTest {
     corePlugin.initializeCounter(counterKey);
 
     Counter counter = corePlugin.getCounter(counterKey);
-    assertThat(counter.getCount()).isEqualTo(0L);
+    Assertions.assertThat(counter.getCount()).isEqualTo(0L);
   }
 
   @Test
@@ -75,8 +76,8 @@ public class CorePluginTest {
     corePlugin.addTimerMeasurement(timerKey, 10);
 
     Timer timer = corePlugin.getTimer(timerKey);
-    assertThat(timer.getCount()).isEqualTo(1L);
-    assertThat(timer.getTimerSum()).isEqualTo(10L);
+    Assertions.assertThat(timer.getCount()).isEqualTo(1L);
+    Assertions.assertThat(timer.getTimerSum()).isEqualTo(10L);
   }
 
   @Test
@@ -86,8 +87,8 @@ public class CorePluginTest {
     corePlugin.addHighRateTimerMeasurement(timerKey, 10);
 
     Timer timer = corePlugin.getTimer(timerKey);
-    assertThat(timer.getCount()).isEqualTo(1L);
-    assertThat(timer.getTimerSum()).isEqualTo(10L);
+    Assertions.assertThat(timer.getCount()).isEqualTo(1L);
+    Assertions.assertThat(timer.getTimerSum()).isEqualTo(10L);
   }
 
   @Test
@@ -97,8 +98,8 @@ public class CorePluginTest {
     corePlugin.addSingleEventTimerMeasurement(timerKey, 10);
 
     Timer timer = corePlugin.getTimer(timerKey);
-    assertThat(timer.getCount()).isEqualTo(1L);
-    assertThat(timer.getTimerSum()).isEqualTo(10L);
+    Assertions.assertThat(timer.getCount()).isEqualTo(1L);
+    Assertions.assertThat(timer.getTimerSum()).isEqualTo(10L);
   }
 
   @Test
@@ -108,8 +109,8 @@ public class CorePluginTest {
     corePlugin.initializeTimerMeasurement(timerKey);
 
     Timer timer = corePlugin.getTimer(timerKey);
-    assertThat(timer.getCount()).isEqualTo(0L);
-    assertThat(timer.getTimerSum()).isEqualTo(0L);
+    Assertions.assertThat(timer.getCount()).isEqualTo(0L);
+    Assertions.assertThat(timer.getTimerSum()).isEqualTo(0L);
   }
 
 
@@ -126,7 +127,7 @@ public class CorePluginTest {
         }
       }, keyEscaper);
 
-    assertThat(corePlugin).isNotEqualTo(defaultCorePlugin);
+    Assertions.assertThat(corePlugin).isNotEqualTo(defaultCorePlugin);
     corePlugin.destroy();
   }
 

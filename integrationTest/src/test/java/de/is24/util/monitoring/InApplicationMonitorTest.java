@@ -3,6 +3,7 @@ package de.is24.util.monitoring;
 import de.is24.util.monitoring.jmx.JmxAppMon4JNamingStrategy;
 import de.is24.util.monitoring.keyhandler.DefaultKeyEscaper;
 import de.is24.util.monitoring.tools.DoNothingReportVisitor;
+import org.fest.assertions.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import java.util.concurrent.Callable;
@@ -31,7 +32,7 @@ public class InApplicationMonitorTest {
     initializeWithJMXNaming();
 
     // then the new CorePlugin Instance is used
-    assertThat(InApplicationMonitor.getInstance()).isSameAs(defaultInstance);
+    Assertions.assertThat(InApplicationMonitor.getInstance()).isSameAs(defaultInstance);
   }
 
   @Test
@@ -51,7 +52,7 @@ public class InApplicationMonitorTest {
       corePlugin, keyEscaper);
 
     // then the new CorePlugin Instance is used
-    assertThat(explicitInitializedInApplicationMonitor.getCorePlugin()).isSameAs(corePlugin);
+    Assertions.assertThat(explicitInitializedInApplicationMonitor.getCorePlugin()).isSameAs(corePlugin);
   }
 
 
@@ -80,7 +81,7 @@ public class InApplicationMonitorTest {
     initializeWithJMXNaming();
 
     // then
-    assertThat(JMXTestHelper.getCounterValue("lala", INITIALIZED_COUNTER_1)).isEqualTo(0);
+    Assertions.assertThat(JMXTestHelper.getCounterValue("lala", INITIALIZED_COUNTER_1)).isEqualTo(0);
   }
 
 
@@ -93,7 +94,7 @@ public class InApplicationMonitorTest {
     initializeWithJMXNaming();
 
     // then
-    assertThat(JMXTestHelper.checkInApplicationMonitorJMXBeanRegistered("lala")).isEqualTo(true);
+    Assertions.assertThat(JMXTestHelper.checkInApplicationMonitorJMXBeanRegistered("lala")).isEqualTo(true);
   }
 
   @Test
@@ -143,7 +144,10 @@ public class InApplicationMonitorTest {
       Thread.sleep(15);
 
       // check that we see our local state value
-      assertThat(InApplicationMonitor.getInstance().getCorePlugin().getStateValue(threadTestGlobalValue).getValue())
+      Assertions.assertThat(InApplicationMonitor.getInstance()
+        .getCorePlugin()
+        .getStateValue(threadTestGlobalValue)
+        .getValue())
       .isEqualTo(110L);
 
       InApplicationMonitor.getInstance().resetThreadLocalState();
@@ -176,7 +180,10 @@ public class InApplicationMonitorTest {
 
       Thread.sleep(10);
 
-      assertThat(InApplicationMonitor.getInstance().getCorePlugin().getStateValue(threadTestGlobalValue).getValue())
+      Assertions.assertThat(InApplicationMonitor.getInstance()
+        .getCorePlugin()
+        .getStateValue(threadTestGlobalValue)
+        .getValue())
       .isEqualTo(110L);
     } finally {
       InApplicationMonitor.getInstance().resetThreadLocalState();
