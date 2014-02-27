@@ -8,7 +8,16 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 
-// TODO move this class, and maybe some other tools to a dedicated Testing module and provide a dedicated jar
+/**
+ * This is a helper class for testing appmon4j integration.
+ * For example it allows a clean initialization of the InApplicationMonitor instance in a setup @before method.
+ *
+ * This class partially exposes methods, usually not available, and thus should not be used in production code.
+ * Especially as this code may induce concurrence problems in a multi threading environment.
+ *
+ * @see de.is24.util.monitoring.TestHelper
+ * @see de.is24.util.monitoring.InApplicationMonitorRule
+ */
 public class TestingInApplicationMonitor extends InApplicationMonitor {
   private static final Logger LOGGER = LoggerFactory.getLogger(TestingInApplicationMonitor.class);
   private static final ThreadLocal<CorePlugin> threadLocalCorePlugin = new InheritableThreadLocal<CorePlugin>();
