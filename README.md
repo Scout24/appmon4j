@@ -121,7 +121,8 @@ History of scheduled jobs
 Requirements
 -----------
 
-*   Supported Java Version : 1.5 or higher
+*   Supported Java Version : 1.7 or higher
+**  1.45 is the last stable version supporting Java 1.5 / 1.6 
 *   apache log4j Loging library
 
 Getting started
