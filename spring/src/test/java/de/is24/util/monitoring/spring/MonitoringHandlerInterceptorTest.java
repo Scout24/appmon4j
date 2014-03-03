@@ -2,6 +2,7 @@ package de.is24.util.monitoring.spring;
 
 import de.is24.util.monitoring.*;
 import de.is24.util.monitoring.tools.DoNothingReportVisitor;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -169,7 +170,7 @@ public class MonitoringHandlerInterceptorTest {
     String timerFullName = PREFIX + handlerInstance.getClass().getName() + timerName;
     Timer timer = timerMap.get(timerFullName);
     assertNotNull(timer);
-    assertEquals(1, timer.getCount());
+    Assert.assertEquals(1, timer.getCount());
     assertThat(new Double(time), closeTo(time, 16 /* tick diff on windows machines*/));
   }
 

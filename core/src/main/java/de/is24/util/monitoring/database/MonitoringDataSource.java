@@ -1,6 +1,5 @@
 package de.is24.util.monitoring.database;
 
-import com.google.common.base.Predicate;
 import de.is24.util.monitoring.InApplicationMonitor;
 import de.is24.util.monitoring.StateValueProvider;
 import org.apache.commons.lang.StringUtils;
@@ -36,8 +35,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
-import static org.springframework.util.ReflectionUtils.findMethod;
-import static org.springframework.util.ReflectionUtils.invokeMethod;
 
 
 /**
@@ -321,8 +318,7 @@ public class MonitoringDataSource implements DataSource {
   }
 
   public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException {
-    return delegateViaReflectionDuringMigrationFromJava6ToJava7("getParentLogger", original,
-      java.util.logging.Logger.class);
+    return this.original.getParentLogger();
   }
 
   public void setLogWriter(PrintWriter out) throws SQLException {
@@ -341,14 +337,6 @@ public class MonitoringDataSource implements DataSource {
     return original.unwrap(iface);
   }
 
-  private <T> T delegateViaReflectionDuringMigrationFromJava6ToJava7(String methodName, Object target,
-                                                                     Class<T> expectedReturnType, Object... args) {
-    Method method = findMethod(target.getClass(), methodName);
-    if (null != method) {
-      return expectedReturnType.cast(invokeMethod(method, target, args));
-    }
-    return null;
-  }
 
   /**
    * <p>The <code>MonitoringConnection</code> is integral part of the {@link MonitoringDataSource}.</p>
@@ -633,24 +621,23 @@ public class MonitoringDataSource implements DataSource {
     }
 
     public void setSchema(String schema) throws SQLException {
-      delegateViaReflectionDuringMigrationFromJava6ToJava7("setSchema", original, Void.class, schema);
+      this.original.setSchema(schema);
     }
 
     public String getSchema() throws SQLException {
-      return delegateViaReflectionDuringMigrationFromJava6ToJava7("getSchema", original, String.class);
+      return this.original.getSchema();
     }
 
     public void abort(Executor executor) throws SQLException {
-      delegateViaReflectionDuringMigrationFromJava6ToJava7("abort", original, Void.class, executor);
+      this.original.abort(executor);
     }
 
     public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
-      delegateViaReflectionDuringMigrationFromJava6ToJava7("setNetworkTimeout", original, Void.class, executor,
-        milliseconds);
+      this.original.setNetworkTimeout(executor, milliseconds);
     }
 
     public int getNetworkTimeout() throws SQLException {
-      return delegateViaReflectionDuringMigrationFromJava6ToJava7("getNetworkTimeout", original, Integer.class);
+      return this.original.getNetworkTimeout();
     }
 
     public Properties getClientInfo() throws SQLException {
@@ -776,6 +763,13 @@ public class MonitoringDataSource implements DataSource {
       return (input.getMessage() != null) && input.getMessage().matches(this.messagePattern);
     }
 
+  }
+
+  protected interface Predicate<T> {
+    boolean apply(T input);
+
+    @Override
+    boolean equals(Object object);
   }
 
 }

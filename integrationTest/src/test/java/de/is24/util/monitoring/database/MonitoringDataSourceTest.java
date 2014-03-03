@@ -1,6 +1,5 @@
 package de.is24.util.monitoring.database;
 
-import com.google.common.base.Predicate;
 import de.is24.util.monitoring.Counter;
 import de.is24.util.monitoring.InApplicationMonitor;
 import de.is24.util.monitoring.InApplicationMonitorRule;
@@ -215,7 +214,7 @@ public final class MonitoringDataSourceTest extends EasyMockSupport {
         "Somebody set up us the bomb!", "SomeState", 42));
 
     MonitoringDataSource objectUnderTest = new MonitoringDataSource(datasourceMock);
-    objectUnderTest.addExceptionLogFilter(new Predicate<SQLException>() {
+    objectUnderTest.addExceptionLogFilter(new MonitoringDataSource.Predicate<SQLException>() {
         @Override
         public boolean apply(SQLException input) {
           return input.getErrorCode() == 42;

@@ -5,6 +5,7 @@ import de.is24.util.monitoring.InApplicationMonitor;
 import de.is24.util.monitoring.MonitorPlugin;
 import de.is24.util.monitoring.TestingInApplicationMonitor;
 import de.is24.util.monitoring.state2graphite.StateValuesToGraphite;
+import org.fest.assertions.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -41,10 +42,12 @@ public class SpringXmlFragmentIT {
       "classpath:propertyPlaceholder.spring.xml", "classpath:appmon4jWeb.spring.xml",
       "classpath:appmon4jState2Graphite.spring.xml");
     CorePlugin corePlugin = InApplicationMonitor.getInstance().getCorePlugin();
-    assertThat(corePlugin.getMultiValueProvider("JMXExporter")).isNotNull();
+    Assertions.assertThat(corePlugin.getMultiValueProvider("JMXExporter")).isNotNull();
 
-    assertThat(((StateValuesToGraphite) classPathXmlApplicationContext.getBean("appmon4j.stateValuesToGraphite"))
-      .multiValueProviderCount()).isEqualTo(2);
+    Assertions.assertThat(
+      ((StateValuesToGraphite) classPathXmlApplicationContext.getBean("appmon4j.stateValuesToGraphite"))
+      .multiValueProviderCount())
+    .isEqualTo(2);
   }
 
   @Test
