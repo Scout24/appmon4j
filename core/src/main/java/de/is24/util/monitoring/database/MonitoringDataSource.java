@@ -4,8 +4,8 @@ import de.is24.util.monitoring.InApplicationMonitor;
 import de.is24.util.monitoring.StateValueProvider;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationHandler;
@@ -69,7 +69,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @see #getConnection(String, String)
  */
 public class MonitoringDataSource implements DataSource {
-  private static final Logger LOGGER = Logger.getLogger(MonitoringDataSource.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MonitoringDataSource.class);
 
   /** The wrapped <code>DataSource</code>. */
   private final DataSource original;
@@ -720,25 +720,26 @@ public class MonitoringDataSource implements DataSource {
     }
 
     private void logExecutedSqlAtTheAppropriateLevel(InvocationTargetException iTE, String sql) {
-      Level logLevel = determineLogLevel(iTE);
-      if (MonitoringDataSource.LOGGER.isEnabledFor(logLevel)) {
-        MonitoringDataSource.LOGGER.log(logLevel, "Failed to execute [" + sql + "]: " + iTE.getTargetException());
+      if (shouldLogAsWarn(iTE)) {
+        LOGGER.warn("Failed to execute [{}]: {}", sql, iTE.getTargetException());
+      } else {
+        LOGGER.info("Failed to execute [[{}]: {}", sql, iTE.getTargetException());
       }
     }
 
-    private Level determineLogLevel(InvocationTargetException iTE) {
-      Level logLevel = Level.WARN;
+    private boolean shouldLogAsWarn(InvocationTargetException iTE) {
+      boolean logAsWarn = true;
       int index = ExceptionUtils.indexOfType(iTE, SQLException.class);
       if (index >= 0) {
         SQLException sqlException = (SQLException) ExceptionUtils.getThrowables(iTE)[index];
         for (Predicate<SQLException> predicate : this.loggingFilters) {
           if (predicate.apply(sqlException)) {
-            logLevel = Level.INFO;
+            logAsWarn = false;
             break;
           }
         }
       }
-      return logLevel;
+      return logAsWarn;
     }
 
   }

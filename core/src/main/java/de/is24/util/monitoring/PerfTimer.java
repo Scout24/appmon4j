@@ -1,8 +1,7 @@
 package de.is24.util.monitoring;
 
 import de.is24.util.monitoring.measurement.MeasurementHandler;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -41,7 +40,7 @@ public abstract class PerfTimer {
    * @return a timer that only performs valid measurements on debug level and below.
    */
   public static PerfTimer createDebugTimer(Class<?> type) {
-    return create(type, Level.DEBUG);
+    return create(LoggerFactory.getLogger(type).isDebugEnabled());
   }
 
   /**
@@ -49,26 +48,7 @@ public abstract class PerfTimer {
    * @return a timer that only performs valid measurements on info level and below.
    */
   public static PerfTimer createInfoTimer(Class<?> type) {
-    return create(type, Level.INFO);
-  }
-
-  /**
-   * @param type the logger category used for custom level debugging. A null argument performs equally to createTimer().
-   * @param level the level at which to log
-   * @return a timer that only performs valid measurements on the specified level and below.
-   */
-  public static PerfTimer create(Class<?> type, Level level) {
-    final boolean active = isActive(type, level);
-    return create(active);
-  }
-
-  /**
-   * @param type the logger category used for custom level debugging. A null argument performs equally to createTimer().
-   * @param level the level at which to log
-   * @return determines whether to measure or not to measure.
-   */
-  private static boolean isActive(Class<?> type, Level level) {
-    return (type == null) || (level == null) || Logger.getLogger(type).isEnabledFor(level);
+    return create(LoggerFactory.getLogger(type).isInfoEnabled());
   }
 
   /**

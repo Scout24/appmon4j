@@ -9,14 +9,14 @@ import de.is24.util.monitoring.State;
 import de.is24.util.monitoring.StateValueProvider;
 import de.is24.util.monitoring.Timer;
 import de.is24.util.monitoring.Version;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.Writer;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 
 
 /**
@@ -24,7 +24,7 @@ import java.util.Collection;
  */
 public abstract class UnsortedWriterReportVisitor implements ReportVisitor {
   private static final Logger LOGGER = LoggerFactory.getLogger(UnsortedWriterReportVisitor.class);
-  private static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss");
+  private DateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
   protected Writer writer;
 
@@ -101,16 +101,16 @@ public abstract class UnsortedWriterReportVisitor implements ReportVisitor {
     StringBuffer result = new StringBuffer();
     result.append(aHistorizableList.getName()).append(" historizable :\n");
     for (Historizable historizable : aHistorizableList) {
-      String timestamp = getFormattedDate(historizable);
+      String timestamp = getFormattedDate(historizable.getTimestamp());
       result.append(timestamp).append(" ");
       result.append(historizable.getValue()).append("\n");
     }
     writeStringToWriter(result.toString());
   }
 
-  private String getFormattedDate(final Historizable historizable) {
-    long milliSecondsSince1970 = historizable.getTimestamp().getTime();
-    DateTime dateTime = new DateTime().withMillis(milliSecondsSince1970);
-    return dateTime.toString(DATE_FORMAT);
+  String getFormattedDate(final Date date) {
+    long milliSecondsSince1970 = date.getTime();
+    return format.format(date);
+
   }
 }
