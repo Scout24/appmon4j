@@ -12,13 +12,24 @@ Installation
 
 You can build appmon4j from source. Clone this project and build it with maven.
 
-A packaged release with source and javadoc is available from maven central repository. Just add the following maven dependency.
+A packaged release with source and javadoc is available from maven central repository. 
+
+Since version 1.48 appmon4j is modularized into several packages.
+
+*  appmon4j-core : the core functionality of appmon4j with a minimal dependency set
+*  appmon4j-spring : a set of extensions you may find helpfull, if you are using springframework
+*  appmon4j-agent : a java agent intended for use with java applications that can not od should not be modified, because for example the code is not available.
+*  appmon4j-testutil : a set of tools helpfull for testing appmon4j specific behaviour of applications instrumented with appmon4j. 
+*  appmon4j-integrationTest : the appmon4j integration test which need to be a separate maven module as it is using core and testutil classes. You should not need this module as dependency, but may find it helpful to see example usages of testutil.
+
+Just add the following maven dependency.
 
      <dependency>
        <groupId>de.is24.common</groupId>
-       <artifactId>appmon4j</artifactId>
-       <version>1.45</version>
+       <artifactId>appmon4j-core</artifactId>
+       <version>1.48</version>
      </dependency>`
+
 
  
 Basic Concepts
