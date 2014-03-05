@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.is24.common</groupId>
   <artifactId>appmon4j-agent</artifactId>
-  <version>1.48</version>
+  <version>1.49-SNAPSHOT</version>
   <name>appmon4j-agent</name>
   <description>A Java agent to allow simple instrumentation with application monitoring framework</description>
   <url>https://github.com/ImmobilienScout24/appmon4j</url>
@@ -11,7 +11,7 @@
   <parent>
     <groupId>de.is24.common</groupId>
     <artifactId>appmon4j</artifactId>
-    <version>1.48</version>
+    <version>1.49-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -165,7 +165,7 @@
     <dependency>
       <groupId>de.is24.common</groupId>
       <artifactId>appmon4j-core</artifactId>
-      <version>1.48</version>
+      <version>1.49-SNAPSHOT</version>
     </dependency>      
     <dependency>
       <groupId>org.slf4j</groupId>
