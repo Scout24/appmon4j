@@ -179,7 +179,7 @@
     </plugins>
     </pluginManagement>
     
-    <!-- plugins active for all modules -->
+    <!-- Plugins active for all modules -->
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
