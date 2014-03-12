@@ -2,7 +2,6 @@ package de.is24.util.monitoring;
 
 import de.is24.util.monitoring.jmx.JmxAppMon4JNamingStrategy;
 import de.is24.util.monitoring.keyhandler.DefaultKeyEscaper;
-import de.is24.util.monitoring.tools.DoNothingReportVisitor;
 import org.fest.assertions.Assertions;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,10 +64,10 @@ public class InApplicationMonitorTest {
     CorePlugin corePlugin = initializeWithJMXNaming();
 
     // then
-    CheckForCounterExistenceReportVisitor reportVisitor = new CheckForCounterExistenceReportVisitor(
+    CheckCounterVisitor reportVisitor = new CheckCounterVisitor(
       INITIALIZED_COUNTER_1);
     corePlugin.reportInto(reportVisitor);
-    assertThat(reportVisitor.found).isTrue();
+    assertThat(reportVisitor.isFound()).isTrue();
 
   }
 
@@ -192,20 +191,4 @@ public class InApplicationMonitorTest {
   }
 
 
-  private static class CheckForCounterExistenceReportVisitor extends DoNothingReportVisitor {
-    private final String counterName;
-    private boolean found = false;
-
-    CheckForCounterExistenceReportVisitor(String counterName) {
-      this.counterName = counterName;
-    }
-
-    @Override
-    public void reportCounter(Counter counter) {
-      if (counter.getName().equals(counterName)) {
-        found = true;
-      }
-    }
-
-  }
 }
