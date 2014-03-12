@@ -2,10 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.is24.common</groupId>
-  <artifactId>appmon4j-agent</artifactId>
+  <artifactId>appmon4j-hystrix</artifactId>
+  <packaging>jar</packaging>
   <version>1.49-SNAPSHOT</version>
-  <name>appmon4j-agent</name>
-  <description>A Java agent to allow simple instrumentation with application monitoring framework</description>
+  <name>appmon4j-hystrix</name>
+  <description>Hystrix adapter for appmon4j</description>
   <url>https://github.com/ImmobilienScout24/appmon4j</url>
 
   <parent>
@@ -22,6 +23,7 @@
   
   <build>
     <plugins>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -32,40 +34,11 @@
               <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
               <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
             </manifest>
-            <manifestEntries>
-              <Can-Redefine-Classes>false</Can-Redefine-Classes>
-              <Premain-Class>de.is24.util.monitoring.agent.Appmon4JAgent</Premain-Class>
-            </manifestEntries>
           </archive>
         </configuration>
       </plugin>
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.4</version>
-        <configuration>
-          <descriptor>src/main/assembly/assembly.xml</descriptor>
-          <archive>
-            <manifest>
-              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-              <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-            </manifest>
-            <manifestEntries>
-              <Can-Redefine-Classes>false</Can-Redefine-Classes>
-              <Premain-Class>de.is24.util.monitoring.agent.Appmon4JAgent</Premain-Class>
-            </manifestEntries>
-          </archive>
-        </configuration>
-        <executions>
-          <execution>
-            <id>make-assembly</id> 
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      
+
+
     </plugins>
     <extensions>
       <extension>
@@ -77,16 +50,46 @@
   </build>
 
   <dependencies>
-    <dependency>
-      <groupId>de.is24.common</groupId>
-      <artifactId>appmon4j-core</artifactId>
-      <version>1.49-SNAPSHOT</version>
-    </dependency>      
+          
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
-    
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>aopalliance</groupId>
+      <artifactId>aopalliance</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.netflix.hystrix</groupId>
+      <artifactId>hystrix-core</artifactId>
+      <version>1.3.7</version>
+    </dependency>
+
+    <dependency>
+      <groupId>de.is24.common</groupId>
+      <artifactId>appmon4j-core</artifactId>
+      <version>1.49-SNAPSHOT</version>
+    </dependency>
+
+
+    <dependency>
+      <groupId>de.is24.common</groupId>
+      <artifactId>appmon4j-testutil</artifactId>
+      <version>1.49-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -121,6 +124,7 @@
       <artifactId>hamcrest-library</artifactId>
       <scope>test</scope>
     </dependency>
+
 
   </dependencies>
 
