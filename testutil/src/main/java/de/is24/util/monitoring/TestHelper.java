@@ -5,6 +5,10 @@ import de.is24.util.monitoring.keyhandler.DefaultKeyEscaper;
 
 
 public class TestHelper {
+  /**
+   * initialize a TestingInApplicationMonitor with JMX Plugin
+   * @return the TestingInApplicationMonitor instance
+   */
   public static InApplicationMonitor setInstanceForTesting() {
     resetInstanceForTesting();
 
@@ -18,6 +22,11 @@ public class TestHelper {
     return TestingInApplicationMonitor.initInstanceForTesting(corePlugin, keyEscaper);
   }
 
+  /**
+   * initialize a fresh TestingInApplicationMonitor without JMX Plugin as global InApplicationMonitor instance.
+   * This method is not safe to use during multithreaded tests
+   * @return the TestingInApplicationMonitor instance
+   */
   public static void resetInstanceForTesting() {
     TestingInApplicationMonitor.resetInstanceForTesting();
   }
