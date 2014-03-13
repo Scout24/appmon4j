@@ -31,7 +31,8 @@ public class CorePlugin extends AbstractMonitorPlugin {
   private volatile int maxHistoryEntriesToKeep = 5;
   private final CopyOnWriteArrayList<ReportableObserver> reportableObservers =
     new CopyOnWriteArrayList<ReportableObserver>();
-  private final Monitors<Counter> countersTimers = new Monitors<Counter>(reportableObservers);
+  private final Monitors<Counter> counters = new Monitors<Counter>(reportableObservers);
+  private final Monitors<Timer> timers = new Monitors<Timer>(reportableObservers);
   private final Monitors<StateValueProvider> stateValues = new Monitors<StateValueProvider>(reportableObservers);
   private final Monitors<MultiValueProvider> multiValues = new Monitors<MultiValueProvider>(reportableObservers);
   private final Monitors<Version> versions = new Monitors<Version>(reportableObservers);
@@ -210,7 +211,8 @@ public class CorePlugin extends AbstractMonitorPlugin {
    * by all regieteres {@link de.is24.util.monitoring.Reportable} instances.
    */
   public void reportInto(ReportVisitor reportVisitor) {
-    countersTimers.accept(reportVisitor);
+    counters.accept(reportVisitor);
+    timers.accept(reportVisitor);
     stateValues.accept(reportVisitor);
     multiValues.accept(reportVisitor);
     versions.accept(reportVisitor);
@@ -386,7 +388,7 @@ public class CorePlugin extends AbstractMonitorPlugin {
   * @return {@link de.is24.util.monitoring.Counter} instance registered for the given name
   */
   Counter getCounter(final String name) {
-    return countersTimers.get("counter." + name, new Monitors.Factory<Counter>() {
+    return counters.get(name, new Monitors.Factory<Counter>() {
         @Override
         public Counter createMonitor() {
           return new Counter(name);
@@ -400,9 +402,9 @@ public class CorePlugin extends AbstractMonitorPlugin {
    * @return {@link de.is24.util.monitoring.Timer} instance registered for the given name
    */
   Timer getTimer(final String name) {
-    return (Timer) countersTimers.get("timer." + name, new Monitors.Factory<Counter>() {
+    return (Timer) timers.get(name, new Monitors.Factory<Timer>() {
         @Override
-        public Counter createMonitor() {
+        public Timer createMonitor() {
           return new Timer(name);
         }
       });
@@ -478,8 +480,10 @@ public class CorePlugin extends AbstractMonitorPlugin {
     public void addNewReportable(Reportable reportable) {
       String name = keyHandler.handle(reportable.getName());
       LOGGER.info("syncing reportable {}", reportable.getName());
-      if ((reportable instanceof Counter) || (reportable instanceof Timer)) {
-        countersTimers.putIfAbsent(name, (Counter) reportable);
+      if ((reportable instanceof Counter)) {
+        counters.putIfAbsent(name, (Counter) reportable);
+      } else if ((reportable instanceof Timer)) {
+        timers.putIfAbsent(name, (Timer) reportable);
       } else if (reportable instanceof Version) {
         versions.putIfAbsent(name, (Version) reportable);
       } else if (reportable instanceof HistorizableList) {

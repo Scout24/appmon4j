@@ -6,7 +6,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 
 /**
- * Currently a subclass of counter although this makes no sense and should be refactored<br>
  * Timers count and measure timed events. <br>
  * Timers allow adding timer measurements, implicitly incrementing the count<br>
  * <pre> Examples
@@ -21,8 +20,10 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @author OSchmitz
  */
-public class Timer extends Counter {
+public class Timer implements Reportable {
   private static final Logger LOGGER = LoggerFactory.getLogger(Timer.class);
+  private final String name;
+  private final AtomicLong count = new AtomicLong();
   private final AtomicLong timerSum = new AtomicLong();
   private final AtomicLong timerSumOfSquares = new AtomicLong();
 
@@ -31,7 +32,7 @@ public class Timer extends Counter {
    * @param name name of this Timer
    */
   Timer(String name) {
-    super(name);
+    this.name = name;
   }
 
 
@@ -52,7 +53,7 @@ public class Timer extends Counter {
    * @param durationInMillis
    */
   public void addMeasurement(long durationInMillis) {
-    increment();
+    count.addAndGet(1);
     timerSum.addAndGet(durationInMillis);
     timerSumOfSquares.addAndGet(durationInMillis * durationInMillis);
   }
@@ -61,14 +62,23 @@ public class Timer extends Counter {
    * initialize with 0
    */
   public void initializeMeasurement() {
-    initialize();
+    count.set(0);
     this.timerSum.set(0);
     this.timerSumOfSquares.set(0);
   }
 
+  @Override
+  public String getName() {
+    return name;
+  }
+
+  public long getCount() {
+    return count.get();
+  }
+
   /**
-   * @return the sum of all timer measurements.
-   */
+  * @return the sum of all timer measurements.
+  */
   public long getTimerSum() {
     return timerSum.get();
   }
@@ -80,7 +90,7 @@ public class Timer extends Counter {
    * @return the average of all timer measurements.
    */
   public double getTimerAvg() {
-    return Math.average(getCount(), timerSum.get());
+    return Math.average(count.get(), timerSum.get());
   }
 
   /**
@@ -90,7 +100,7 @@ public class Timer extends Counter {
    * @return the standard deviation of all timer measurements.
    */
   public double getTimerStdDev() {
-    return Math.stdDeviation(getCount(), timerSum.get(), timerSumOfSquares.get());
+    return Math.stdDeviation(count.get(), timerSum.get(), timerSumOfSquares.get());
 
   }
 }

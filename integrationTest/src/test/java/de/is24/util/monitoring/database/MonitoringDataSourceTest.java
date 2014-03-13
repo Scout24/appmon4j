@@ -6,6 +6,7 @@ import de.is24.util.monitoring.InApplicationMonitorRule;
 import de.is24.util.monitoring.Reportable;
 import de.is24.util.monitoring.ReportableObserver;
 import de.is24.util.monitoring.StateValueProvider;
+import de.is24.util.monitoring.Timer;
 import de.is24.util.monitoring.database.MonitoringDataSource.SqlExceptionPredicate;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Level;
@@ -81,6 +82,8 @@ public final class MonitoringDataSourceTest extends EasyMockSupport {
       Assert.assertNotNull("There is no counter for [" + monitorName + "]!", reportable);
       if (reportable instanceof Counter) {
         actualCount = ((Counter) reportable).getCount();
+      } else if (reportable instanceof Timer) {
+        actualCount = ((Timer) reportable).getCount();
       } else if (reportable instanceof StateValueProvider) {
         actualCount = ((StateValueProvider) reportable).getValue();
       } else {
