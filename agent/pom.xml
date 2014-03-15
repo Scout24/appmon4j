@@ -15,7 +15,6 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  
   <prerequisites>
     <maven>2.2.1</maven>
   </prerequisites>
@@ -151,6 +150,96 @@
             </executions>
           </plugin>
         </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>build-rpm</id>
+      <properties>
+        <rpm.version>0</rpm.version>
+        <rpm.release>0</rpm.release>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>1.7</version>
+            <executions>
+              <execution>
+                <id>set-rpm-version</id>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <phase>package</phase>
+                <configuration>
+                  <exportAntProperties>true</exportAntProperties>
+                  <target>
+                    <tstamp/>
+                    <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.plugin.classpath" />
+                    <if>
+                      <matches string="${project.version}" pattern="^\d+(\.\d+)*$" />
+                      <then>
+                        <echo message="INFO: Building a release. Therefore setting rpm.final.version to ${project.version} !" />
+                        <property name="rpm.final.version" value="${project.version}" />
+                        <property name="rpm.final.release" value="1" />
+                      </then>
+                      <else>
+                        <echo message="INFO: Building a snapshot version. Therefore setting rpm.final.version to ${rpm.version} !" />
+                        <propertyregex property="rpm.final.version"
+                                       input="${project.version}"
+                                       regexp="(\d+\.\d+)-SNAPSHOT"
+                                       select="\1" />
+                        <property name="rpm.final.release" value="0.${DSTAMP}.${TSTAMP}" />
+                      </else>
+                    </if>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+            <dependencies>
+              <dependency>
+                <groupId>ant-contrib</groupId>
+                <artifactId>ant-contrib</artifactId>
+                <version>1.0b3</version>
+                <exclusions>
+                  <exclusion>
+                    <groupId>ant</groupId>
+                    <artifactId>ant</artifactId>
+                  </exclusion>
+                </exclusions>
+              </dependency>
+            </dependencies>
+          </plugin>
+
+          <plugin>
+            <groupId>de.is24.common</groupId>
+            <artifactId>rpm-deploy-webapp-plugin</artifactId>
+            <version>1.46</version>
+            <executions>
+              <execution>
+                <id>create-rpm</id>
+                <goals>
+                  <goal>raw-rpm</goal>
+                </goals>
+                <phase>package</phase>
+              </execution>
+            </executions>
+            <configuration>
+              <name>is24-${project.artifactId}</name>
+              <overrideNameVersionRelease>true</overrideNameVersionRelease>
+              <version>${rpm.final.version}</version>
+              <release>${rpm.final.release}</release>
+              <additionalDependencies></additionalDependencies>
+              <mappings>
+                <mapping>
+                  <target>/usr/lib/appmon4j</target>
+                  <source>${project.build.directory}/${project.artifactId}-${project.version}-jar-with-dependencies.jar</source>
+                </mapping>
+              </mappings>
+            </configuration>
+          </plugin>
+        </plugins>
+        
       </build>
     </profile>
   </profiles>
