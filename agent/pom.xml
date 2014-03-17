@@ -195,6 +195,23 @@
                   </target>
                 </configuration>
               </execution>
+              <execution>
+                <id>upload-rpm</id>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <phase>deploy</phase>
+                <configuration>
+                  <target name="upload">
+                    <exec executable="repoclient">
+                      <arg value="uploadto"/>
+                      <arg value="is24-dev"/>
+                      <arg value="${project.build.directory}/is24-${project.artifactId}-*.rpm"/>
+                      <arg value="--username=oschmitz"/>
+                    </exec>
+                  </target>             
+                </configuration>
+              </execution>
             </executions>
             <dependencies>
               <dependency>
@@ -229,10 +246,10 @@
               <overrideNameVersionRelease>true</overrideNameVersionRelease>
               <version>${rpm.final.version}</version>
               <release>${rpm.final.release}</release>
-              <additionalDependencies></additionalDependencies>
+              <additionalDependencies>java</additionalDependencies>
               <mappings>
                 <mapping>
-                  <target>/usr/lib/appmon4j</target>
+                  <target>/usr/lib/appmon4j/${project.artifactId}-jar-with-dependencies.jar</target>
                   <source>${project.build.directory}/${project.artifactId}-${project.version}-jar-with-dependencies.jar</source>
                 </mapping>
               </mappings>
