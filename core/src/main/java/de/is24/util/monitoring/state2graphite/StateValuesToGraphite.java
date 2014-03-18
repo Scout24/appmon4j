@@ -33,12 +33,22 @@ public class StateValuesToGraphite implements ReportableObserver {
                         GraphiteConnection graphiteClient) {
     this.graphiteClient = graphiteClient;
 
-    String keyPrefix = appName + "." + localHostNameResolver.getLocalHostName() + ".states";
+    String keyPrefix = preparePrefix(appName, localHostNameResolver);
     stateValues = new ConcurrentHashMap<String, StateValueProvider>();
     multiValueProviders = new ConcurrentHashMap<String, MultiValueProvider>();
     InApplicationMonitor.getInstance().getCorePlugin().addReportableObserver(this);
     ex = Executors.newSingleThreadScheduledExecutor();
     ex.scheduleAtFixedRate(new ReportStateValuesJob(graphiteClient, keyPrefix), 1, 10, TimeUnit.SECONDS);
+  }
+
+  private String preparePrefix(String appName, LocalHostNameResolver localHostNameResolver) {
+    String result;
+    if (appName.contains("${hostname}")) {
+      result = appName.replaceAll("\\$\\{hostname\\}", localHostNameResolver.getLocalHostName());
+    } else {
+      result = appName + "." + localHostNameResolver.getLocalHostName() + ".states";
+    }
+    return result;
   }
 
 

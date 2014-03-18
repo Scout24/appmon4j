@@ -28,15 +28,12 @@ public class StateValuesToGraphiteIT {
   public final InApplicationMonitorRule inApplicationMonitorRule = new InApplicationMonitorRule();
   private GraphiteConnection graphiteConnection;
   private StateValuesToGraphite target;
+  private static final String SIMPLE_APP_NAME = "testAppName";
 
 
   @Before
   public void setUp() throws Exception {
-    LocalHostNameResolver localHostNameResolver = mock(LocalHostNameResolver.class);
-    when(localHostNameResolver.getLocalHostName()).thenReturn("testHost");
-
     graphiteConnection = mock(GraphiteConnection.class);
-    target = new StateValuesToGraphite("testAppName", localHostNameResolver, graphiteConnection);
     InApplicationMonitor.getInstance().registerStateValue(new SimpleStateValueProvider("StateTest", 4711));
   }
 
@@ -47,13 +44,27 @@ public class StateValuesToGraphiteIT {
 
   @Test
   public void useAppNameHostNameAndStateAsPrefix() throws Exception {
+    givenPluginWithPrefix(SIMPLE_APP_NAME);
+
     // wait for 2 seconds
     Thread.sleep(2000);
     verify(graphiteConnection, times(1)).send(startsWith("testAppName.testHost.states."));
   }
 
   @Test
+  public void allowHostnamePatternInPrefix() throws Exception {
+    givenPluginWithPrefix("typ.${hostname}.app");
+
+    // wait for 2 seconds
+    Thread.sleep(2000);
+    verify(graphiteConnection, times(1)).send(contains("typ.testHost.app.StateTest "));
+  }
+
+
+  @Test
   public void useGraphiteFormatting() throws Exception {
+    givenPluginWithPrefix(SIMPLE_APP_NAME);
+
     // wait for 2 seconds
     Thread.sleep(2000);
     verify(graphiteConnection, times(1)).send(contains("testAppName.testHost.states.StateTest 4711 "));
@@ -61,6 +72,7 @@ public class StateValuesToGraphiteIT {
 
   @Test
   public void exceptionFromStateValueProviderShouldNotKillJob() throws Exception {
+    givenPluginWithPrefix(SIMPLE_APP_NAME);
     InApplicationMonitor.getInstance().registerStateValue(new StateValueProvider() {
         @Override
         public long getValue() {
@@ -81,6 +93,8 @@ public class StateValuesToGraphiteIT {
 
   @Test
   public void handleMultiValueProviders() throws Exception {
+    givenPluginWithPrefix(SIMPLE_APP_NAME);
+
     final List<State> states = new ArrayList<State>();
     final String multiValueName = "lala";
     states.add(new State(multiValueName, "test1", 123432));
@@ -109,5 +123,12 @@ public class StateValuesToGraphiteIT {
     verify(graphiteConnection, times(1)).send(contains(
         "testAppName.testHost.states.testMultiValue.lala.test1 123432 "));
     verify(graphiteConnection, times(1)).send(contains("testAppName.testHost.states.testMultiValue.lala.test2 98765 "));
+  }
+
+  void givenPluginWithPrefix(String appName) {
+    LocalHostNameResolver localHostNameResolver = mock(LocalHostNameResolver.class);
+    when(localHostNameResolver.getLocalHostName()).thenReturn("testHost");
+
+    target = new StateValuesToGraphite(appName, localHostNameResolver, graphiteConnection);
   }
 }
