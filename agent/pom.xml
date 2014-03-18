@@ -154,6 +154,12 @@
     </profile>
     <profile>
       <id>build-rpm</id>
+      <activation>
+        <property>
+          <name>performRelease</name>
+          <value>true</value>
+        </property>
+      </activation>
       <properties>
         <rpm.version>0</rpm.version>
         <rpm.release>0</rpm.release>
