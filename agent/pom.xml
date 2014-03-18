@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.is24.common</groupId>
   <artifactId>appmon4j-agent</artifactId>
-  <version>1.51-SNAPSHOT</version>
+  <version>1.51</version>
   <name>appmon4j-agent</name>
   <description>A Java agent to allow simple instrumentation with application monitoring framework</description>
   <url>https://github.com/ImmobilienScout24/appmon4j</url>
@@ -11,7 +11,7 @@
   <parent>
     <groupId>de.is24.common</groupId>
     <artifactId>appmon4j</artifactId>
-    <version>1.51-SNAPSHOT</version>
+    <version>1.51</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -79,7 +79,7 @@
     <dependency>
       <groupId>de.is24.common</groupId>
       <artifactId>appmon4j-core</artifactId>
-      <version>1.51-SNAPSHOT</version>
+      <version>1.51</version>
     </dependency>      
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -180,7 +180,7 @@
                 <configuration>
                   <exportAntProperties>true</exportAntProperties>
                   <target>
-                    <tstamp/>
+                    <tstamp />
                     <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.plugin.classpath" />
                     <if>
                       <matches string="${project.version}" pattern="^\d+(\.\d+)*$" />
@@ -191,10 +191,7 @@
                       </then>
                       <else>
                         <echo message="INFO: Building a snapshot version. Therefore setting rpm.final.version to ${rpm.version} !" />
-                        <propertyregex property="rpm.final.version"
-                                       input="${project.version}"
-                                       regexp="(\d+\.\d+)-SNAPSHOT"
-                                       select="\1" />
+                        <propertyregex property="rpm.final.version" input="${project.version}" regexp="(\d+\.\d+)-SNAPSHOT" select="\1" />
                         <property name="rpm.final.release" value="0.${DSTAMP}.${TSTAMP}" />
                       </else>
                     </if>
@@ -210,10 +207,10 @@
                 <configuration>
                   <target name="upload">
                     <exec executable="repoclient">
-                      <arg value="uploadto"/>
-                      <arg value="is24-dev"/>
-                      <arg value="${project.build.directory}/is24-${project.artifactId}-*.rpm"/>
-                      <arg value="--username=oschmitz"/>
+                      <arg value="uploadto" />
+                      <arg value="is24-dev" />
+                      <arg value="${project.build.directory}/is24-${project.artifactId}-*.rpm" />
+                      <arg value="--username=oschmitz" />
                     </exec>
                   </target>             
                 </configuration>
