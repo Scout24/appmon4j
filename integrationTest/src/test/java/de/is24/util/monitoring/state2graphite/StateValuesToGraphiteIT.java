@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import static org.mockito.Matchers.contains;
-import static org.mockito.Matchers.startsWith;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -42,22 +41,17 @@ public class StateValuesToGraphiteIT {
     target.shutdown();
   }
 
+
   @Test
-  public void useAppNameHostNameAndStateAsPrefix() throws Exception {
-    givenPluginWithPrefix(SIMPLE_APP_NAME);
+  public void useKeyDefinitionExpanderToDefinePrefix() throws Exception {
+    System.setProperty("proc_datanode", "");
+    System.setProperty("appname", "schnulli");
+
+    givenPluginWithPrefix("typ.${hostname}.${systemPropertyName:proc_(.*)}.${systemProperty:appname}.app");
 
     // wait for 2 seconds
     Thread.sleep(2000);
-    verify(graphiteConnection, times(1)).send(startsWith("testAppName.testHost.states."));
-  }
-
-  @Test
-  public void allowHostnamePatternInPrefix() throws Exception {
-    givenPluginWithPrefix("typ.${hostname}.app");
-
-    // wait for 2 seconds
-    Thread.sleep(2000);
-    verify(graphiteConnection, times(1)).send(contains("typ.testHost.app.StateTest "));
+    verify(graphiteConnection, times(1)).send(contains("typ.testHost.datanode.schnulli.app.StateTest "));
   }
 
 

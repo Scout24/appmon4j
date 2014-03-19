@@ -6,6 +6,7 @@ import de.is24.util.monitoring.Reportable;
 import de.is24.util.monitoring.ReportableObserver;
 import de.is24.util.monitoring.State;
 import de.is24.util.monitoring.StateValueProvider;
+import de.is24.util.monitoring.keyhandler.KeyDefinitionExpander;
 import de.is24.util.monitoring.tools.LocalHostNameResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,22 +34,12 @@ public class StateValuesToGraphite implements ReportableObserver {
                         GraphiteConnection graphiteClient) {
     this.graphiteClient = graphiteClient;
 
-    String keyPrefix = preparePrefix(appName, localHostNameResolver);
+    String keyPrefix = KeyDefinitionExpander.preparePrefix(appName, localHostNameResolver);
     stateValues = new ConcurrentHashMap<String, StateValueProvider>();
     multiValueProviders = new ConcurrentHashMap<String, MultiValueProvider>();
     InApplicationMonitor.getInstance().getCorePlugin().addReportableObserver(this);
     ex = Executors.newSingleThreadScheduledExecutor();
     ex.scheduleAtFixedRate(new ReportStateValuesJob(graphiteClient, keyPrefix), 1, 10, TimeUnit.SECONDS);
-  }
-
-  private String preparePrefix(String appName, LocalHostNameResolver localHostNameResolver) {
-    String result;
-    if (appName.contains("${hostname}")) {
-      result = appName.replaceAll("\\$\\{hostname\\}", localHostNameResolver.getLocalHostName());
-    } else {
-      result = appName + "." + localHostNameResolver.getLocalHostName() + ".states";
-    }
-    return result;
   }
 
 
@@ -139,4 +130,6 @@ public class StateValuesToGraphite implements ReportableObserver {
   public String toString() {
     return "StateValuesToGraphite:" + graphiteClient.toString();
   }
+
+
 }
