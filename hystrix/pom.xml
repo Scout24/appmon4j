@@ -4,7 +4,7 @@
   <groupId>de.is24.common</groupId>
   <artifactId>appmon4j-hystrix</artifactId>
   <packaging>jar</packaging>
-  <version>1.54-SNAPSHOT</version>
+  <version>1.54</version>
   <name>appmon4j-hystrix</name>
   <description>Hystrix adapter for appmon4j</description>
   <url>https://github.com/ImmobilienScout24/appmon4j</url>
@@ -12,7 +12,7 @@
   <parent>
     <groupId>de.is24.common</groupId>
     <artifactId>appmon4j</artifactId>
-    <version>1.54-SNAPSHOT</version>
+    <version>1.54</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -80,14 +80,14 @@
     <dependency>
       <groupId>de.is24.common</groupId>
       <artifactId>appmon4j-core</artifactId>
-      <version>1.54-SNAPSHOT</version>
+      <version>1.54</version>
     </dependency>
 
 
     <dependency>
       <groupId>de.is24.common</groupId>
       <artifactId>appmon4j-testutil</artifactId>
-      <version>1.54-SNAPSHOT</version>
+      <version>1.54</version>
       <scope>test</scope>
     </dependency>
     <dependency>
