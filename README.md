@@ -28,7 +28,7 @@ Just add the following maven dependency.
      <dependency>
        <groupId>de.is24.common</groupId>
        <artifactId>appmon4j-core</artifactId>
-       <version>1.49</version>
+       <version>1.58</version>
      </dependency>`
 
 
