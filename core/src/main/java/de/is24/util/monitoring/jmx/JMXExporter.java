@@ -101,7 +101,9 @@ public class JMXExporter implements MultiValueProvider {
           String attributeName = getBaseName(name);
           handleObject(attributeName, info.getName(), valueObject, result);
         } catch (Exception e) {
-          if ((e.getCause() != null) && e.getCause().getClass().equals(UnsupportedOperationException.class)) {
+          // Some special treatment if running in jsvc for https://issues.apache.org/jira/browse/DAEMON-120
+          // or for some attributes not supported by all JVM implementations, but still in the mbean
+          if (isUnsupportedOperation(e) || isJsvcSpecificProcSelfFdProblem(e)) {
             LOGGER.debug("ignoring unsupported numeric MBean Attribute {} {} {}", name, info);
           } else {
             LOGGER.info("Error accessing numeric MBean Attribute {} {} {}", name, info, e.getMessage());
@@ -109,6 +111,15 @@ public class JMXExporter implements MultiValueProvider {
         }
       }
     }
+  }
+
+  private boolean isJsvcSpecificProcSelfFdProblem(Exception e) {
+    String message = e.getMessage();
+    return (message != null) && message.contains("Unable to open directory /proc/self/fd");
+  }
+
+  private boolean isUnsupportedOperation(Exception e) {
+    return (e.getCause() != null) && e.getCause().getClass().equals(UnsupportedOperationException.class);
   }
 
   private void handleObject(String baseName, String path, Object valueObject, List<State> result) {
@@ -169,7 +180,8 @@ public class JMXExporter implements MultiValueProvider {
         }
       }
 
-      LOGGER.debug("searching for MBeans using {} patterns found {} matching Bean Infos", objectPatterns.size(),
+      LOGGER.debug("searching for MBeans using {} patterns found {} matching Bean Infos",
+        objectPatterns.size(),
         result.size());
       return result;
     } catch (Exception e) {
@@ -220,8 +232,10 @@ public class JMXExporter implements MultiValueProvider {
           try {
             addPattern(pattern);
           } catch (MalformedObjectNameException e) {
-            LOGGER.warn("Ignoring malformed ObjectName pattern while applying pattern {} from file {} {} ", pattern,
-              file.getAbsolutePath(), e.getMessage());
+            LOGGER.warn("Ignoring malformed ObjectName pattern while applying pattern {} from file {} {} ",
+              pattern,
+              file.getAbsolutePath(),
+              e.getMessage());
           }
         }
       }
