@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>appmon4j</artifactId>
+        <groupId>de.is24.common</groupId>
+        <version>1.59-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>appmon4j-metrics</artifactId>
+    <name>appmon4j-metrics</name>
+    <version>1.59-SNAPSHOT</version>
+    
+    <dependencies>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>de.is24.common</groupId>
+            <artifactId>appmon4j-core</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
+    </dependencies>
+</project>
