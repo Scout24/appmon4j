@@ -23,7 +23,7 @@ public class MetricsPlugin extends AbstractMonitorPlugin {
 
   @Override
   public void incrementCounter(String name, int increment) {
-    metricRegistry.counter(name).inc(increment);
+    metricRegistry.counter(withCountersPrefix(name)).inc(increment);
   }
 
   @Override
@@ -33,17 +33,17 @@ public class MetricsPlugin extends AbstractMonitorPlugin {
 
   @Override
   public void addTimerMeasurement(String name, long timing) {
-    metricRegistry.timer(name).update(timing, TimeUnit.MILLISECONDS);
+    metricRegistry.timer(withTimersPrefix(name)).update(timing, TimeUnit.MILLISECONDS);
   }
 
   @Override
   public void addSingleEventTimerMeasurement(String name, long timing) {
-    metricRegistry.timer(name).update(timing, TimeUnit.MILLISECONDS);
+    addTimerMeasurement(name, timing);
   }
 
   @Override
   public void addHighRateTimerMeasurement(String name, long timing) {
-    metricRegistry.timer(name).update(timing, TimeUnit.MILLISECONDS);
+    addTimerMeasurement(name, timing);
   }
 
   @Override
@@ -52,5 +52,13 @@ public class MetricsPlugin extends AbstractMonitorPlugin {
 
   @Override
   public void afterRemovalNotification() {
+  }
+
+  private String withTimersPrefix(String name) {
+    return "timers." + name;
+  }
+
+  private String withCountersPrefix(String name) {
+    return "counters." + name;
   }
 }
