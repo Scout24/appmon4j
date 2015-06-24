@@ -43,20 +43,16 @@ import java.util.concurrent.atomic.AtomicInteger;
  * and the subsequently returned <code>Connections</code>. The combination of
  * <code>MonitoringDataSource</code> and {@link MonitoringConnection} monitor
  * </p>
- * <ul>
- * <li>the number of requested database connections split into</li>
+ * the number of requested database connections split into
  * <ul>
  * <li>unpersonalised ({@link #getConnection()}) and</li>
  * <li>personalised connections {@link #getConnection(String, String)}</li>
- * </ul>
  * <li>the maximum number of connections used in parallel</li>
  * <li>the number of errors thrown when calling</li>
- * <ul>
- * <li>{@link java.sql.Connection#commit()}</li>
- * <li>{@link java.sql.Connection#rollback()}</li>
- * <li>{@link java.sql.Connection#rollback(java.sql.Savepoint)}</li>
  * </ul>
- * </ul>
+ * {@link java.sql.Connection#commit()}
+ * {@link java.sql.Connection#rollback()}
+ * {@link java.sql.Connection#rollback(java.sql.Savepoint)}
  * <p>
  * Additionally, the returned {@link java.sql.Statement}s are wrapped and attempt to log
  * the SQL being executed in case an exception is thrown.
@@ -167,7 +163,8 @@ public class MonitoringDataSource implements DataSource {
     for (String configEntry : configuration.split("[,]")) {
       String[] configEntryItems = configEntry.split("[:]");
       if (configEntryItems.length > 2) {
-        throw new IllegalArgumentException("The config entry [" + configEntry +
+        throw new IllegalArgumentException(
+          "The config entry [" + configEntry +
           "] contains more than one ':' and thus is invalid!");
       }
 
@@ -277,13 +274,16 @@ public class MonitoringDataSource implements DataSource {
    * @throws  java.sql.SQLException
    *          as a result of the delegation
    */
+  @Override
   public Connection getConnection() throws SQLException {
     return getConnection(
       new Callable<Connection>() {
+        @Override
         public Connection call() throws SQLException {
           return MonitoringDataSource.this.original.getConnection();
         }
-      }, ".getConnection");
+      },
+      ".getConnection");
   }
 
   /**
@@ -300,39 +300,49 @@ public class MonitoringDataSource implements DataSource {
    * @throws  java.sql.SQLException
    *          as a result of the delegation
    */
+  @Override
   public Connection getConnection(final String username, final String password) throws SQLException {
     return getConnection(
       new Callable<Connection>() {
+        @Override
         public Connection call() throws SQLException {
           return MonitoringDataSource.this.original.getConnection(username, password);
         }
-      }, ".getPersonalisedConnection");
+      },
+      ".getPersonalisedConnection");
   }
 
+  @Override
   public PrintWriter getLogWriter() throws SQLException {
     return this.original.getLogWriter();
   }
 
+  @Override
   public int getLoginTimeout() throws SQLException {
     return this.original.getLoginTimeout();
   }
 
+  @Override
   public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException {
     return this.original.getParentLogger();
   }
 
+  @Override
   public void setLogWriter(PrintWriter out) throws SQLException {
     this.original.setLogWriter(out);
   }
 
+  @Override
   public void setLoginTimeout(int seconds) throws SQLException {
     this.original.setLoginTimeout(seconds);
   }
 
+  @Override
   public boolean isWrapperFor(Class<?> iface) throws SQLException {
     return original.isWrapperFor(iface);
   }
 
+  @Override
   public <T> T unwrap(Class<T> iface) throws SQLException {
     return original.unwrap(iface);
   }
@@ -361,7 +371,8 @@ public class MonitoringDataSource implements DataSource {
 
     private Object wrapStatementWithSqlLoggingProxy(Statement statement, String sql) {
       Class<? extends Statement> clazz = statement.getClass();
-      Object proxiedStatement = Proxy.newProxyInstance(clazz.getClassLoader(), clazz.getInterfaces(),
+      Object proxiedStatement = Proxy.newProxyInstance(clazz.getClassLoader(),
+        clazz.getInterfaces(),
         new SqlLoggingInvocationHandler(MonitoringDataSource.this.loggingFilters, statement, sql));
       return proxiedStatement;
     }
@@ -392,6 +403,7 @@ public class MonitoringDataSource implements DataSource {
      * @throws  java.sql.SQLException
      *          as a result of the delegation
      */
+    @Override
     public void close() throws SQLException {
       try {
         this.original.close();
@@ -400,7 +412,8 @@ public class MonitoringDataSource implements DataSource {
         InApplicationMonitor.getInstance().incrementCounter(MonitoringDataSource.this.monitorBaseName + ".close");
         InApplicationMonitor.getInstance()
         .addTimerMeasurement(MonitoringDataSource.this.monitorBaseName + ".usage",
-          this.creationTime, System.currentTimeMillis());
+          this.creationTime,
+          System.currentTimeMillis());
       }
     }
 
@@ -410,6 +423,7 @@ public class MonitoringDataSource implements DataSource {
      * @throws  java.sql.SQLException
      *          as a result of the delegation
      */
+    @Override
     public void commit() throws SQLException {
       try {
         this.original.commit();
@@ -427,6 +441,7 @@ public class MonitoringDataSource implements DataSource {
      * @throws  java.sql.SQLException
      *          as a result of the delegation
      */
+    @Override
     public void rollback() throws SQLException {
       try {
         this.original.rollback();
@@ -444,6 +459,7 @@ public class MonitoringDataSource implements DataSource {
      * @throws  java.sql.SQLException
      *          as a result of the delegation
      */
+    @Override
     public void rollback(Savepoint savepoint) throws SQLException {
       try {
         this.original.rollback(savepoint);
@@ -455,215 +471,277 @@ public class MonitoringDataSource implements DataSource {
       }
     }
 
+    @Override
     public void clearWarnings() throws SQLException {
       this.original.clearWarnings();
     }
 
+    @Override
     public Statement createStatement() throws SQLException {
       return (Statement) wrapStatementWithSqlLoggingProxy(this.original.createStatement());
     }
 
+    @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability)
                               throws SQLException {
-      return (Statement) wrapStatementWithSqlLoggingProxy(this.original.createStatement(resultSetType,
+      return (Statement) wrapStatementWithSqlLoggingProxy(
+        this.original.createStatement(resultSetType,
           resultSetConcurrency, resultSetHoldability));
     }
 
+    @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {
-      return (Statement) wrapStatementWithSqlLoggingProxy(this.original.createStatement(resultSetType,
+      return (Statement) wrapStatementWithSqlLoggingProxy(
+        this.original.createStatement(resultSetType,
           resultSetConcurrency));
     }
 
+    @Override
     public boolean getAutoCommit() throws SQLException {
       return this.original.getAutoCommit();
     }
 
+    @Override
     public String getCatalog() throws SQLException {
       return this.original.getCatalog();
     }
 
+    @Override
     public int getHoldability() throws SQLException {
       return this.original.getHoldability();
     }
 
+    @Override
     public DatabaseMetaData getMetaData() throws SQLException {
       return this.original.getMetaData();
     }
 
+    @Override
     public int getTransactionIsolation() throws SQLException {
       return this.original.getTransactionIsolation();
     }
 
+    @Override
     public Map<String, Class<?>> getTypeMap() throws SQLException {
       return this.original.getTypeMap();
     }
 
+    @Override
     public SQLWarning getWarnings() throws SQLException {
       return this.original.getWarnings();
     }
 
+    @Override
     public boolean isClosed() throws SQLException {
       return this.original.isClosed();
     }
 
+    @Override
     public boolean isReadOnly() throws SQLException {
       return this.original.isReadOnly();
     }
 
+    @Override
     public String nativeSQL(String sql) throws SQLException {
       return this.original.nativeSQL(sql);
     }
 
+    @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency,
                                          int resultSetHoldability) throws SQLException {
-      return (CallableStatement) wrapStatementWithSqlLoggingProxy(this.original.prepareCall(sql, resultSetType,
-          resultSetConcurrency, resultSetHoldability), sql);
+      return (CallableStatement) wrapStatementWithSqlLoggingProxy(
+        this.original.prepareCall(sql, resultSetType,
+          resultSetConcurrency, resultSetHoldability),
+        sql);
     }
 
+    @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
-      return (CallableStatement) wrapStatementWithSqlLoggingProxy(this.original.prepareCall(sql, resultSetType,
-          resultSetConcurrency), sql);
+      return (CallableStatement) wrapStatementWithSqlLoggingProxy(
+        this.original.prepareCall(sql, resultSetType,
+          resultSetConcurrency),
+        sql);
     }
 
+    @Override
     public CallableStatement prepareCall(String sql) throws SQLException {
       return (CallableStatement) wrapStatementWithSqlLoggingProxy(this.original.prepareCall(sql), sql);
     }
 
+    @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency,
                                               int resultSetHoldability) throws SQLException {
-      return (PreparedStatement) wrapStatementWithSqlLoggingProxy(this.original.prepareStatement(sql, resultSetType,
-          resultSetConcurrency, resultSetHoldability), sql);
+      return (PreparedStatement) wrapStatementWithSqlLoggingProxy(
+        this.original.prepareStatement(sql, resultSetType,
+          resultSetConcurrency, resultSetHoldability),
+        sql);
     }
 
+    @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency)
                                        throws SQLException {
-      return (PreparedStatement) wrapStatementWithSqlLoggingProxy(this.original.prepareStatement(sql, resultSetType,
-          resultSetConcurrency), sql);
+      return (PreparedStatement) wrapStatementWithSqlLoggingProxy(
+        this.original.prepareStatement(sql, resultSetType,
+          resultSetConcurrency),
+        sql);
     }
 
+    @Override
     public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys) throws SQLException {
-      return (PreparedStatement) wrapStatementWithSqlLoggingProxy(this.original.prepareStatement(sql,
-          autoGeneratedKeys), sql);
+      return (PreparedStatement) wrapStatementWithSqlLoggingProxy(
+        this.original.prepareStatement(sql,
+          autoGeneratedKeys),
+        sql);
     }
 
+    @Override
     public PreparedStatement prepareStatement(String sql, int[] columnIndexes) throws SQLException {
       return (PreparedStatement) wrapStatementWithSqlLoggingProxy(this.original.prepareStatement(sql, columnIndexes),
         sql);
     }
 
+    @Override
     public PreparedStatement prepareStatement(String sql, String[] columnNames) throws SQLException {
       return (PreparedStatement) wrapStatementWithSqlLoggingProxy(this.original.prepareStatement(sql, columnNames),
         sql);
     }
 
+    @Override
     public PreparedStatement prepareStatement(String sql) throws SQLException {
       return (PreparedStatement) wrapStatementWithSqlLoggingProxy(this.original.prepareStatement(sql), sql);
     }
 
+    @Override
     public void releaseSavepoint(Savepoint savepoint) throws SQLException {
       this.original.releaseSavepoint(savepoint);
     }
 
+    @Override
     public void setAutoCommit(boolean autoCommit) throws SQLException {
       this.original.setAutoCommit(autoCommit);
     }
 
+    @Override
     public void setCatalog(String catalog) throws SQLException {
       this.original.setCatalog(catalog);
     }
 
+    @Override
     public void setHoldability(int holdability) throws SQLException {
       this.original.setHoldability(holdability);
     }
 
+    @Override
     public void setReadOnly(boolean readOnly) throws SQLException {
       this.original.setReadOnly(readOnly);
     }
 
+    @Override
     public Savepoint setSavepoint() throws SQLException {
       return this.original.setSavepoint();
     }
 
+    @Override
     public Savepoint setSavepoint(String name) throws SQLException {
       return this.original.setSavepoint(name);
     }
 
+    @Override
     public void setTransactionIsolation(int level) throws SQLException {
       this.original.setTransactionIsolation(level);
     }
 
+    @Override
     public void setTypeMap(Map<String, Class<?>> map) throws SQLException {
       this.original.setTypeMap(map);
     }
 
+    @Override
     public Array createArrayOf(String typeName, Object[] elements) throws SQLException {
       return original.createArrayOf(typeName, elements);
     }
 
+    @Override
     public Blob createBlob() throws SQLException {
       return original.createBlob();
     }
 
+    @Override
     public Clob createClob() throws SQLException {
       return original.createClob();
     }
 
+    @Override
     public NClob createNClob() throws SQLException {
       return original.createNClob();
     }
 
+    @Override
     public SQLXML createSQLXML() throws SQLException {
       return original.createSQLXML();
     }
 
+    @Override
     public Struct createStruct(String typeName, Object[] attributes) throws SQLException {
       return original.createStruct(typeName, attributes);
     }
 
+    @Override
     public void setSchema(String schema) throws SQLException {
       this.original.setSchema(schema);
     }
 
+    @Override
     public String getSchema() throws SQLException {
       return this.original.getSchema();
     }
 
+    @Override
     public void abort(Executor executor) throws SQLException {
       this.original.abort(executor);
     }
 
+    @Override
     public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
       this.original.setNetworkTimeout(executor, milliseconds);
     }
 
+    @Override
     public int getNetworkTimeout() throws SQLException {
       return this.original.getNetworkTimeout();
     }
 
+    @Override
     public Properties getClientInfo() throws SQLException {
       return original.getClientInfo();
     }
 
+    @Override
     public String getClientInfo(String name) throws SQLException {
       return original.getClientInfo(name);
     }
 
+    @Override
     public boolean isValid(int timeout) throws SQLException {
       return original.isValid(timeout);
     }
 
+    @Override
     public void setClientInfo(Properties properties) throws SQLClientInfoException {
       original.setClientInfo(properties);
     }
 
+    @Override
     public void setClientInfo(String name, String value) throws SQLClientInfoException {
       original.setClientInfo(name, value);
     }
 
+    @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
       return original.isWrapperFor(iface);
     }
 
+    @Override
     public <T> T unwrap(Class<T> iface) throws SQLException {
       return original.unwrap(iface);
     }

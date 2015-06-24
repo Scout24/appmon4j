@@ -29,11 +29,11 @@ import java.lang.reflect.Proxy;
  * final wrappedConnection = GenericMonitoringWrapper.wrapObject(Connection.class, connection);
  * </pre>
  *
- * Now, if you make method calls on the <code>wrappedConnection</code> object,
+ * <p>Now, if you make method calls on the <code>wrappedConnection</code> object,
  * each method invocation will be reported to the {@link de.is24.util.monitoring.InApplicationMonitor},
  * as the {@link InApplicationMonitorTimingReporter} is the default reporter to
  * use in case none is given.
- * </p>
+ * <p>
  *
  * @see de.is24.util.monitoring.InApplicationMonitor
  * @see java.lang.reflect.Proxy
@@ -85,7 +85,8 @@ public class GenericMonitoringWrapper<E> implements InvocationHandler {
    */
   @SuppressWarnings("unchecked")
   public static <E> E wrapObject(final Class<E> clazz, final Object target, final TimingReporter timingReporter) {
-    return (E) Proxy.newProxyInstance(GenericMonitoringWrapper.class.getClassLoader(), new Class[] { clazz },
+    return (E) Proxy.newProxyInstance(GenericMonitoringWrapper.class.getClassLoader(),
+      new Class[] { clazz },
       new GenericMonitoringWrapper<E>(clazz, target, timingReporter));
   }
 
@@ -113,6 +114,7 @@ public class GenericMonitoringWrapper<E> implements InvocationHandler {
    *
    * @see java.lang.reflect.InvocationHandler#invoke(Object, java.lang.reflect.Method, Object[])
    */
+  @Override
   public Object invoke(Object proxy, Method method, Object[] args) /* CSOFF: IllegalThrows */
                 throws Throwable /* CSON: IllegalThrows */ {
     final long startTime = System.currentTimeMillis();
@@ -152,6 +154,7 @@ public class GenericMonitoringWrapper<E> implements InvocationHandler {
    *
    */
   public static class InApplicationMonitorTimingReporter implements TimingReporter {
+    @Override
     public void reportTimedOperation(Class<?> targetClass, Method targetMethod, long startTime, long endTime) {
       InApplicationMonitor.getInstance()
       .addTimerMeasurement(targetClass.getName() + "." + targetMethod.getName(),

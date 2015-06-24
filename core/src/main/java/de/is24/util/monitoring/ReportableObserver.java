@@ -15,7 +15,7 @@ public interface ReportableObserver {
    *
    * It is guaranteed that this method is called at least once for each reportable in the InApplicationMonitor.
    *
-   * @param reportable
+   * @param reportable the reportable metric to process
    */
   void addNewReportable(Reportable reportable);
 

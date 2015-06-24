@@ -197,7 +197,7 @@ public class CorePlugin extends AbstractMonitorPlugin {
   /**
    * Allow disconnection of observers, mainly for testing
    *
-   * @param reportableObserver
+   * @param reportableObserver the observer to be removed
    */
   public void removeReportableObserver(final ReportableObserver reportableObserver) {
     reportableObservers.remove(reportableObserver);
@@ -227,6 +227,7 @@ public class CorePlugin extends AbstractMonitorPlugin {
   * @param   increment
   *          the added to add
   */
+  @Override
   public void incrementCounter(String name, int increment) {
     incrementInternalCounter(increment, name);
   }
@@ -244,6 +245,7 @@ public class CorePlugin extends AbstractMonitorPlugin {
   * Initialization of a counter.
   * @param name the name of the counter to be initialized
   */
+  @Override
   public void initializeCounter(String name) {
     getCounter(name).initialize();
   }
@@ -259,6 +261,7 @@ public class CorePlugin extends AbstractMonitorPlugin {
    * @param name name of the {@link de.is24.util.monitoring.Timer}
    * @param timing number of elapsed time units for a single measurement
    */
+  @Override
   public void addTimerMeasurement(String name, long timing) {
     getTimer(name).addMeasurement(timing);
   }
@@ -277,6 +280,7 @@ public class CorePlugin extends AbstractMonitorPlugin {
    * @param name name of the {@link de.is24.util.monitoring.Timer}
    * @param timing number of elapsed time units for a single measurement
    */
+  @Override
   public void addSingleEventTimerMeasurement(String name, long timing) {
     addTimerMeasurement(name, timing);
   }
@@ -295,6 +299,7 @@ public class CorePlugin extends AbstractMonitorPlugin {
    * @param name name of the {@link de.is24.util.monitoring.Timer}
    * @param timing number of elapsed time units for a single measurement
    */
+  @Override
   public void addHighRateTimerMeasurement(String name, long timing) {
     addTimerMeasurement(name, timing);
   }
@@ -304,6 +309,7 @@ public class CorePlugin extends AbstractMonitorPlugin {
    * Initialization of a TimerMeasurement
    * @param name the name of the timer to be initialized
    */
+  @Override
   public void initializeTimerMeasurement(String name) {
     getTimer(name).initializeMeasurement();
   }
@@ -319,7 +325,9 @@ public class CorePlugin extends AbstractMonitorPlugin {
     String name = keyHandler.handle(stateValueProvider.getName());
     StateValueProvider oldProvider = stateValues.put(name, stateValueProvider);
     if (oldProvider != null) {
-      LOGGER.warn("StateValueProvider [{}] @{} has been replaced by [{}]!", oldProvider, stateValueProvider.getName(),
+      LOGGER.warn("StateValueProvider [{}] @{} has been replaced by [{}]!",
+        oldProvider,
+        stateValueProvider.getName(),
         stateValueProvider);
     }
     notifyReportableObservers(stateValueProvider);
@@ -336,7 +344,9 @@ public class CorePlugin extends AbstractMonitorPlugin {
     String name = multiValueProvider.getName();
     MultiValueProvider oldProvider = multiValues.put(name, multiValueProvider);
     if (oldProvider != null) {
-      LOGGER.warn("MultiValueProvider [{}] @{} has been replaced by [{}]!", oldProvider, multiValueProvider.getName(),
+      LOGGER.warn("MultiValueProvider [{}] @{} has been replaced by [{}]!",
+        oldProvider,
+        multiValueProvider.getName(),
         multiValueProvider);
     }
     notifyReportableObservers(multiValueProvider);
@@ -359,6 +369,7 @@ public class CorePlugin extends AbstractMonitorPlugin {
   /**
    * add a {@link de.is24.util.monitoring.Historizable} instance to the list identified by historizable.getName()
    *
+   * @param name key of the historizbale metric
    * @param historizable the historizable to add
    */
   public void addHistorizable(String name, Historizable historizable) {
