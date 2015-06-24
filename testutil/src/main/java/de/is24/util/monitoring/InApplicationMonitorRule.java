@@ -5,7 +5,7 @@ import org.junit.runner.Description;
 
 
 /**
- * JUnit rule with which to safely set up, tear down & access an instance of {@link InApplicationMonitor}.
+ * JUnit rule with which to safely set up, tear down &amp; access an instance of {@link InApplicationMonitor}.
  *
  * @author <a href="mailto:sebastian.kirsch@immobilienscout24.de">Sebastian Kirsch</a>
  */
