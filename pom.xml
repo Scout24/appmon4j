@@ -42,7 +42,7 @@
   	<url>https://github.com/ImmobilienScout24/appmon4j/issues</url>
   </issueManagement>
   <scm>
-    <connection>scm:git:https://github.com/ImmobilienScout24/appmon4j.git</connection>
+    <connection>scm:git:git@github.com:ImmobilienScout24/appmon4j.git</connection>
     <developerConnection>scm:git:https://github.com/ImmobilienScout24/appmon4j.git</developerConnection>
     <url>https://github.com/ImmobilienScout24/appmon4j.git</url>
     <tag>HEAD</tag>
