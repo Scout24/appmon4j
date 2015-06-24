@@ -25,7 +25,6 @@ public class TestHelper {
   /**
    * initialize a fresh TestingInApplicationMonitor without JMX Plugin as global InApplicationMonitor instance.
    * This method is not safe to use during multithreaded tests
-   * @return the TestingInApplicationMonitor instance
    */
   public static void resetInstanceForTesting() {
     TestingInApplicationMonitor.resetInstanceForTesting();
