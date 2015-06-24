@@ -22,6 +22,7 @@
     <module>hystrix</module>
     <module>testutil</module>
     <module>integrationTest</module>
+    <module>metrics</module>
   </modules>
   
   <organization>
