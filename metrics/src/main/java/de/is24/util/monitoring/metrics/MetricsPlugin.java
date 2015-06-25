@@ -14,7 +14,7 @@ public class MetricsPlugin extends AbstractMonitorPlugin {
 
   @Override
   public String getUniqueName() {
-    return null;
+    return "MetricsPlugin";
   }
 
   @Override
