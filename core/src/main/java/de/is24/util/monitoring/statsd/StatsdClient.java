@@ -34,7 +34,9 @@ class StatsdClient {
 
   public void close() {
     LOG.info("closing StatsdClient connected to {}", socket.toString());
-    socket.close();
+    synchronized (socket) {
+      socket.close();
+    }
   }
 
   public boolean timing(String key, int value) {
@@ -130,7 +132,9 @@ class StatsdClient {
 
   private boolean doSend(String stat) {
     try {
-      socket.send(stat);
+      synchronized (socket) {
+        socket.send(stat);
+      }
       return true;
     } catch (IOException e) {
       LOG.error("Could not send stat " + stat + " to host " + socket, e);
