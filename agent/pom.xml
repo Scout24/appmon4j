@@ -171,23 +171,6 @@
                   </target>
                 </configuration>
               </execution>
-              <execution>
-                <id>upload-rpm</id>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-                <phase>deploy</phase>
-                <configuration>
-                  <target name="upload">
-                    <exec executable="repoclient">
-                      <arg value="uploadto" />
-                      <arg value="is24-dev" />
-                      <arg value="${project.build.directory}/is24-${project.artifactId}-${rpm.final.version}-${rpm.final.release}.noarch.rpm" />
-                      <arg value="--username=oschmitz" />
-                    </exec>
-                  </target>             
-                </configuration>
-              </execution>
             </executions>
             <dependencies>
               <dependency>
