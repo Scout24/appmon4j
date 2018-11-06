@@ -3,13 +3,13 @@
     <parent>
         <artifactId>appmon4j</artifactId>
         <groupId>de.is24.common</groupId>
-        <version>1.61-SNAPSHOT</version>
+        <version>1.61</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>appmon4j-metrics</artifactId>
     <name>appmon4j-metrics</name>
-    <version>1.61-SNAPSHOT</version>
+    <version>1.61</version>
     
     <dependencies>
         <dependency>
