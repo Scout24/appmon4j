@@ -4,7 +4,7 @@
   <groupId>de.is24.common</groupId>
   <artifactId>appmon4j-spring</artifactId>
   <packaging>jar</packaging>
-  <version>1.61</version>
+  <version>1.61-SNAPSHOT</version>
   <name>appmon4j-spring</name>
   <description>Appmon4j integration for spring framework</description>
   <url>https://github.com/ImmobilienScout24/appmon4j</url>
@@ -12,7 +12,7 @@
   <parent>
     <groupId>de.is24.common</groupId>
     <artifactId>appmon4j</artifactId>
-    <version>1.61</version>
+    <version>1.61-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -51,12 +51,12 @@
     <dependency>
       <groupId>de.is24.common</groupId>
       <artifactId>appmon4j-core</artifactId>
-      <version>1.61</version>
+      <version>1.61-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>de.is24.common</groupId>
       <artifactId>appmon4j-testutil</artifactId>
-      <version>1.61</version>
+      <version>1.61-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
