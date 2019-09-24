@@ -1,3 +1,11 @@
+DEPRECATED
+=========
+
+**This project is not any longer maintained.** Please consider using alternatives like: 
+* https://metrics.dropwizard.io/4.1.0/
+* https://micrometer.io/
+
+
 appmon4j  [![Build Status](https://travis-ci.org/ImmobilienScout24/appmon4j.png?branch=master)](https://travis-ci.org/ImmobilienScout24/appmon4j)
 ========
 
