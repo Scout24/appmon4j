@@ -1,0 +1,112 @@
+version: 2
+registries:
+  fast-maven:
+    type: maven-repository
+    url: 'https://fast.cloud.scout24.com/artifactory/releases'
+    username: ${{secrets.DEPENDABOT_FAST_USER}}
+    password: ${{secrets.DEPENDABOT_FAST_PASS}}
+updates:
+  ## from agent/pom.xml
+  - package-ecosystem: 'maven'
+    directory: '/agent'
+    registries:
+      - 'fast-maven'
+    schedule:
+      interval: 'weekly'
+    # limit amount of concurrent PRs or disable using 0
+    open-pull-requests-limit: 2
+    commit-message:
+      prefix: 'Java-maven'
+      prefix-development: "Java-maven dev"
+      include: 'scope'
+  ## from core/pom.xml
+  - package-ecosystem: 'maven'
+    directory: '/core'
+    registries:
+      - 'fast-maven'
+    schedule:
+      interval: 'weekly'
+    # limit amount of concurrent PRs or disable using 0
+    open-pull-requests-limit: 2
+    commit-message:
+      prefix: 'Java-maven'
+      prefix-development: "Java-maven dev"
+      include: 'scope'
+  ## from hystrix/pom.xml
+  - package-ecosystem: 'maven'
+    directory: '/hystrix'
+    registries:
+      - 'fast-maven'
+    schedule:
+      interval: 'weekly'
+    # limit amount of concurrent PRs or disable using 0
+    open-pull-requests-limit: 2
+    commit-message:
+      prefix: 'Java-maven'
+      prefix-development: "Java-maven dev"
+      include: 'scope'
+  ## from integrationTest/pom.xml
+  - package-ecosystem: 'maven'
+    directory: '/integrationTest'
+    registries:
+      - 'fast-maven'
+    schedule:
+      interval: 'weekly'
+    # limit amount of concurrent PRs or disable using 0
+    open-pull-requests-limit: 2
+    commit-message:
+      prefix: 'Java-maven'
+      prefix-development: "Java-maven dev"
+      include: 'scope'
+  ## from metrics/pom.xml
+  - package-ecosystem: 'maven'
+    directory: '/metrics'
+    registries:
+      - 'fast-maven'
+    schedule:
+      interval: 'weekly'
+    # limit amount of concurrent PRs or disable using 0
+    open-pull-requests-limit: 2
+    commit-message:
+      prefix: 'Java-maven'
+      prefix-development: "Java-maven dev"
+      include: 'scope'
+  ## from pom.xml
+  - package-ecosystem: 'maven'
+    directory: '/'
+    registries:
+      - 'fast-maven'
+    schedule:
+      interval: 'weekly'
+    # limit amount of concurrent PRs or disable using 0
+    open-pull-requests-limit: 2
+    commit-message:
+      prefix: 'Java-maven'
+      prefix-development: "Java-maven dev"
+      include: 'scope'
+  ## from spring/pom.xml
+  - package-ecosystem: 'maven'
+    directory: '/spring'
+    registries:
+      - 'fast-maven'
+    schedule:
+      interval: 'weekly'
+    # limit amount of concurrent PRs or disable using 0
+    open-pull-requests-limit: 2
+    commit-message:
+      prefix: 'Java-maven'
+      prefix-development: "Java-maven dev"
+      include: 'scope'
+  ## from testutil/pom.xml
+  - package-ecosystem: 'maven'
+    directory: '/testutil'
+    registries:
+      - 'fast-maven'
+    schedule:
+      interval: 'weekly'
+    # limit amount of concurrent PRs or disable using 0
+    open-pull-requests-limit: 2
+    commit-message:
+      prefix: 'Java-maven'
+      prefix-development: "Java-maven dev"
+      include: 'scope'
